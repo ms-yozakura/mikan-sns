@@ -1,0 +1,17 @@
+
+.satisfactionWrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 4;
+}
+
+.satisfactionWrapper .satisfactionStar {
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 15px;
+  color: var(--color-primary);
+  background-color: transparent;
+  border: none;
+}
+
+

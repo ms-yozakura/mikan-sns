@@ -1,0 +1,205 @@
+.postCard {
+  width: 100%;
+  max-width: 600px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.postCard:hover {
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-card);
+  transform: translateY(-1px);
+}
+
+/* ヘッダー */
+.postHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.avatarWrapper {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  font-size: 1.5rem;
+  user-select: none;
+}
+
+.postUserInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  width: 100%;
+}
+
+.nameContainer {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.postAuthor {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.postAuthor:hover {
+  text-decoration: underline;
+}
+
+.postUsername {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+}
+
+.postDate {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+/* 本文 */
+.postBody {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  margin-bottom: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  padding-left: 0.25rem;
+}
+
+.postBody p {
+  margin: 0;
+}
+
+/* フッター＆各種ボタン */
+.postFooter {
+  display: flex;
+  justify-content: space-between;
+  max-width: 24rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: transform 0.15s ease;
+}
+
+.actionCount {
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* ボタン個別のホバーエフェクト */
+.commentBtn:hover {
+  color: #0284c7;
+  background-color: #f0f9ff;
+}
+
+.likeBtn:hover {
+  color: #e11d48;
+  background-color: #fff1f2;
+}
+
+.likeBtn:hover .icon {
+  transform: scale(1.1);
+}
+
+.bookmarkBtn:hover {
+  color: var(--color-primary);
+  background-color: var(--color-surface);
+}
+
+.shareBtn:hover {
+  color: #16a34a;
+  background-color: #f0fdf4;
+}
+.imageArea{
+width:100%;
+display: flex;
+gap:2px;
+}
+.imageArea .image{
+  width:20%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border:1px solid var(--color-border)
+}
+
+.mikanList {
+  display: flex;
+  flex-direction:column;
+  gap: 5px;
+}
+
+.mikanTag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 3px 10px;
+
+  border-radius: 999px;
+  background: #fff5e8;
+  border: 1px dashed #ffd59a;
+
+  font-size: 13px;
+}
+
+.name {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.quantity {
+  color: var(--color-text-light);
+}
+
+.satisfaction {
+  color: var(--color-primary);
+  font-size: 15px;
+  line-height: 13px;
+}

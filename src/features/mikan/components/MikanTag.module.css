@@ -1,0 +1,35 @@
+.mikanTag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #fff5e8;
+  border: 1px dashed #ffd59a;
+  font-size: 13px;
+}
+
+.fileULWrapper {
+  margin-top: 10px;
+}
+
+.name {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.quantity {
+  color: var(--color-text-light);
+}
+
+.satisfaction {
+  color: var(--color-primary);
+  font-size: 15px;
+  line-height: 13px;
+}
+
+.name,
+.quantity,
+.satisfaction {
+  line-height: 2;
+}

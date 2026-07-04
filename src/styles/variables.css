@@ -1,0 +1,36 @@
+/*全体のテーマに係る各種変数を置く*/
+
+:root {
+  /* Colors */
+  --color-primary: #ff9812;
+  --color-primary-hover: #ea580c;
+  --color-primary-disabled: #aaa;
+
+  --color-background: #ffffff;
+  --color-surface: #fff7ed;
+
+  --color-text: #1f2937;
+  --color-text-light: #6b7280;
+
+  --color-border: #d1d5db;
+
+  --color-error: #ed4848;
+  --color-success: #16a34a;
+
+  --color-error-bg: #fef2f2;
+  --color-success-bg: #f0fdf4;
+
+  --color-white: #fff;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* Shadow */
+  --shadow-card: 0 2px 8px rgb(0 0 0 / 10%);
+  --shadow-floating: 0 4px 12px rgb(0 0 0 /20%);
+
+  /* Font */
+--font-base: "M PLUS Rounded 1c", "Noto Sans JP", sans-serif;
+}

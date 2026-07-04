@@ -1,0 +1,33 @@
+
+.button {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+
+  width: 60px;
+  height: 60px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: var(--color-primary);
+  color: var(--color-white);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+  cursor: pointer;
+
+  box-shadow: var(--shadow-floating);
+  transition: transform .2s;
+}
+
+.button:hover {
+  transform: scale(1.05);
+}
+
+.button:active {
+  transform: scale(.95);
+}

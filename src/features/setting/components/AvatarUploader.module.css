@@ -1,0 +1,70 @@
+/* AvatarUploader.module.css */
+.uploaderContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatarLabel {
+  position: relative;
+  cursor: pointer;
+  display: block;
+  height: 6rem; /* 96px */
+  width: 6rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background-color: #f1f5f9;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}
+
+.avatarImage {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.2s ease;
+}
+
+/* ホバーした時に画像をちょっと大きくする */
+.avatarLabel:hover .avatarImage {
+  transform: scale(1.05);
+}
+
+/* ホバー用オーバーレイ（初期状態は透明） */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.avatarLabel:hover .overlay {
+  opacity: 1;
+}
+
+.overlayText {
+  font-size: 11px;
+  font-weight: 500;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.infoContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoText {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0;
+}

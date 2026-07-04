@@ -1,0 +1,288 @@
+/* ==========================================
+   フォーム全体のコンテナ
+   ========================================== */
+.formContainer {
+  background-color: var(--color-surface);
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  border: 1px solid #ffedd5;
+  /* ほんのりみかん色の境界線 */
+  box-shadow: 0 4px 20px -2px rgba(249, 115, 22, 0.06);
+  max-width: 600px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-base);
+}
+
+/* 入力エリアのラッパー */
+.inputWrapper {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+/* テキストエリアのスタイリング */
+.textarea {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--color-surface);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  color: var(--color-text);
+  font-weight: 500;
+  line-height: 1.2;
+  resize: none;
+  box-sizing: border-box;
+  background-color: var(--color-white);
+  transition: all 0.2s ease;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-white);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.textarea:disabled {
+  background-color: #f3f4f6;
+  color: var(--color-text-light);
+  cursor: not-allowed;
+}
+
+
+/* ==========================================
+   みかん情報（品種・個数・満足度）の追加エリア
+   ========================================== */
+.varietyTitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  line-height: 20px;
+}
+
+.mikanSearchWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 16px;
+  background-color: var(--color-surface);
+  border-radius: var(--radius-md);
+  border: 1px dashed #ffeedb;
+}
+
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--color-primary-hover);
+}
+
+.form .row {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  padding-bottom: 10px;
+}
+
+.form .searchBox {
+  position: relative;
+  width: 100%;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-primary);
+  font-size: 20px;
+  pointer-events: none;
+}
+
+.mikanSearchWrapper .mikanSearchInput {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid var(--color-surface);
+  font-size: 13px;
+  padding: 5px;
+  padding-left: 2.5rem;
+  color: var(--color-text);
+  transition: 0.5px;
+  font-weight: 550;
+}
+
+.mikanSearchWrapper .mikanSearchInput:focus {
+  box-shadow: var(--shadow-card);
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: var(--color-white);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.varietyOption.selected {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
+}
+
+
+.mikanBox {
+  padding: 10px;
+  border-radius: 20px;
+  border: 1px dashed var(--color-primary);
+}
+
+/* 品種選択ボタン */
+.varietyOption {
+  background-color: var(--color-white);
+  border: 1px solid #fed7aa;
+  color: var(--color-primary-hover);
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.varietyOption:hover {
+  background-color: #ffedd5;
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+}
+
+.form .quantityInput {
+  width: 5rem;
+  height: 28px;
+  border-radius: 999px;
+  border: none;
+  padding-left: 1rem;
+}
+
+/* 選択中の品種表示テキスト */
+.mikaninfo p {
+  margin: 4px 0 0 0;
+  font-size: 14px;
+  color: var(--color-primary);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+}
+
+.fileULWrapper {
+  margin-top: 10px;
+}
+
+/* フッター */
+.formFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 16px;
+}
+
+/* エラーメッセージ */
+.errorMessage {
+  font-size: 13px;
+  color: var(--color-error);
+  font-weight: 500;
+  margin-right: auto;
+}
+
+/* 送信ボタン（みかんを投げる） */
+.submitButton {
+  padding: 10px 24px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.15);
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.submitButton:disabled {
+  background-color: #fed7aa;
+  /* 無効化時は薄いみかん色に */
+  color: rgba(255, 255, 255, 0.8);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* フッター */
+.formFooter {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid #f3f4f6;
+  padding-top: 16px;
+}
+
+/* エラーメッセージ */
+.errorMessage {
+  font-size: 13px;
+  color: var(--color-error);
+  font-weight: 500;
+  margin-right: auto;
+}
+
+/* 送信ボタン（みかんを投げる） */
+.submitButton {
+  padding: 10px 24px;
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.15);
+}
+
+.submitButton:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.submitButton:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+.submitButton:disabled {
+  background-color: var(--color-primary-disable);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.none {
+  display: none;
+}
+
+.submitButtonWrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.submitButton {
+  margin-left: auto;
+  right: 10px;
+}

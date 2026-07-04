@@ -1,0 +1,36 @@
+.home {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-surface);
+}
+
+.header {
+  position: sticky;
+  width: 100vw;
+  top: 0px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.feedArea {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.mobileStats {
+  display: none;
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  .mobileStats {
+    display: block;
+  }
+}

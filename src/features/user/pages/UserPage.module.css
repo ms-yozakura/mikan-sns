@@ -1,0 +1,281 @@
+/* app/user/[userid]/UserProfile.module.css */
+.container {
+  width: 100%;
+  min-height: 100vh;
+  font-family: sans-serif;
+  color: #0f172a;
+}
+
+.profileCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  margin-bottom: 30px;
+}
+
+/* カード上部の飾り用カバー背景 */
+.coverHeader {
+  height: 6rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, #4f46e5 100%);
+}
+
+.profileContent {
+  padding: 0 1.5rem 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 中央寄せ */
+  text-align: center;
+}
+
+/* アバターをカバーに少し被せるスタイル */
+.avatarWrapper {
+  position: relative;
+  margin-top: -3rem; /* 上に飛び出させる */
+  margin-bottom: 1rem;
+  height: 6rem; /* 96px */
+  width: 6rem;
+  border-radius: 50%;
+  border: 4px solid #ffffff; /* 白いフチをつけて立体感を出す */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  background-color: #f1f5f9;
+}
+
+.avatarImage {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.displayName {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 0 0 1.5rem 0;
+}
+
+.bioSection {
+  width: 100%;
+  text-align: left; /* 自己紹介テキストは左寄せで見やすく */
+  padding-top: 1.5rem;
+  border-top: 1px solid #f1f5f9;
+}
+
+.bioTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.5rem 0;
+}
+
+.bioText {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: #334155;
+  white-space: pre-wrap; /* 改行を有効にする */
+  margin: 0;
+}
+
+.bioPlaceholder {
+  font-size: 0.9375rem;
+  color: #94a3b8;
+  font-style: italic;
+  margin: 0;
+}
+
+/* ユーザーが見つからなかった時のスタイル */
+.notFoundCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.notFoundText {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 0;
+}
+
+/* --- 追加分スタイリング --- */
+
+/* アクションエリア */
+.actionContainer {
+  width: 100%;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.ownActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+/* ボタン共通 */
+.editButton, .followButton {
+  padding: 0.5rem 2rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  max-width: 200px;
+}
+
+/* 編集ボタン */
+.editButton {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+.editButton:hover {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* フォローボタン */
+.followButton {
+  background-color: var(--color-primary);
+  border: 1px solid transparent;
+  color: #ffffff;
+}
+.followButton:hover {
+  background-color: var(--color-primary-hover);
+}
+.followButton.following {
+  background-color: #e2e8f0;
+  color: #475569;
+}
+.followButton.following:hover {
+  background-color: #cbd5e1;
+}
+
+/* スイッチトグル (非表示投稿用) */
+.toggleContainer {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 0.5rem;
+  user-select: none;
+}
+
+.toggleInput {
+  opacity: 0;
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.toggleSlider {
+  position: relative;
+  width: 2.5rem;
+  height: 1.25rem;
+  background-color: #cbd5e1;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+
+.toggleSlider:before {
+  position: absolute;
+  content: "";
+  height: 1rem;
+  width: 1rem;
+  left: 0.125rem;
+  bottom: 0.125rem;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggleInput:checked + .toggleSlider {
+  background-color: var(--color-primary);
+}
+
+.toggleInput:checked + .toggleSlider:before {
+  transform: translateX(1.25rem);
+}
+
+.toggleLabel {
+  font-size: 0.8125rem;
+  color: var(--color-text-light);
+  font-weight: 500;
+}
+
+/* タブシステム */
+.tabsContainer {
+  width: 100%;
+}
+
+.tabList {
+  display: flex;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.tabButton {
+  flex: 1;
+  padding: 0.75rem 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-light);
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.tabButton:hover {
+  color: var(--color-text);
+}
+
+.tabButton.tabActive {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tabContent {
+  animation: fadeIn 0.3s ease;
+}
+
+/* 空白状態などの汎用スタイル */
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--color-text-light);
+  font-size: 0.9375rem;
+  background-color: #f8fafc;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--color-border);
+}
+
+.zukanContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.zukanHeader h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

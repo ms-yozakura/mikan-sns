@@ -1,0 +1,34 @@
+
+.button {
+  position: relative;
+  top: -10px;
+  left: -10px;
+
+  width: 60px;
+  height: 60px;
+
+  color: var(--color-text);
+
+  background-color: #fff0;
+
+  border:none;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 28px;
+  cursor: pointer;
+
+  transition: transform .2s;
+  z-index: 20;
+}
+
+.button:hover {
+  transform: scale(1.2);
+}
+
+.button:active {
+  transform: scale(.90);
+}
+

@@ -1,0 +1,44 @@
+.shell {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(70px, 240px) minmax(400px, 600px) minmax(180px, 280px);
+  column-gap: 28px;
+  justify-content: center;
+  align-items: start;
+  background-color: var(--color-surface);
+  padding: 0 24px;
+}
+
+.mainColumn {
+  width: 100%;
+  min-height: 100vh;
+  padding: 30px 0;
+}
+
+.statsRail {
+  width: 100%;
+  position: sticky;
+  top: 24px;
+  padding-top: 30px;
+}
+
+
+
+@media (max-width: 800px) {
+  .shell {
+    display: block;
+    padding: 0;
+  }
+
+  .mainColumn {
+    width: min(90%, 600px);
+    min-height: calc(100vh - 64px);
+    margin: 0 auto;
+    padding: 24px 0;
+  }
+
+  .statsRail {
+    display: none;
+  }
+}
