@@ -1,5 +1,5 @@
 
-# Mikan SNS
+# Mikan SNS（仮）
 
 東京大学みかん愛好会向けのSNS
 
@@ -13,7 +13,7 @@
 
 ## 技術スタック
 
-### Frontend
+### Frontend+
 
 - Next.js
 - React
@@ -36,22 +36,40 @@
 ## 現在実装済み
 
 ### 認証
+Auth: Supabase Authentication
+DB: public.users
 
 - ユーザー登録
 - ログイン
 - ログアウト
-- Supabase Authentication
 
 ### ユーザー
+DB: public.users, public.profiles
 
-- username重複チェック
+- ユーザーID（users.username）重複チェック
 - バリデーション
+- ユーザー情報・プロフィール取得
+- プロフィール変更
 
 ### 投稿
 
 - 投稿作成
-- 投稿一覧取得
+- 投稿取得
 - 投稿カード表示
+
+### フィード
+
+- 投稿一覧取得
+- 無限フィード実装
+
+### 検索
+
+- 投稿検索
+- ユーザーネーム・ユーザーID検索
+
+### 統計
+
+- 統計カード/カラム表示（/home）
 
 ### UI
 
