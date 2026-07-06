@@ -3,14 +3,14 @@
 
 ## アーキテクチャ
 
-このドキュメントでは、MikanSNSの設計方針とディレクトリ構成について説明します。
+このドキュメントでは、MikanSNS内のNext.js部分について、の設計方針とディレクトリ構成を説明します。
 
 ---
 
 ## 設計方針
 
-MikanSNSでは、Feature（機能）ごとにコードを分割する Feature-based Architecture を採用しています。
-具体的には、投稿関連/認証関連/ユーザー関連...など機能ごとに分割したフォルダの中に、データを扱う関数やそれらを表示するコンポーネント（部品）の設計図を置きます。
+MikanSNSでは、Feature（機能）ごとにコードを分割する Feature-based Architecture を採用しています。  
+具体的には、投稿関連/認証関連/ユーザー関連...など機能ごとに分割したフォルダの中に、データを扱う関数やそれらを表示するコンポーネント（部品）の設計図を置きます。  
 
 `例`
 
@@ -33,12 +33,11 @@ root/
 - ファイルの依存/参照関係がまとまるので保守性が高い
 - 機能追加や機能ごとの役割分担を容易にする（チーム内での衝突を避けやすい）
 
-
 ---
 
 ## ディレクトリ構成
 
-大まかなディレクトリ構成は以下の通り。
+大まかなディレクトリ構成は以下の通り。  
 
 ```text
 src/
@@ -71,8 +70,8 @@ src/
 └── middleware.ts       # 認証・リダイレクトなどのミドルウェア
 ```
 
-なおApp Router等Nextについては[こちら](next.md)を参照
-Supabaseについては[こちら](supabase.md)を参照
+なおApp Router等Nextについては[こちら](next.md)を参照  
+Supabaseについては[こちら](supabase.md)を参照  
 
 ---
 
@@ -80,14 +79,14 @@ Supabaseについては[こちら](supabase.md)を参照
 
 ### app/
 
-Next.js [App Router](next.md)の部分
+Next.js [App Router](next.md)の部分  
 
 - page.tsx
 - layout.tsx
 - route.ts
 
-などルーティングを管理する。
-ここは基本ルーティングの管理設計+αにとどめ、画面固有の処理はfeaturesに移譲する。
+などルーティングを管理する。  
+ここは基本ルーティングの管理設計+αにとどめ、画面固有の処理はfeaturesに移譲する。  
 
 ---
 
@@ -119,8 +118,8 @@ Next.js [App Router](next.md)の部分
 
 ### shared/
 
-複数Featureから利用する基本コードを配置する。
-現状では/shared/uiの中に、基本部品（ボタンやローディングマーク、モーダルなど）が入れてある。
+複数Featureから利用する基本コードを配置する。  
+現状では/shared/uiの中に、基本部品（ボタンやローディングマーク、モーダルなど）が入れてある。  
 本当はfeaturesの中にもsharedに入れるべきのが色々とあるかもだけど対応できていない()
 
 ---
@@ -136,7 +135,7 @@ features/(機能)/
 - papes/          コンポネントを組んだページ設計図
 - utils/          関数
 
-sharedに入れるかfeaturesに入れるべきか悩むものはfeaturesに入れておいてもいいと思っている。
+sharedに入れるかfeaturesに入れるべきか悩むものはfeaturesに入れておいてもいいと思っている。  
 sharedがごちゃごちゃしてしまうとfeature-basedの旨味が減っていくので。
 
 
@@ -150,8 +149,8 @@ sharedがごちゃごちゃしてしまうとfeature-basedの旨味が減って�
 - 再利用できる単位で分割する
 - Propsでデータを受け渡す
 
-というところ。
-ただこれは理想であって、実際は切り分けて再構成していくのはなかなか骨が折れる...
+というところ。  
+ただこれは理想であって、実際は切り分けて再構成していくのはなかなか骨が折れる...  
 
 ので、まあ一旦は大まかに作って、それからリファクタリングをしていく過程をたどるのでいいかなと思っている。ここは自分も積極的にやるので。
 
@@ -159,26 +158,26 @@ sharedがごちゃごちゃしてしまうとfeature-basedの旨味が減って�
 
 ## 命名規則
 
-- コンポーネント  : PascalCase
+- コンポーネント  : PascalCase  
   例: PostCard.tsx, FloatingActionButton.module.css  等
 
 
-- Hook            : useXXXX
+- Hook            : useXXXX  
   例：useFeed.ts, useInfiniteFeed.ts  等
 
-- 関数や変数      : camelCase
+- 関数や変数      : camelCase  
   例：createPost(), updateProfile(), formData  等
 
-- 型定義          : PascalCase
+- 型定義          : PascalCase  
   例；State, FormData 等
 
-- cssクラス名     : camelCase
+- cssクラス名     : camelCase  
   例：inputTitle, previewContainer 等
 
-- データベース上  : snake_case
+- データベース上  : snake_case  
   例：created_at, user_id, mikan_varieties  等
 
-...など
+...など  
 まあほかも基本は既存のコード見て合わせてほしい...が、なるべくでいいです
 
 ---

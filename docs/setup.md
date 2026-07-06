@@ -9,17 +9,17 @@
 - npm（Node.jsに付属）
 - お好みのコードエディタ(VSCodeなど)
 
-また、管理者に言ってGitHub共同編集者に招待してもらってください。
-怪しい人は通さないよ。
+また、管理者に言ってGitHub共同編集者に招待してもらってください。  
+怪しい人は通さないよ。  
 
 ---
 
 ## リポジトリを取得
 
-GitHubからリポジトリをCloneする
-以下のコマンドを順に実行するとではホームディレクトリ以下の
-    ~/Developer/mikan-sns
-内にコード群がダウンロードされます
+GitHubからリポジトリをCloneする  
+以下のコマンドを順に実行するとではホームディレクトリ以下の  
+    ~/Developer/mikan-sns  
+内にコード群がダウンロードされます  
 
 ```bash
 mkdir ~/Developer && cd Developer 
@@ -30,7 +30,8 @@ cd mikan-sns
 ---
 
 ## パッケージをインストール
-nodeパッケージをダウンロードする。
+
+nodeパッケージをダウンロードする。  
 これによって今回のアプリを作るのに必要な外部ライブラリ等のコード群を取得します。
 
 ```bash
@@ -48,7 +49,7 @@ cd ~/Developer/mikan-sns
 touch .env.local
 ```
 
-このファイル内に環境変数を書き込む。
+このファイル内に環境変数を書き込む。  
 これはSupabaseへの接続に必要な ①Supabaseの住所 と ②秘密の暗号 になります。
 
 ```text
@@ -56,7 +57,7 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
-値は管理者から共有されたものを使用すること
+値は管理者から共有されたものを使用すること  
 怪しい人には渡さないよ。
 
 ---
@@ -73,7 +74,7 @@ npm run dev
 
 [http://localhost:3000](http://localhost:3000)
 
-へアクセスすると起動できます。
+へアクセスすると起動できます。  
 （3001番とかになってる時もあるのでターミナルの出力ををよく見ましょう）
 
 ---
@@ -91,6 +92,8 @@ npm run dev
 ```bash
 npm run lint
 ```
+
+ごめんなさいあんまり確認してないので現状lint通らないです
 
 ### Build
 
