@@ -37,10 +37,9 @@
   color: #777;
   text-decoration: none;
   padding: 5px;
-  margin: 10px;
+  margin: clamp(2px, 1vw, 12px);
   border-radius: 10px;
-
-  font-size: 12px;
+  font-size: clamp(4px, 3vw, 12px);
 }
 
 
@@ -50,13 +49,14 @@
 }
 
 
-.profileTip{
+.profileTip {
   display: flex;
   flex-direction: row;
   background-color: var(--color-white);
   padding: 3px;
   border-radius: 999px;
 }
+
 .avatarWrapper {
   width: 2.75rem;
   height: 2.75rem;
@@ -76,7 +76,7 @@
   object-fit: cover;
 }
 
-.logoutLink{
+.logoutLink {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -102,3 +102,10 @@
   width: 1.3rem;
   height: 1.3rem;
 }
+
+@media (max-width: 500px) {
+  .logo{
+    display: none;
+  }
+}
+
