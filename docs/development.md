@@ -6,15 +6,14 @@
 
 ## 開発技術
 
-大まかな技術構成はREADMEにも載せた。
-
+大まかな技術構成はREADMEにも載せました。  
 実際の開発での各技術の立ち位置は以下の通り
 
 - Next.js                    ：一番の大枠になるワークフレーム。
 
   - React                    ：Nextに内包されているUI（画面構成）構築のためのライブラリ。
 
-  - TypaScript(言語)         ：Nextアプリを記述するための言語。JavaScriptの上位互換。
+  - TypaScript(言語)         ：Nextアプリを記述するための言語。
     - .tsx                   ：TypeSctiptと、HTMLのようなUI記述の構文を組み合わせた主にReact特有のファイル形式
     - .ts                    ：純粋なTypeScript。UIを生成しない処理に使う。
 

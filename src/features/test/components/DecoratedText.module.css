@@ -1,0 +1,13 @@
+
+.textWrapper{
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px dashed var(--color-primary); /* src/stylesの中にある変数で色を呼び出しています */
+  border-radius: 10px;
+}
+
+.highlight{
+  background-color: var(--color-primary);
+  padding-top: 4px;
+  padding-bottom: 4px;
+}

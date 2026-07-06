@@ -1,0 +1,9 @@
+.citeWrapper {
+  color: #333;          /*文字色をグレーに*/
+  margin: 5px;          /*要素の外側に余白を*/
+  padding: 6px;         /*要素の内側に余白を*/
+  margin-left: 0.3rem;
+  border-left: 3px gray solid; /*左側のみに幅3px,グレー,実線の枠線*/
+  padding-left: 1rem;
+  background-color: #ddd; /*背景色を薄いグレーに*/
+}
