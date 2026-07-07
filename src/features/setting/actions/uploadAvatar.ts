@@ -3,7 +3,10 @@
 import sharp from "sharp"
 import { createClient } from "@/infrastructure/supabase/server"
 
-export async function uploadAvatar(file: File) {
+export async function uploadAvatar(formData: FormData) {
+  const file = formData.get("file") as File
+  if (!file) throw new Error("No file provided")
+
   const supabase = await createClient()
 
   const {
@@ -14,9 +17,12 @@ export async function uploadAvatar(file: File) {
 
   // File → Buffer
   const arrayBuffer = await file.arrayBuffer()
+  const uint8Array = new Uint8Array(arrayBuffer)
+
+  sharp.cache(false) // 対策1も併用
 
   // 512x512 WebPへ変換
-  const buffer = await sharp(Buffer.from(arrayBuffer))
+  const buffer = await sharp(uint8Array)
     .rotate()
     .resize(216, 216, {
       fit: "cover",
