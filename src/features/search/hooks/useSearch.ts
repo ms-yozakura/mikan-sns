@@ -7,7 +7,6 @@ import { escapeSearchTerm, updateSearchUrl } from "../utils/searchUtils"
 
 
 const RESULT_LIMIT = 20
-const DEBOUNCE_MS = 1000
 
 
 const emptyResults: SearchResults = {

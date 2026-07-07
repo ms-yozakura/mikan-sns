@@ -1,26 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useEffect } from "react"
 
-import { Feed, type FeedPost } from "@/features/home/components/Feed"
+import { Feed } from "@/features/home/components/Feed"
 import { HomeStatsSummary } from "@/features/stats/components/HomeStatsSummary"
-import { createClient } from "@/infrastructure/supabase/client"
 import styles from "./SearchPage.module.css"
-import Button from "@/shared/ui/Button"
-import { Icon } from "@iconify/react"
-import { SearchPageProps, SearchResults, SearchUser } from "../types/types"
-import { a } from "motion/react-client"
+import { SearchPageProps } from "../types/types"
 import { useSearch } from "../hooks/useSearch"
 import { SearchForm } from "../components/SearchForm"
 
-const RESULT_LIMIT = 20
 const DEBOUNCE_MS = 1000
-
-const emptyResults: SearchResults = {
-  posts: [],
-  users: [],
-}
 
 export function SearchPage({ query = "" }: SearchPageProps) {
   const {
@@ -37,19 +27,13 @@ export function SearchPage({ query = "" }: SearchPageProps) {
   const hasPosts = results.posts.length > 0
   const hasUsers = results.users.length > 0
 
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    void runSearch(inputValue)
-  }
-
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void runSearch(inputValue)
     }, DEBOUNCE_MS)
 
     return () => window.clearTimeout(timer)
-  }, [runSearch])
+  }, [inputValue, runSearch])
 
   useEffect(() => {
     function handlePopState() {
@@ -60,7 +44,7 @@ export function SearchPage({ query = "" }: SearchPageProps) {
     window.addEventListener("popstate", handlePopState)
 
     return () => window.removeEventListener("popstate", handlePopState)
-  }, [])
+  }, [setInputValue])
 
   return (
     <main className={styles.search}>
@@ -85,7 +69,7 @@ export function SearchPage({ query = "" }: SearchPageProps) {
 
       {hasQuery && (
         <div className={styles.results}>
-          <div className={styles.messageLight}>"{searchedQuery}"の検索結果</div>
+          <div className={styles.messageLight}>「{searchedQuery}」の検索結果</div>
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
               <h2 className={styles.sectionTitle}>ユーザー</h2>

@@ -1,4 +1,5 @@
-import { Icon } from "@iconify/react";
+import { FormEvent } from "react"
+import { Icon } from "@iconify/react"
 
 import styles from "./SearchForm.module.css"
 
@@ -11,8 +12,13 @@ type SearchFormProps = {
 export function SearchForm({
   value, onChange, onSubmit
 }: SearchFormProps) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    void onSubmit(value)
+  }
+
   return (
-    <form className={styles.form} onSubmit={() => onSubmit}>
+    <form className={styles.form} onSubmit={handleSubmit}>
       <Icon
         icon="mdi:magnify"
         className={styles.searchIcon}
