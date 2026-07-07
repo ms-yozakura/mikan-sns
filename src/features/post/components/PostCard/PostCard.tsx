@@ -20,8 +20,6 @@ export function PostCard({ post }: { post: any }) {
   // ユーザーのプロフィール画像URL（なければデフォルト）
   const avatarUrl = post.users?.avatar_url || null
 
-  console.log(post)
-
   return (
     <article
       className={styles.postCard}

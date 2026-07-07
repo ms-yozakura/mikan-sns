@@ -33,10 +33,9 @@ export async function getPost(postId: string) {
     .eq('id', postId)
     .maybeSingle()
 
-  console.log(data)
 
   if (error) {
-    console.log('GET FEED ERROR:', error)
+    console.error('GET FEED ERROR:', error)
     throw new Error(error.message)
   }
 

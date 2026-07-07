@@ -1,0 +1,36 @@
+
+.form {
+  display: flex;
+  gap: 10px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-primary);
+  font-size: 20px;
+  pointer-events: none;
+  z-index: 50;
+}
+
+
+.input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-text);
+  background: var(--color-background);
+  font: inherit;
+  padding: 11px;
+  padding-left: 38px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgb(255 152 18 / 16%);
+}
+

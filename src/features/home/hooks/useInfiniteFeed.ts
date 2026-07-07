@@ -51,7 +51,6 @@ export function useInfiniteFeed(initialPosts: any[]) {
     if (next.length < 10) setHasMore(false) 
 
     setLoading(false)
-    console.log("now, there are " + posts.length + " posts")
   }
 
 

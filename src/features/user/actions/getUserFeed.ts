@@ -4,7 +4,6 @@ import { createClient } from '@/infrastructure/supabase/server'
 
 export async function getUserFeed({ username }: { username: string }) {
   const supabase = await createClient()
-  console.log("getUserFeed")
 
   const { data: profile } = await supabase
     .from("users")
@@ -53,10 +52,8 @@ export async function getUserFeed({ username }: { username: string }) {
     .order('created_at', { ascending: false })
     .limit(10)
 
-  //console.log(posts)
-
   if (error) {
-    console.log('GET FEED ERROR:', error)
+    console.error('GET FEED ERROR:', error)
     throw new Error(error.message)
   }
 
