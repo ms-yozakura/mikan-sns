@@ -1,5 +1,5 @@
 .popup {
-  position: absolute;
+  position: fixed;
 
   display: flex;
   flex-direction: column;
@@ -23,8 +23,13 @@
 }
 
 .ItemButton {
-  background-color: transparent;
+  display: block;
+  width: 100%;
+  padding: 3px 10px;
+  background: transparent;
   border: none;
+  text-align: left;
+  white-space: nowrap;
 }
 
 .ItemWrapper:hover {

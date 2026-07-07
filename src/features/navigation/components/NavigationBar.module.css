@@ -76,36 +76,29 @@
   object-fit: cover;
 }
 
-.logoutLink {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-
-.logoutButton {
-  width: 2.75rem;
-  height: 2.75rem;
-  font-size: 0.8rem;
-  padding: 0.5rem 1rem;
-  color: var(--color-text);
-  border: none;
-  border-radius: 999px;
-  cursor: pointer;
-  text-align: center;
+.popupMenuItem {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+
+  font-size: 0.8rem;
+  line-height: 1.2rem;
 }
 
-.logoutIcon {
-  width: 1.3rem;
-  height: 1.3rem;
+.icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  display: block;
+  flex-shrink: 0;
 }
+
+.logout {
+  color: var(--color-error);
+}
+
 
 @media (max-width: 500px) {
-  .logo{
+  .logo {
     display: none;
   }
 }
-

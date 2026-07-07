@@ -1,12 +1,12 @@
 'use client'
 
 import React, { createContext, useContext, useState, ReactNode, } from 'react'
-import { PopupMenu } from '@/shared/ui/PopupMenu'
+import { Placement, PopupMenu } from '@/shared/ui/PopupMenu'
 
 
 
 type PopupMenuContextType = {
-  openPopupMenu: (event: React.MouseEvent<HTMLElement>, children: React.ReactNode) => void
+  openPopupMenu: (event: React.MouseEvent<HTMLElement>, placement: Placement, children: React.ReactNode) => void
   closePopupMenu: () => void
   popupMenuOpen: boolean
 }
@@ -22,16 +22,18 @@ export function PopupMenuProvider({
 
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   const [content, setContent] = useState<ReactNode>(null)
-
+  const [placement, setPlacement] = useState<Placement>("bottom-start")
   const [popupMenuOpen, setPopupMenuOpen] = useState<boolean>(false)
 
   const openPopupMenu = (
     event: React.MouseEvent<HTMLElement>,
+    placement: Placement,
     children: React.ReactNode
   ) => {
     setAnchor(event.currentTarget)
     setContent(children)
     setPopupMenuOpen(true)
+    setPlacement(placement)
   }
 
   function closePopupMenu() {
@@ -43,11 +45,12 @@ export function PopupMenuProvider({
 
 
   return (
-    <PopupMenuContext.Provider value={{ openPopupMenu, closePopupMenu, popupMenuOpen}}>
+    <PopupMenuContext.Provider value={{ openPopupMenu, closePopupMenu, popupMenuOpen }}>
       {children}
       <PopupMenu
         anchor={anchor}
         open={anchor !== null}
+        placement={placement}
         onClose={closePopupMenu}
       >
         {content}

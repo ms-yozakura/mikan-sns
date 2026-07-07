@@ -12,7 +12,7 @@ export const navigationItems = [
     icon: "weui:search-outlined",
   },
   {
-    label: "Notifications",
+    label: "Inbox",
     href: "/notifications",
     icon: "mdi:bell",
   },

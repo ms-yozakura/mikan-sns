@@ -1,51 +1,108 @@
+'use client'
+
+import { useEffect, useState, ReactNode } from "react"
 import { usePopupMenu } from "@/providers/PopupMenuProvider"
-import { ReactNode } from "react"
 import styles from "./PopupMenu.module.css"
 
 type PopupMenuComponent = (props: PopupMenuProps) => React.JSX.Element
+
+export type Placement =
+  | "bottom-start"
+  | "bottom-end"
+  | "top-start"
+  | "top-end"
 
 type PopupMenuProps = {
   anchor: HTMLElement | null
   open: boolean
   onClose: () => void
+  placement: Placement
   children: React.ReactNode
 }
-
-
 
 const PopupMenu = (({
   anchor,
   open,
   onClose,
+  placement,
   children,
 }: PopupMenuProps) => {
 
-  if (anchor == null) return null
+  const [style, setStyle] = useState<React.CSSProperties>({})
 
-  const rect = anchor.getBoundingClientRect()
+  useEffect(() => {
+    if (!open || !anchor) return
+
+    const updatePosition = () => {
+      const rect = anchor.getBoundingClientRect()
+
+      switch (placement) {
+        case "bottom-start":
+          setStyle({
+            top: rect.bottom,
+            left: rect.left,
+          })
+          break
+
+        case "bottom-end":
+          setStyle({
+            top: rect.bottom,
+            left: rect.right,
+            transform: "translateX(-100%)",
+          })
+          break
+
+        case "top-start":
+          setStyle({
+            top: rect.top,
+            left: rect.left,
+            transform: "translateY(-100%)",
+          })
+          break
+
+        case "top-end":
+          setStyle({
+            top: rect.top,
+            left: rect.right,
+            transform: "translate(-100%, -100%)",
+          })
+          break
+      }
+    }
+
+    updatePosition()
+
+    window.addEventListener("scroll", updatePosition, true)
+    window.addEventListener("resize", updatePosition)
+
+    return () => {
+      window.removeEventListener("scroll", updatePosition, true)
+      window.removeEventListener("resize", updatePosition)
+    }
+
+  }, [anchor, open, placement])
+
+  if (!open || !anchor) return null
 
   return (
     <>
-      {open && (
-        <>
-          <div
-            className={styles.overlay}
-            onClick={onClose}
-          ></div>
-          <div className={styles.popup} style={{
-            top: rect.bottom + window.scrollY,
-            left: rect.left + window.scrollX,
-          }}>
-            {children}
-          </div>
-        </>
-      )}
+      <div
+        className={styles.overlay}
+        onClick={onClose}
+      />
+
+      <div
+        className={styles.popup}
+        style={style}
+      >
+        {children}
+      </div>
     </>
   )
+
 }) as PopupMenuComponent & {
   Item: typeof PopupMenuItem
 }
-
 
 
 function PopupMenuItem({
