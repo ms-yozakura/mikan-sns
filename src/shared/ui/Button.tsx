@@ -18,7 +18,7 @@ type ButtonProps = {
   disabled?: boolean
   size?: 's' | 'sm' | 'm' | 'ml' | 'l'
   className?: string
-  onClick?: () => void
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
 }
 
 export default function Button({
