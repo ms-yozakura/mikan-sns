@@ -4,6 +4,7 @@ import '@/styles/variables.css'
 import '@/styles/globals.css'
 
 import { ModalProvider } from "@/providers/ModalProvider"
+import { PopupMenuProvider } from '@/providers/PopupMenuProvider'
 
 
 export default function RootLayout({
@@ -15,9 +16,11 @@ export default function RootLayout({
     <html lang="ja">
       <body>
         <ModalProvider>
-          {children}
+          <PopupMenuProvider>
+            {children}
+          </PopupMenuProvider>
         </ModalProvider>
       </body>
-    </html>
+    </html >
   )
 }
