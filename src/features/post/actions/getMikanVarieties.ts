@@ -12,8 +12,6 @@ export async function getMikanVarieties() {
     .select("id,name,color,shape")
     .order("name")
 
-  console.log(data)
-
   if (error) throw error
 
   return data
