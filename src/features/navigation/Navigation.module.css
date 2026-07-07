@@ -1,8 +1,5 @@
 .mobile {
-  position: sticky;
-  display: block;
-  top: 0;
-  z-index: 100;
+  display: contents;
 }
 
 .desktop {
@@ -30,8 +27,13 @@
 
 @media (max-width: 1100px) {
   .navigation {
-    position: sticky;
     top: 0;
     width: 100%;
+  }
+}
+
+@media (max-width: 800px) {
+  .navigation {
+    display: contents;
   }
 }

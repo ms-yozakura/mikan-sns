@@ -22,7 +22,6 @@ export function NavigationBar({ profile }: { profile: NavigationProfile }) {
   const router = useRouter()
 
   return (
-    <>
       <nav className={styles.container}>
 
         <div className={styles.logoSpace}>
@@ -83,6 +82,5 @@ export function NavigationBar({ profile }: { profile: NavigationProfile }) {
 
 
       </nav>
-    </>
   )
 }
