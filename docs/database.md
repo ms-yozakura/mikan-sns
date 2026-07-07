@@ -20,10 +20,159 @@
 
 - mikan_varieties    ：みかんの種類と情報
 
-
 ## 今後追加予定
 
 - likes              ：投稿へのリアクション
 - follows            ：フォロー関係
 - notifications      ：通知
 など
+
+---
+
+## 構造
+
+### users
+
+ユーザーの基本情報
+
+| Column | Type | Description |
+|---------|------|-------------|
+| id | UUID | ユーザーID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| username | text | ユーザー名（Unique） |
+| display_name | text | 表示名 |
+| avatar_url | text | アイコン画像URL |
+
+#### Relations
+
+- 1 : N → posts
+- 1 : 1 → profiles
+
+---
+
+### profiles
+
+ユーザープロフィール
+
+| Column | Type | Description |
+|---------|------|-------------|
+| id | UUID | プロフィールID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| user_id | UUID | users.id（Unique） |
+| bio | text | 自己紹介 |
+| region | text | 地域 |
+| generation | smallint | 世代 |
+
+#### Relations
+
+- N : 1 → users
+
+---
+
+### posts
+
+投稿
+
+| Column | Type | Description |
+|---------|------|-------------|
+| id | UUID | 投稿ID（Primary Key） |
+| created_at | timestamptz | 投稿日時 |
+| body | text | 投稿本文 |
+| user_id | UUID | 投稿者ID |
+
+#### Relations
+
+- N : 1 → users
+- 1 : N → comments
+- 1 : N → post_images
+- 1 : N → post_mikans
+
+---
+
+### comments
+
+コメント
+
+| Column | Type | Description |
+|---------|------|-------------|
+| id | UUID | コメントID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| body | text | コメント本文 |
+| post_id | UUID | 投稿ID |
+
+#### Relations
+
+- N : 1 → posts
+
+---
+
+### post_images
+
+投稿画像
+
+| Column | Type | Description |
+|---------|------|-------------|
+| id | UUID | 画像ID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| post_id | UUID | 投稿ID |
+| order_index | integer | 表示順 |
+| url | text | 元画像URL |
+| thumbnail_url | text | サムネイルURL |
+
+#### Relations
+
+- N : 1 → posts
+
+---
+
+### mikan_varieties
+
+みかん品種マスタ
+
+| Column | Type | Description |
+|---------|------|-------------|
+| id | UUID | 品種ID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| name | text | 品種名 |
+| color | text | 表示色 |
+| shape | text | アイコン形状 |
+
+#### Relations
+
+- 1 : N → post_mikans
+
+---
+
+### post_mikans
+
+投稿に含まれるみかん情報
+
+| Column | Type | Description |
+|---------|------|-------------|
+| id | UUID | ID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| post_id | UUID | 投稿ID |
+| variety_id | UUID | 品種ID |
+| quantity | smallint | 食べた個数 |
+| satisfaction | smallint | 満足度（1〜5想定） |
+
+#### Relations
+
+- N : 1 → posts
+- N : 1 → mikan_varieties
+
+---
+
+## ERイメージ
+
+```
+users
+ ├── profiles (1:1)
+ └── posts (1:N)
+         ├── comments (1:N)
+         ├── post_images (1:N)
+         └── post_mikans (1:N)
+                    │
+                    ▼
+            mikan_varieties
+```

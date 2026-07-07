@@ -195,5 +195,3 @@ sharedがごちゃごちゃしてしまうとfeature-basedの旨味が減って�
 (あとImageUploaderとか独立の機能にしたほうが?とかそういうのも...)
 
 追加時もFeature単位で実装しましょう
-
-
