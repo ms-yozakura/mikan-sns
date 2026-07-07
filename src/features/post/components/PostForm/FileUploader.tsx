@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react"
+import { useEffect, useMemo, useRef } from "react"
 import styles from "./FileUploader.module.css" // 専用のCSSに切り分け
 import Button from "@/shared/ui/Button"
 
@@ -11,21 +11,16 @@ interface FileUploaderProps {
 }
 
 export function FileUploader({ files, onChange, disabled }: FileUploaderProps) {
-  const [previews, setPreviews] = useState<string[]>([])
+  const inputRef = useRef<HTMLInputElement>(null)
 
   // filesの変更を検知してプレビューURLを生成・クリーンアップ
-  useEffect(() => {
-    if (files.length === 0) {
-      setPreviews([])
-      return
-    }
-
-    const objectUrls = files.map(file => URL.createObjectURL(file))
-    setPreviews(objectUrls)
-
-    // メモリリーク防止のためのクリーンアップ
-    return () => objectUrls.forEach(url => URL.revokeObjectURL(url))
+  const previews = useMemo(() => {
+    return files.map(file => URL.createObjectURL(file))
   }, [files])
+
+  useEffect(() => {
+    return () => previews.forEach(url => URL.revokeObjectURL(url))
+  }, [previews])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -34,11 +29,16 @@ export function FileUploader({ files, onChange, disabled }: FileUploaderProps) {
     }
   }
 
+  const handleUploadClick = () => {
+    if (disabled) return
+    inputRef.current?.click()
+  }
+
   return (
     <div className={styles.fileInputSection}>
 
-      <label htmlFor="file-upload" className={`${styles.fileUploadLabel} ${disabled ? styles.disabled : ""}`}>
-        <Button size="s">
+      <div className={`${styles.fileUploadLabel} ${disabled ? styles.disabled : ""}`}>
+        <Button type="button" size="s" disabled={disabled} onClick={handleUploadClick}>
           <span className={styles.uploadText}>+ 写真を選択</span>
         </Button>
 
@@ -55,9 +55,10 @@ export function FileUploader({ files, onChange, disabled }: FileUploaderProps) {
           ))}
         </div>
 
-      </label>
+      </div>
 
       <input
+        ref={inputRef}
         id="file-upload"
         type="file"
         accept="image/*"
