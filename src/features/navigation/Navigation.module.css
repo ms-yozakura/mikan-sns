@@ -4,6 +4,7 @@
 
 .desktop {
   display: none;
+  position: fixed;
 }
 
 .navigation {

@@ -48,9 +48,9 @@ export function SearchPage({ query = "" }: SearchPageProps) {
 
   return (
     <main className={styles.search}>
-      <div className={styles.mobileStats}>
+      {/*<div className={styles.mobileStats}>
         <HomeStatsSummary variant="mobile" />
-      </div>
+      </div>*/}
 
       <section className={styles.header}>
         <SearchForm value={inputValue} onSubmit={runSearch} onChange={setInputValue} />
