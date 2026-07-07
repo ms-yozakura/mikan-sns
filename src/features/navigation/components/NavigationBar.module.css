@@ -80,13 +80,14 @@
   align-items: center;
   gap: 0.5rem;
 
-  font-size: 0.8rem;
-  line-height: 1.2rem;
+  font-size: 0.9rem;
+  line-height: 1.5rem;
+  color: var(--color-text);
 }
 
 .icon {
-  width: 1.2rem;
-  height: 1.2rem;
+  width: 1.5rem;
+  height: 1.5rem;
   display: block;
   flex-shrink: 0;
 }

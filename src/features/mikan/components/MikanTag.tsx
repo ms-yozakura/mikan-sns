@@ -17,6 +17,7 @@ export default function MikanTag({ mikan, variety }: { mikan: MikanReport, varie
       <MikanIcon
         color={variety?.color}
         shape={variety?.shape}
+        size={25}
       />
 
       <span className={styles.name}>

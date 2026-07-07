@@ -1,12 +1,12 @@
 .mikanTag {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 2px;
   padding: 3px 10px;
   border-radius: 999px;
   background: #fff5e8;
   border: 1px dashed #ffd59a;
-  font-size: 13px;
+  font-size: 1rem;
 }
 
 .fileULWrapper {
