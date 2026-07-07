@@ -70,8 +70,13 @@ export function ProfileEditForm() {
 
       let url = avatarUrl
 
+
       if (avatar) {
-        url = await uploadAvatar(avatar)
+        const formData = new FormData()
+        formData.append('file', avatar)
+
+
+        url = await uploadAvatar(formData)
       }
 
       await updateProfile({
