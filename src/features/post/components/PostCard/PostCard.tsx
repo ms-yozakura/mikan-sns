@@ -51,9 +51,11 @@ export function PostCard({ post }: { post: any }) {
           </div>
           <span className={styles.postDate}>{formattedDate}</span>
         </div>
-        <div className={styles.visibilityTag}>
-          {post.visibility}
-        </div>
+        {post.visibility != "public" &&
+          <div className={styles.visibilityTag}>
+            {post.visibility}
+          </div>
+        }
       </div>
 
       {/* 本文 */}
