@@ -19,7 +19,7 @@ export async function uploadAvatar(formData: FormData) {
   const arrayBuffer = await file.arrayBuffer()
   const uint8Array = new Uint8Array(arrayBuffer)
 
-  sharp.cache(false) // 対策1も併用
+  sharp.cache(false)
 
   // 512x512 WebPへ変換
   const buffer = await sharp(uint8Array)
@@ -33,7 +33,7 @@ export async function uploadAvatar(formData: FormData) {
     })
     .toBuffer()
 
-  const path = `${user.id}/avatar.webp`
+  const path = `${user.id}/avatar_${window.crypto.randomUUID()}.webp`
 
   const { error } = await supabase.storage
     .from("avatars")
