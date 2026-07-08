@@ -94,7 +94,7 @@ export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void })
       }
       return [...prev, { variety_id: selectedVariety, quantity: Number(quantity), satisfaction }]
     })
-    setSelectedVariety("")
+    setSelectedVariety("a5dab591-9888-420c-be86-b4f4b253153f")//初期値は温州
     setKeyword("")
     setQuantity("1")
     setSatisfaction(3)
@@ -112,7 +112,7 @@ export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void })
             setSelectedVariety={setSelectedVariety}
           />
 
-          <div className={styles.row}>
+          <div className={styles.mikanInfo}>
             <label>
               個数
               <input
@@ -129,7 +129,7 @@ export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void })
               <StarRating value={satisfaction} onChange={(star) => setSatisfaction(star)} />
             </label>
 
-            <Button type="button" size="sm" onClick={addMikan}>
+            <Button className={styles.addMikan} type="button" size="sm" onClick={addMikan}>
               ＋ 品種を追加
             </Button>
           </div>
