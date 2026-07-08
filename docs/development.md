@@ -67,13 +67,14 @@
 
 ブランチの命名規則は以下の例に倣いましょう
 
-feature/login-form
-feature/profile-page
+- feature/login-form  ログインフォームの機能開発
+- feature/profile-page  プロフページの機能開発  
 
-fix/navbar-overflow
-fix/post-submit
+- fix/navbar-overflow  :ナビゲーションバーのはみ出しの修正  
+- fix/post-submit  :投稿送信に関する修正  
 
-docs/readme
+- docs/readme    :ドキュメント変更のみ(readme)  
+など
 
 作業が終わってPull Requestがマージされたら、ローカル・リモートともにブランチを削除してください。
 
@@ -81,11 +82,11 @@ docs/readme
 
 ## コミット
 
-コミットはできるだけ小さな単位で行いましょう！  
-コミットメッセージには、UPDATE/ ADD/ FIX/ REFACTORなど変更の種類を書いてくれるとありがたいです。
+<ins>コミットはできるだけ小さな単位で</ins>行いましょう！  
+コミットメッセージには、**UPDATE/ ADD/ FIX/ REFACTOR**など変更の種類を書いてくれるとありがたいです。
 (タイトルと内容を改行挟んで書いてくれるとなおよし)
 
-例： UPDATE: 投稿取得関数を変更 / 投稿取得数に上限数を設定した
+例： UPDATE: 投稿取得関数を変更 (改行) 投稿取得数に上限数を設定した
 
 ---
 
