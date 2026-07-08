@@ -5,7 +5,18 @@ import '@/styles/globals.css'
 
 import { ModalProvider } from "@/providers/ModalProvider"
 import { PopupMenuProvider } from '@/providers/PopupMenuProvider'
+import type { Metadata, Viewport } from "next"
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+}
+
+export const metadata: Metadata = {
+  title: "MikanSNS",
+}
 
 export default function RootLayout({
   children,
