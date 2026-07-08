@@ -21,6 +21,8 @@ export async function createPost(
 
   const body = formData.get('body') as string
 
+  const visibility=formData.get("visibility") as string
+
   const images = JSON.parse(formData.get('images') as string ?? "[]")
   const mikans = JSON.parse(
     formData.get("mikans") as string ?? "[]"
@@ -48,7 +50,8 @@ export async function createPost(
       .from('posts')
       .insert({
         user_id: user.id,
-        body
+        body,
+        visibility
       })
       .select()
       .single()

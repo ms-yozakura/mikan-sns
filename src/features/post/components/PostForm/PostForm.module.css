@@ -49,6 +49,31 @@
   cursor: not-allowed;
 }
 
+.visibilityWrapper{
+  display: grid;
+  grid-template-columns: 50% 50%;
+  margin: 5px;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
+  overflow: hidden;
+  width: 30%;
+  min-width: 100px;
+}
+
+.visibilityButton label{
+  background-color: var(--color-white);
+  padding:0.5rem;
+  text-align: center;
+}
+.visibilityButton input:checked + label{
+  background-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+.visibilityButton input{
+  visibility:hidden;
+  display: none;
+}
 
 /* ==========================================
    みかん情報（品種・個数・満足度）の追加エリア

@@ -12,6 +12,7 @@ import { MikanList } from "./MikanList"
 import { getMikanVarieties } from "../../actions/getMikanVarieties"
 import { StarRating } from "./StarRating"
 import { FileUploader } from "./FileUploader"
+import { a } from "motion/react-client"
 
 const initialState = {
   error: "",
@@ -19,7 +20,7 @@ const initialState = {
   post: undefined
 }
 
-export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void }) {
+export function PostFormClient({ onSuccess }: { onSuccess: (post: any) => void }) {
   const formRef = useRef<HTMLFormElement>(null)
   const [state, formAction, pending] = useActionState(createPost, initialState)
   const [files, setFiles] = useState<File[]>([])
@@ -59,6 +60,8 @@ export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void })
       setUploading(true)
       const formData = new FormData(e.currentTarget)
       const body = formData.get("body") as string
+      const visibility = formData.get("visibility") as "public" | "private"
+
       const supabase = createClient()
       const { data: { user } } = await supabase.auth.getUser()
 
@@ -69,6 +72,7 @@ export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void })
 
       const fd = new FormData()
       fd.append("body", body)
+      fd.append("visibility", visibility)
       fd.append("images", JSON.stringify(images))
       fd.append("mikans", JSON.stringify(postMikans))
 
@@ -103,6 +107,28 @@ export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void })
   return (
     <div className={styles.formContainer}>
       <form ref={formRef} onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.visibilityWrapper}>
+          <div className={styles.visibilityButton}>
+            <input
+              id="visibility-public"
+              type="radio"
+              name="visibility"
+              value="public"
+              defaultChecked
+            />
+            <label htmlFor="visibility-public">全体公開</label>
+          </div>
+
+          <div className={styles.visibilityButton}>
+            <input
+              id="visibility-private"
+              type="radio"
+              name="visibility"
+              value="private"
+            />
+            <label htmlFor="visibility-private">非公開</label>
+          </div>
+        </div>
         <div className={styles.mikanBox}>
           <MikanSelector
             varieties={varieties}
@@ -168,7 +194,7 @@ export function PostFormClient({ onSuccess }: { onSuccess: (post:any) => void })
           </Button>
         </div>
 
-        
+
 
         {state.error && <span className={styles.errorText}>⚠️ {state.error}</span>}
       </form>
