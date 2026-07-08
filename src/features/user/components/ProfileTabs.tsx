@@ -1,18 +1,34 @@
 "use client"
 
-import { useState } from "react"
-import { Feed, type FeedPost } from "@/features/home/components/Feed"
+import { useCallback, useState } from "react"
+import { Feed } from "@/features/home/components/Feed"
+import { useInfiniteFeed, type InfiniteFeedPost } from "@/features/home/hooks/useInfiniteFeed"
+import { getUserFeed } from "../actions/getUserFeed"
 import styles from "../pages/UserPage.module.css"
 
 type ProfileTabsProps = {
-  posts: FeedPost[]
+  username: string
+  posts: InfiniteFeedPost[]
   isOwnProfile: boolean
 }
 
 type TabType = "feed" | "bookmark" | "zukan"
 
-export function ProfileTabs({ posts, isOwnProfile }: ProfileTabsProps) {
+export function ProfileTabs({ username, posts: initialPosts, isOwnProfile }: ProfileTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("feed")
+  const getNextUserPosts = useCallback(async (
+    cursor: { id: string | number; created_at: string }
+  ) => {
+    const data = await getUserFeed({ username, cursor })
+    return data?.posts ?? []
+  }, [username])
+
+  const {
+    posts,
+    loading,
+    hasMore,
+    loadMoreRef,
+  } = useInfiniteFeed(initialPosts, getNextUserPosts)
 
   return (
     <div className={styles.tabsContainer}>
@@ -41,7 +57,12 @@ export function ProfileTabs({ posts, isOwnProfile }: ProfileTabsProps) {
       {/* タブコンテンツ */}
       <div className={styles.tabContent}>
         {activeTab === "feed" && (
-          <Feed contents={posts} />
+          <Feed
+            contents={posts}
+            hasMore={hasMore}
+            loading={loading}
+            loadMoreRef={loadMoreRef}
+          />
         )}
 
         {activeTab === "bookmark" && (

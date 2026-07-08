@@ -2,7 +2,20 @@
 
 import { createClient } from '@/infrastructure/supabase/server'
 
-export async function getUserFeed({ username }: { username: string }) {
+type Cursor = {
+  id: number | string
+  created_at: string
+}
+
+export async function getUserFeed({
+  username,
+  cursor,
+  limit = 10,
+}: {
+  username: string
+  cursor?: Cursor
+  limit?: number
+}) {
   const supabase = await createClient()
 
   const { data: profile } = await supabase
@@ -20,7 +33,7 @@ export async function getUserFeed({ username }: { username: string }) {
 
   if (!profile) return;
 
-  const { data: posts, error } = await supabase
+  let query = supabase
     .from('posts')
     .select(`
       *,
@@ -47,7 +60,16 @@ export async function getUserFeed({ username }: { username: string }) {
     `)
     .eq('user_id', profile.id)
     .order('created_at', { ascending: false })
-    .limit(10)
+    .order('id', { ascending: false })
+    .limit(limit)
+
+  if (cursor) {
+    query = query.or(
+      `created_at.lt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.lt.${cursor.id})`
+    )
+  }
+
+  const { data: posts, error } = await query
 
   if (error) {
     console.error('GET FEED ERROR:', error)

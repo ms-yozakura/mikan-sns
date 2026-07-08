@@ -70,7 +70,12 @@ export default async function UserPage({ userId }: { userId: string }) {
         </div>
       </div>
 
-      <ProfileTabs posts={data.posts} isOwnProfile={isOwnProfile} />
+      <ProfileTabs
+        key={userId}
+        username={userId}
+        posts={data.posts}
+        isOwnProfile={isOwnProfile}
+      />
     </main>
   )
 }
