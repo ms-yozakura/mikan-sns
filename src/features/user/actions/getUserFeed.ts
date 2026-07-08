@@ -8,10 +8,7 @@ export async function getUserFeed({ username }: { username: string }) {
   const { data: profile } = await supabase
     .from("users")
     .select(`
-      id,
-      display_name,
-      username,
-      avatar_url,
+      *,
       profiles(
         bio,
         region,

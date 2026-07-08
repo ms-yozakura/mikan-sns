@@ -49,6 +49,16 @@ export default async function UserPage({ userId }: { userId: string }) {
             {data.profile.display_name || "No name"}
           </h1>
 
+          <div className={styles.regionAndGen}>
+            <span>
+              {private_profile?.region}
+            </span>
+            {private_profile?.region != "" && private_profile?.generation != null && "・"}
+            <span>
+              {private_profile?.generation && (private_profile?.generation + "期")}
+            </span>
+          </div>
+
           <ProfileActions isOwnProfile={isOwnProfile} />
 
           <div className={styles.bioSection}>
