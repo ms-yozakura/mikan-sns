@@ -1,6 +1,7 @@
 "use server"
 
 import sharp from "sharp"
+import crypto from 'crypto'
 import { createClient } from "@/infrastructure/supabase/server"
 
 export async function uploadAvatar(formData: FormData) {
@@ -33,7 +34,7 @@ export async function uploadAvatar(formData: FormData) {
     })
     .toBuffer()
 
-  const path = `${user.id}/avatar_${window.crypto.randomUUID()}.webp`
+  const path = `${user.id}/avatar_${crypto.randomUUID()}.webp`
 
   const { error } = await supabase.storage
     .from("avatars")
