@@ -10,6 +10,21 @@ type ProfileData = {
   avatarUrl?: string
 }
 
+function getAvatarStoragePath(url: string, userId: string) {
+  try {
+    const { pathname } = new URL(url)
+    const marker = "/avatars/"
+    const markerIndex = pathname.indexOf(marker)
+
+    if (markerIndex === -1) return null
+
+    const path = decodeURIComponent(pathname.slice(markerIndex + marker.length))
+    return path.startsWith(`${userId}/`) ? path : null
+  } catch {
+    return null
+  }
+}
+
 export async function updateProfile(data: ProfileData) {
   const supabase = await createClient()
 
@@ -17,6 +32,15 @@ export async function updateProfile(data: ProfileData) {
 
   if (error || !user) throw new Error("Unauthorized")
 
+  const { data: currentUser, error: currentUserError } = await supabase
+    .from("users")
+    .select("avatar_url")
+    .eq("id", user.id)
+    .maybeSingle()
+
+  if (currentUserError) throw currentUserError
+
+  const oldAvatarUrl = currentUser?.avatar_url
 
   // usersテーブル
   const { error: userError } = await supabase
@@ -40,6 +64,20 @@ export async function updateProfile(data: ProfileData) {
     }, { onConflict: "user_id" })
 
   if (profileError) throw profileError
+
+  if (oldAvatarUrl && data.avatarUrl && oldAvatarUrl !== data.avatarUrl) {
+    const oldAvatarPath = getAvatarStoragePath(oldAvatarUrl, user.id)
+
+    if (oldAvatarPath) {
+      const { error: removeError } = await supabase.storage
+        .from("avatars")
+        .remove([oldAvatarPath])
+
+      if (removeError) {
+        console.error("Failed to remove old avatar", removeError)
+      }
+    }
+  }
 
   return {
     success: true,
