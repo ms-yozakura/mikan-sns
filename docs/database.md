@@ -55,7 +55,7 @@
 ユーザープロフィール
 
 | Column | Type | Description |
-|---------|------|-------------|
+| --------- | ------ | ------------- |
 | id | UUID | プロフィールID（Primary Key） |
 | created_at | timestamptz | 作成日時 |
 | user_id | UUID | users.id（Unique） |
@@ -74,11 +74,12 @@
 投稿
 
 | Column | Type | Description |
-|---------|------|-------------|
+| --------- | ------ | ------------- |
 | id | UUID | 投稿ID（Primary Key） |
 | created_at | timestamptz | 投稿日時 |
 | body | text | 投稿本文 |
 | user_id | UUID | 投稿者ID |
+| visibility | text | 投稿の表示範囲(public/private) |
 
 #### Relations
 
@@ -94,15 +95,17 @@
 コメント
 
 | Column | Type | Description |
-|---------|------|-------------|
+| --------- | ------ | ------------- |
 | id | UUID | コメントID（Primary Key） |
 | created_at | timestamptz | 作成日時 |
+| user_id | uuid | 投稿者ID |
 | body | text | コメント本文 |
 | post_id | UUID | 投稿ID |
 
 #### Relations
 
 - N : 1 → posts
+- N : 1 → users
 
 ---
 
@@ -111,7 +114,7 @@
 投稿画像
 
 | Column | Type | Description |
-|---------|------|-------------|
+| --------- | ------ | ------------- |
 | id | UUID | 画像ID（Primary Key） |
 | created_at | timestamptz | 作成日時 |
 | post_id | UUID | 投稿ID |
@@ -130,7 +133,7 @@
 みかん品種マスタ
 
 | Column | Type | Description |
-|---------|------|-------------|
+| --------- | ------ | ------------- |
 | id | UUID | 品種ID（Primary Key） |
 | created_at | timestamptz | 作成日時 |
 | name | text | 品種名 |
@@ -148,7 +151,7 @@
 投稿に含まれるみかん情報
 
 | Column | Type | Description |
-|---------|------|-------------|
+| --------- | ------ | ------------- |
 | id | UUID | ID（Primary Key） |
 | created_at | timestamptz | 作成日時 |
 | post_id | UUID | 投稿ID |
@@ -162,6 +165,62 @@
 - N : 1 → mikan_varieties
 
 ---
+
+### follows
+
+| Column | Type | Description |
+| ----- | ---- | ------- |
+| id | uuid | ID(Primary Key) |
+| follower | uuid | フォローした人のID |
+| followee | uuis | フォローされた人のID |
+| created_at | timestamptz | 作成日時 |
+
+#### Relations
+
+- N : 1 → users (follower)
+- N : 1 → users (followee)
+
+---
+
+### post_likes
+
+| Column | Type | Description |
+| ----- | ---- | ------- |
+| id | uuid | ID(Primary Key) |
+| user_id | uuid | いいねした人のID |
+| post_id | uuid | いいねされた投稿のID |
+| created_at | timestamptz | 作成日時 |
+
+#### Relations
+
+- N : 1 → users
+- N : 1 → posts
+
+---
+
+### notifications
+
+ユーザーへの通知
+
+| Column | Type | Description |
+| --------- | ------ | ------------- |
+| id | UUID | 通知ID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| user_id | UUID | 通知の受信者 |
+| actor_id | UUID | 通知を発生させたユーザー |
+| type | text | 通知種別（follow, like, comment, reply など） |
+| post_id | UUID / null | 関連する投稿ID |
+| comment_id | UUID / null | 関連するコメントID |
+| is_read | boolean | 既読フラグ |
+
+#### Relations
+
+- N : 1 → users（user_id）
+- N : 1 → users（actor_id）
+- N : 1 → posts
+- N : 1 → comments
+
+--- 
 
 ## ERイメージ
 
