@@ -79,11 +79,12 @@
   color: var(--color-primary-hover);
 }
 
-.form .row {
+.form .mikanInfo {
   display: flex;
   flex-direction: row;
-  gap: 2rem;
+  gap: 0.5rem 2rem;
   padding-bottom: 10px;
+  flex-wrap: wrap;
 }
 
 .form .searchBox {
@@ -121,13 +122,6 @@
   box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
-.varietyOption.selected {
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border-color: var(--color-primary);
-}
-
-
 .mikanBox {
   padding: 10px;
   border-radius: 20px;
@@ -141,9 +135,16 @@
   color: var(--color-primary-hover);
   padding: 4px 12px;
   border-radius: 16px;
-  font-size: 12px;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+
+.varietyOption.selected {
+  background-color: var(--color-primary);
+  color: var(--color-white);
+  border-color: var(--color-primary);
 }
 
 .varietyOption:hover {
@@ -152,12 +153,17 @@
   color: var(--color-primary-hover);
 }
 
-.form .quantityInput {
+.mikanInfo .quantityInput {
   width: 5rem;
   height: 28px;
   border-radius: 999px;
   border: none;
   padding-left: 1rem;
+}
+
+.mikanInfo .addMikan{
+  margin-left: auto;
+  align-self: flex-end;
 }
 
 /* 選択中の品種表示テキスト */
@@ -285,4 +291,10 @@
 .submitButton {
   margin-left: auto;
   right: 10px;
+}
+
+@media (max-width:500px) {
+  .formContainer {
+    padding: 6px;
+  }
 }

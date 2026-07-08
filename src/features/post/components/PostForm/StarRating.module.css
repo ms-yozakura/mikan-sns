@@ -1,8 +1,7 @@
-
 .satisfactionWrapper {
   display: flex;
   flex-direction: row;
-  gap: 4;
+  gap: 4px;
 }
 
 .satisfactionWrapper .satisfactionStar {
@@ -12,6 +11,16 @@
   color: var(--color-primary);
   background-color: transparent;
   border: none;
+  padding: 3px;
 }
 
 
+@media (max-width:400px) {
+  .satisfactionWrapper {
+    gap: 0px;
+  }
+
+  .satisfactionWrapper .satisfactionStar {
+    font-size: 16px;
+  }
+}
