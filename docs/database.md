@@ -198,6 +198,30 @@
 
 ---
 
+### notifications
+
+ユーザーへの通知
+
+| Column | Type | Description |
+| --------- | ------ | ------------- |
+| id | UUID | 通知ID（Primary Key） |
+| created_at | timestamptz | 作成日時 |
+| user_id | UUID | 通知の受信者 |
+| actor_id | UUID | 通知を発生させたユーザー |
+| type | text | 通知種別（follow, like, comment, reply など） |
+| post_id | UUID / null | 関連する投稿ID |
+| comment_id | UUID / null | 関連するコメントID |
+| is_read | boolean | 既読フラグ |
+
+#### Relations
+
+- N : 1 → users（user_id）
+- N : 1 → users（actor_id）
+- N : 1 → posts
+- N : 1 → comments
+
+--- 
+
 ## ERイメージ
 
 ```
