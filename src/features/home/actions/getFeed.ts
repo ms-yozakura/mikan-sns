@@ -7,7 +7,7 @@ import { createClient } from '@/infrastructure/supabase/server'
 
 
 type Cursor = {
-  id: number
+  id: number | string
   created_at: string
 }
 
