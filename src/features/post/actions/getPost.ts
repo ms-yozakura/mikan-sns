@@ -1,8 +1,10 @@
 'use server'
 
 import { createClient } from '@/infrastructure/supabase/server'
+import { a } from 'motion/react-client'
 
 export async function getPost(postId: string) {
+  console.time("getPost")
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -38,6 +40,6 @@ export async function getPost(postId: string) {
     console.error('GET FEED ERROR:', error)
     throw new Error(error.message)
   }
-
+  console.timeEnd("getPost")
   return data
 }
