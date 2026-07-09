@@ -231,7 +231,7 @@
   width: 100%;
   z-index: 10;
   display: grid;
-  grid-template-columns: 85% 1fr;
+  grid-template-columns: 80% 1fr;
   gap: 1rem;
   align-items: center;
   margin-top: 1.5rem;
