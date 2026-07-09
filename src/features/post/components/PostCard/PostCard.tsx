@@ -126,7 +126,7 @@ export function PostCard({ post }: { post: any }) {
           onClick={(e) => {
             e.stopPropagation()
             // コメント一覧/作成へのモック
-            setCommentFormDisp((prev) => !prev)
+            setCommentFormDisp(true)
           }}
           aria-label="コメント"
         >
@@ -178,7 +178,7 @@ export function PostCard({ post }: { post: any }) {
       </div>
       {commentFormDisp && (
         <form className={styles.commentForm}>
-          <input type="text" placeholder="コメントを入力" autoFocus onBlur={() =>setCommentFormDisp(false)} />
+          <input type="text" placeholder="コメントを入力" autoFocus onBlur={() => setCommentFormDisp(false)} />
           <Button size="s" type="submit">送信</Button>
         </form>
       )}
