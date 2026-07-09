@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useModal } from "@/providers/ModalProvider"
 import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 import MikanTag from "@/features/mikan/components/MikanTag"
+import Link from "next/link"
 
 export function PostCard({ post }: { post: any }) {
   const formattedDate = new Date(post.created_at).toLocaleString('ja-JP', {
@@ -23,14 +24,17 @@ export function PostCard({ post }: { post: any }) {
   return (
     <article
       className={styles.postCard}
-      onClick={() => router.push(`/post/${post.id}`)}
     >
+      <Link
+        className={styles.cardLink}
+        href={`/post/${post.id}`}
+      ></Link>
       {/* ヘッダー：アイコンと名前 */}
-      <div
+      <Link
+        href={`/user/${post.users?.username}`}
         className={styles.postHeader}
         onClick={(e) => {
           e.stopPropagation() // カード全体のクリックイベントを抑止
-          router.push(`/user/${post.users?.username}`)
         }}
       >
         <div className={styles.avatarWrapper}>
@@ -56,7 +60,7 @@ export function PostCard({ post }: { post: any }) {
             {post.visibility}
           </div>
         }
-      </div>
+      </Link>
 
       {/* 本文 */}
       <div className={styles.postBody}>

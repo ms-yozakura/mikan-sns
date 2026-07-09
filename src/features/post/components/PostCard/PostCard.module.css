@@ -1,4 +1,5 @@
 .postCard {
+  position: relative;
   width: 100%;
   max-width: 600px;
   background-color: #ffffff;
@@ -17,12 +18,20 @@
   transform: translateY(-1px);
 }
 
+.cardLink {
+  position: absolute;
+  inset:0;
+  z-index: 1;
+}
+
 /* ヘッダー */
 .postHeader {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 10;
 }
 
 .avatarWrapper {
@@ -83,10 +92,10 @@
   color: #94a3b8;
 }
 
-.visibilityTag{
+.visibilityTag {
   font-size: 0.7rem;
   line-height: 0.7rem;
-  color:var(--color-primary);
+  color: var(--color-primary);
   border: 1px solid var(--color-primary);
   border-radius: 999px;
   background-color: var(--color-surface);
@@ -115,6 +124,8 @@
   max-width: 24rem;
   padding-top: 0.5rem;
   border-top: 1px solid #f1f5f9;
+  z-index: 10;
+  position: relative;
 }
 
 .actionButton {
@@ -165,22 +176,24 @@
   color: #16a34a;
   background-color: #f0fdf4;
 }
-.imageArea{
-width:100%;
-display: flex;
-gap:2px;
+
+.imageArea {
+  width: 100%;
+  display: flex;
+  gap: 2px;
 }
-.imageArea .image{
-  width:20%;
+
+.imageArea .image {
+  width: 20%;
   aspect-ratio: 1/1;
   object-fit: cover;
   border-radius: var(--radius-sm);
-  border:1px solid var(--color-border)
+  border: 1px solid var(--color-border)
 }
 
 .mikanList {
   display: flex;
-  flex-direction:column;
+  flex-direction: column;
   gap: 5px;
 }
 
