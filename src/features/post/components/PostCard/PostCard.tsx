@@ -178,7 +178,7 @@ export function PostCard({ post }: { post: any }) {
       </div>
       {commentFormDisp && (
         <form className={styles.commentForm}>
-          <input type="text" placeholder="コメントを入力" autoFocus onBlur={() => setCommentFormDisp(false)} />
+          <input type="text" placeholder="コメントを入力" autoFocus onBlur={() => setTimeout(() => setCommentFormDisp(false), 100)} />
           <Button size="s" type="submit">送信</Button>
         </form>
       )}
