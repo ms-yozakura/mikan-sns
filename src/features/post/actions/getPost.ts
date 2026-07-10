@@ -30,7 +30,8 @@ export async function getPost(postId: string) {
           color,
           shape
         )
-      )
+      ),
+      comments(count)
     `)
     .eq('id', postId)
     .maybeSingle()
