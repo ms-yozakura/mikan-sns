@@ -43,14 +43,15 @@ export function PostCard({ post }: { post: any }) {
         href={`/post/${post.id}`}
       ></Link>
       {/* ヘッダー：アイコンと名前 */}
-      <Link
-        href={`/user/${post.users?.username}`}
+      <div
         className={styles.postHeader}
-        onClick={(e) => {
-          e.stopPropagation() // カード全体のクリックイベントを抑止
-        }}
       >
-        <div className={styles.avatarWrapper}>
+        <Link
+          href={`/user/${post.users?.username}`}
+          onClick={(e) => {
+            e.stopPropagation() // カード全体のクリックイベントを抑止
+          }}
+          className={styles.avatarWrapper}>
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -60,20 +61,26 @@ export function PostCard({ post }: { post: any }) {
           ) : (
             <div className={styles.avatarPlaceholder}>🍊</div>
           )}
-        </div>
-        <div className={styles.postUserInfo}>
+        </Link>
+        <Link
+          href={`/user/${post.users?.username}`}
+          onClick={(e) => {
+            e.stopPropagation() // カード全体のクリックイベントを抑止
+          }}
+          className={styles.postUserInfo}
+        >
           <div className={styles.nameContainer}>
             <h3 className={styles.postAuthor}>{post.users?.display_name || '名無しの柑橘'}</h3>
             <span className={styles.postUsername}>@{post.users?.username || 'user'}</span>
           </div>
           <span className={styles.postDate}>{formattedDate}</span>
-        </div>
+        </Link>
         {post.visibility != "public" &&
           <div className={styles.visibilityTag}>
             {post.visibility}
           </div>
         }
-      </Link>
+      </div>
 
       {/* 本文 */}
       <div className={styles.postBody}>
@@ -185,34 +192,36 @@ export function PostCard({ post }: { post: any }) {
           </svg>
         </button>
       </div>
-      {commentFormDisp && (
-        <form
-          action={action}
-          className={styles.commentForm}
-        >
-          <input
-            type="hidden"
-            name="postId"
-            value={post.id}
-          />
-          <textarea
-            name="body"
-            placeholder="コメントを入力"
-            autoFocus
-            onBlur={() =>
-              setTimeout(() => setCommentFormDisp(false), 100)
-            }
-          />
-          <Button
-            size="s"
-            type="submit"
-            disabled={pending}
+      {
+        commentFormDisp && (
+          <form
+            action={action}
+            className={styles.commentForm}
           >
-            送信
-          </Button>
-        </form>
-      )}
-    </article>
+            <input
+              type="hidden"
+              name="postId"
+              value={post.id}
+            />
+            <textarea
+              name="body"
+              placeholder="コメントを入力"
+              autoFocus
+              onBlur={() =>
+                setTimeout(() => setCommentFormDisp(false), 100)
+              }
+            />
+            <Button
+              size="s"
+              type="submit"
+              disabled={pending}
+            >
+              送信
+            </Button>
+          </form>
+        )
+      }
+    </article >
   )
 }
 
