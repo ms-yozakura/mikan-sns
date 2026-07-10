@@ -1,0 +1,8 @@
+.commentList {
+  position: relative;
+  margin-left: 10px;
+}
+.commentNum{
+  padding: 1.2rem;
+  color: var(--color-text-light);
+}

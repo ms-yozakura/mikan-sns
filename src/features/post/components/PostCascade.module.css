@@ -2,3 +2,8 @@
   width:100%;
   max-width: 500px;
 }
+
+.cascadeContent{
+  background-color: white;
+  border-radius: var(--radius-md);
+}

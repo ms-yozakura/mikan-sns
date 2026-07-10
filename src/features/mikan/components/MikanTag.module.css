@@ -1,7 +1,7 @@
 .mikanTag {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 1rem;
   padding: 3px 10px;
   border-radius: 999px;
   background: #fff5e8;
@@ -24,12 +24,7 @@
 
 .satisfaction {
   color: var(--color-primary);
-  font-size: 15px;
-  line-height: 13px;
+  font-size: 1.2rem;
+  line-height: 8px;
 }
 
-.name,
-.quantity,
-.satisfaction {
-  line-height: 2;
-}

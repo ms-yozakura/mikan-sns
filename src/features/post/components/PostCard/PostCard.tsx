@@ -7,6 +7,9 @@ import { useModal } from "@/providers/ModalProvider"
 import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 import MikanTag from "@/features/mikan/components/MikanTag"
 import Link from "next/link"
+import { useActionState, useEffect, useState } from "react"
+import Button from "@/shared/ui/Button"
+import { createComment } from "../../actions/createComment"
 
 export function PostCard({ post }: { post: any }) {
   const formattedDate = new Date(post.created_at).toLocaleString('ja-JP', {
@@ -18,8 +21,18 @@ export function PostCard({ post }: { post: any }) {
   const router = useRouter()
   const { openModal, closeModal } = useModal()
 
+  const [commentFormDisp, setCommentFormDisp] = useState(false)
+
+  const [state, action, pending] = useActionState(createComment, null)
+
   // ユーザーのプロフィール画像URL（なければデフォルト）
   const avatarUrl = post.users?.avatar_url || null
+
+  useEffect(() => {
+    if (state?.success) {
+      setCommentFormDisp(false)
+    }
+  }, [state])
 
   return (
     <article
@@ -122,6 +135,7 @@ export function PostCard({ post }: { post: any }) {
           onClick={(e) => {
             e.stopPropagation()
             // コメント一覧/作成へのモック
+            setCommentFormDisp(true)
           }}
           aria-label="コメント"
         >
@@ -171,6 +185,33 @@ export function PostCard({ post }: { post: any }) {
           </svg>
         </button>
       </div>
+      {commentFormDisp && (
+        <form
+          action={action}
+          className={styles.commentForm}
+        >
+          <input
+            type="hidden"
+            name="postId"
+            value={post.id}
+          />
+          <textarea
+            name="body"
+            placeholder="コメントを入力"
+            autoFocus
+            onBlur={() =>
+              setTimeout(() => setCommentFormDisp(false), 100)
+            }
+          />
+          <Button
+            size="s"
+            type="submit"
+            disabled={pending}
+          >
+            送信
+          </Button>
+        </form>
+      )}
     </article>
   )
 }

@@ -6,33 +6,37 @@ import Loading from "@/shared/ui/Loading"
 import { PostCard } from "@/features/post/components/PostCard/PostCard"
 import { CommentList } from "./CommentList"
 import styles from "./PostCascade.module.css"
-import {Leading} from "@/shared/ui/Leading"
-import {useRouter} from "next/navigation"
+import { Leading } from "@/shared/ui/Leading"
+import { useRouter } from "next/navigation"
 import { Icon } from "@iconify/react"
+import { getComments } from "../actions/getComments"
 
 
-export function PostCascade({ postId }:{postId:string}) {
+export function PostCascade({ postId }: { postId: string }) {
 
-  const [post,setPost] = useState(null)
-  const [loading,setLoading] = useState(true)
-  const router =useRouter()
+  const [post, setPost] = useState(null)
+  const [comments, setComments] = useState<any[]>()
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    async function fetchPost(){
+    async function fetchPost() {
       const data = await getPost(postId)
+      const comments = await getComments(postId)
       setPost(data)
+      setComments(comments)
       setLoading(false)
     }
 
     fetchPost()
 
-  },[postId])
+  }, [postId])
 
 
-  if(loading){
-    return <Loading/>
+  if (loading) {
+    return <Loading />
   }
 
 
@@ -48,12 +52,13 @@ export function PostCascade({ postId }:{postId:string}) {
         <Icon icon="material-symbols:arrow-back" />
       </Leading>
 
-
-      <PostCard post={post}/>
-
-      <CommentList
-        
-      />
+      <div className={styles.cascadeContent}>
+        <PostCard post={post} />
+        {comments &&
+          <CommentList comments={comments}
+          />
+        }
+      </div>
 
     </section>
   )
