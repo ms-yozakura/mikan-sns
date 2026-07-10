@@ -195,9 +195,8 @@ export function PostCard({ post }: { post: any }) {
             name="postId"
             value={post.id}
           />
-          <input
+          <textarea
             name="body"
-            type="text"
             placeholder="コメントを入力"
             autoFocus
             onBlur={() =>

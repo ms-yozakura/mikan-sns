@@ -3,13 +3,22 @@
   width: 100%;
   max-width: 600px;
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
-  margin-bottom: 1rem;
+  /*border: 1px solid #e2e8f0;
+  border-radius: var(--radius-md);*/
+  padding: 1.75rem;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.postCard::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  border-bottom: 0.5px solid #ccc;
 }
 
 /*.postCard:hover {
@@ -20,7 +29,7 @@
 
 .cardLink {
   position: absolute;
-  inset:0;
+  inset: 0;
   z-index: 1;
 }
 
@@ -123,7 +132,6 @@
   justify-content: space-between;
   max-width: 24rem;
   padding-top: 0.5rem;
-  border-top: 1px solid #f1f5f9;
   z-index: 10;
   position: relative;
 }
@@ -226,7 +234,7 @@
   line-height: 13px;
 }
 
-.commentForm{
+.commentForm {
   position: relative;
   width: 100%;
   z-index: 10;
@@ -237,19 +245,18 @@
   margin-top: 1.5rem;
 }
 
-.commentForm input{
+.commentForm textarea {
   width: 100%;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--color-border);
-  font-size: 12px;
+  font-size: 0.8rem;
   padding: 5px;
-  padding-left: 1.5rem;
+  padding-left: 1rem;
   color: var(--color-text);
   transition: 0.5px;
-  font-weight: 550;
 }
 
-.commentForm input:focus{
+.commentForm textarea:focus {
   box-shadow: none;
   outline: none;
   border-color: var(--color-primary);

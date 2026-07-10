@@ -1,0 +1,80 @@
+.commentCard {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  background-color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: row;
+}
+
+/* ヘッダー */
+.postHeader {
+  display: flex;
+  align-items: start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  position: relative;
+  z-index: 10;
+}
+
+.avatarWrapper {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.commentBody {
+  padding-left: 0.75rem;
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  font-size: 1.5rem;
+  user-select: none;
+}
+
+.commentUserInfo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+}
+
+
+.postAuthor {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.postAuthor:hover {
+  text-decoration: underline;
+}
+
+.postDate {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}

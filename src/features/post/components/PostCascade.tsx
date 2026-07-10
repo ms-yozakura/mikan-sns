@@ -52,12 +52,13 @@ export function PostCascade({ postId }: { postId: string }) {
         <Icon icon="material-symbols:arrow-back" />
       </Leading>
 
-
-      <PostCard post={post} />
-      {comments &&
-        <CommentList comments={comments}
-        />
-      }
+      <div className={styles.cascadeContent}>
+        <PostCard post={post} />
+        {comments &&
+          <CommentList comments={comments}
+          />
+        }
+      </div>
 
     </section>
   )
