@@ -22,6 +22,7 @@
 
   box-shadow: var(--shadow-floating);
   transition: transform .2s;
+  z-index: 1000;
 }
 
 .button:hover {
