@@ -56,7 +56,8 @@ export async function getUserFeed({
           color,
           shape
         )
-      )
+      ),
+      comments(count)
     `)
     .eq('user_id', profile.id)
     .order('created_at', { ascending: false })

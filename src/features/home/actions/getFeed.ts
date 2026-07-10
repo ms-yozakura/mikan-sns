@@ -37,7 +37,8 @@ export async function getFeed(cursor?: Cursor, limit:number=10) {
           color,
           shape
         )
-      )
+      ),
+      comments(count)
     `)
     .order('created_at', { ascending: false })
     .order('id', { ascending: false })

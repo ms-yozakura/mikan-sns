@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useActionState, useEffect, useState } from "react"
 import Button from "@/shared/ui/Button"
 import { createComment } from "../../actions/createComment"
+import { Icon } from "@iconify/react"
 
 export function PostCard({ post }: { post: any }) {
   const formattedDate = new Date(post.created_at).toLocaleString('ja-JP', {
@@ -146,10 +147,8 @@ export function PostCard({ post }: { post: any }) {
           }}
           aria-label="コメント"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className={styles.icon}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641l-.318 1.235c-.083.323.218.614.53.5l1.234-.452a2.156 2.156 0 0 1 1.61.048c1.373.57 2.894.848 4.453.848Z" />
-          </svg>
-          <span className={styles.actionCount}>0</span>
+          <Icon className={styles.footerIcon} icon="iconamoon:comment" />
+          <span className={styles.actionCount}>{post.comments?.[0]?.count ?? 0}</span>
         </button>
 
         <button
@@ -160,9 +159,7 @@ export function PostCard({ post }: { post: any }) {
           }}
           aria-label="いいね"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className={styles.icon}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
-          </svg>
+          <Icon className={styles.footerIcon} icon="iconamoon:heart" />
           <span className={styles.actionCount}>0</span>
         </button>
 
@@ -174,9 +171,7 @@ export function PostCard({ post }: { post: any }) {
           }}
           aria-label="ブックマーク"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className={styles.icon}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-          </svg>
+          <Icon className={styles.footerIcon} icon="iconamoon:bookmark" />
         </button>
 
         <button
@@ -187,9 +182,7 @@ export function PostCard({ post }: { post: any }) {
           }}
           aria-label="シェア"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className={styles.icon}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
-          </svg>
+          <Icon className={styles.footerIcon} icon="iconamoon:share-1" />
         </button>
       </div>
       {
