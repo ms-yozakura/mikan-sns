@@ -3,6 +3,7 @@ import styles from "./UserPage.module.css"
 import { getUserFeed } from "../actions/getUserFeed"
 import { ProfileActions } from "../components/ProfileActions"
 import { ProfileTabs } from "../components/ProfileTabs"
+import defaultAvatar from "@/img/default-avatar.jpg"
 
 export default async function UserPage({ userId }: { userId: string }) {
   const supabase = await createClient()
@@ -39,7 +40,7 @@ export default async function UserPage({ userId }: { userId: string }) {
         <div className={styles.profileContent}>
           <div className={styles.avatarWrapper}>
             <img
-              src={data.profile.avatar_url ?? "@/img/default-avatar.jpg"}
+              src={data.profile.avatar_url ?? defaultAvatar.src}
               alt={`${data.profile.display_name}'s avatar`}
               className={styles.avatarImage}
             />

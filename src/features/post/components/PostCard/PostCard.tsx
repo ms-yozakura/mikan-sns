@@ -11,6 +11,7 @@ import { useActionState, useEffect, useState } from "react"
 import Button from "@/shared/ui/Button"
 import { createComment } from "../../actions/createComment"
 import { Icon } from "@iconify/react"
+import defaultAvatar from "@/img/default-avatar.jpg"
 
 export function PostCard({ post }: { post: any }) {
   const formattedDate = new Date(post.created_at).toLocaleString('ja-JP', {
@@ -53,15 +54,11 @@ export function PostCard({ post }: { post: any }) {
             e.stopPropagation() // カード全体のクリックイベントを抑止
           }}
           className={styles.avatarWrapper}>
-          {avatarUrl ? (
             <img
-              src={avatarUrl}
+              src={avatarUrl??defaultAvatar.src}
               alt={`${post.users?.display_name}'s avatar`}
               className={styles.avatarImage}
             />
-          ) : (
-            <div className={styles.avatarPlaceholder}>🍊</div>
-          )}
         </Link>
         <Link
           href={`/user/${post.users?.username}`}
