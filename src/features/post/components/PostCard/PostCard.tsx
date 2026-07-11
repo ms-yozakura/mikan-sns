@@ -13,7 +13,15 @@ import { createComment } from "../../actions/createComment"
 import { Icon } from "@iconify/react"
 import defaultAvatar from "@/img/default-avatar.jpg"
 
-export function PostCard({ post }: { post: any }) {
+export function PostCard({
+  post,
+  enableCommentForm = true,
+  enablePostLink = true
+}: {
+  post: any,
+  enableCommentForm?: boolean,
+  enablePostLink?: boolean
+}) {
   const formattedDate = new Date(post.created_at).toLocaleString('ja-JP', {
     month: 'short',
     day: 'numeric',
@@ -40,10 +48,13 @@ export function PostCard({ post }: { post: any }) {
     <article
       className={styles.postCard}
     >
-      <Link
-        className={styles.cardLink}
-        href={`/post/${post.id}`}
-      ></Link>
+      {
+        enablePostLink &&
+        <Link
+          className={styles.cardLink}
+          href={`/post/${post.id}`}
+        ></Link>
+      }
       {/* ヘッダー：アイコンと名前 */}
       <div
         className={styles.postHeader}
@@ -54,11 +65,11 @@ export function PostCard({ post }: { post: any }) {
             e.stopPropagation() // カード全体のクリックイベントを抑止
           }}
           className={styles.avatarWrapper}>
-            <img
-              src={avatarUrl??defaultAvatar.src}
-              alt={`${post.users?.display_name}'s avatar`}
-              className={styles.avatarImage}
-            />
+          <img
+            src={avatarUrl ?? defaultAvatar.src}
+            alt={`${post.users?.display_name}'s avatar`}
+            className={styles.avatarImage}
+          />
         </Link>
         <Link
           href={`/user/${post.users?.username}`}
@@ -183,7 +194,7 @@ export function PostCard({ post }: { post: any }) {
         </button>
       </div>
       {
-        commentFormDisp && (
+        (commentFormDisp && enableCommentForm) && (
           <form
             action={action}
             className={styles.commentForm}
