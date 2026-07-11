@@ -1,12 +1,18 @@
-import { useActionState } from "react"
+import { useActionState, useEffect } from "react"
 import { createComment } from "../../actions/createComment"
 
 import styles from "./CommentForm.module.css"
 import Button from "@/shared/ui/Button"
 
-export function CommentForm({ post }: { post: any }) {
+export function CommentForm({ post ,onSuccess}: { post: any , onSuccess?:(comment:any)=>void}) {
   const [state, action, pending] = useActionState(createComment, null)
 
+
+  useEffect(() => {
+    if (state?.success) {
+      onSuccess?.(state.comment)
+    }
+  }, [state])
 
   return (
     <div className={styles.commentFormSection}>
