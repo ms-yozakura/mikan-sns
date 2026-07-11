@@ -10,12 +10,13 @@ import { Leading } from "@/shared/ui/Leading"
 import { useRouter } from "next/navigation"
 import { Icon } from "@iconify/react"
 import { getComments } from "../actions/getComments"
+import { CommentForm } from "./CommentForm/CommentForm"
 
 
 export function PostCascade({ postId }: { postId: string }) {
 
   const [post, setPost] = useState(null)
-  const [comments, setComments] = useState<any[]>()
+  const [comments, setComments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
@@ -53,7 +54,8 @@ export function PostCascade({ postId }: { postId: string }) {
       </Leading>
 
       <div className={styles.cascadeContent}>
-        <PostCard post={post} />
+        <PostCard post={post} enableCommentForm={false} enablePostLink={false} />
+        <CommentForm post={post} onSuccess={(comment: any) => setComments((prev) => [comment, ...prev])} />
         {comments &&
           <CommentList comments={comments}
           />

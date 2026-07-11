@@ -1,9 +1,11 @@
 .cascade{
   width:100%;
-  max-width: 500px;
+  max-width: 600px;
 }
 
 .cascadeContent{
   background-color: white;
   border-radius: var(--radius-md);
+  border: 0.3px solid var(--color-border);
+  overflow: hidden;
 }

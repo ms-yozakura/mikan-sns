@@ -24,13 +24,22 @@ export async function createComment(
     return { error: "コメントを入力してください" }
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("comments")
     .insert({
       body,
       post_id: postId,
       user_id: user.id,
     })
+    .select(`
+      *,
+      users (
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .single()
 
   if (error) {
     return { error: error.message }
@@ -38,5 +47,5 @@ export async function createComment(
 
   revalidatePath(`/post/${postId}`)
 
-  return { success: true }
+  return { success: true, comment: data }
 }

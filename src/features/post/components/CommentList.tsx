@@ -11,7 +11,7 @@ export function CommentList({ comments }: { comments: any[] }) {
       <div className={styles.commentNum}>コメント:{comments.length}件</div>
       {comments.map((comment) => {
         return (
-          <CommentCard comment={comment} />
+          <CommentCard key={comment.id} comment={comment} />
         )
       })}
     </div>
