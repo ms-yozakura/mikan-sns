@@ -25,7 +25,7 @@ export function MikanSelector({
   setSelectedVariety: (id: string) => void
 }) {
 
-  const filtered = varieties.filter(v => v.name.includes(keyword))
+  const filtered = varieties.filter(v => v.name.includes(keyword)).slice(0,5)
   const selected = varieties.find(v => v.id === selectedVariety)
 
   return (
@@ -58,7 +58,7 @@ export function MikanSelector({
             onChange={e => setKeyword(e.target.value)}
           />
         </div>
-        <div>
+        <div className={styles.varietyOptionsWrapper}>
           {
             filtered.map(v => (
               <button
