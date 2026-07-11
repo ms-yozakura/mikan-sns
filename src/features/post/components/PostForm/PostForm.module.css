@@ -153,7 +153,10 @@
   border: 1px dashed var(--color-primary);
 }
 
-/* 品種選択ボタン */
+/* 品種選択ボタン */ 
+.varietyOptionsWrapper{
+  height: calc(1rem + 10px);
+}
 .varietyOption {
   background-color: var(--color-white);
   border: 1px solid #fed7aa;
