@@ -26,7 +26,7 @@ jobs:
         run: |
           git config user.name "${{ secrets.VERCEL_GIT_NAME }}"
           git config user.email "${{ secrets.VERCEL_GIT_EMAIL }}"
-          git commit --amend --no-edit --reset-author
+          git commit --amend --no-edit --reset-author --allow-empty
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
