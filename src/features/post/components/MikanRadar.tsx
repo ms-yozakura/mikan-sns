@@ -1,5 +1,5 @@
 import React from "react";
-import Radar, { RadarAxis } from "./Radar";
+import Radar, { RadarAxis } from "../../../shared/ui/Radar";
 
 /** 果実評価の各キー型定義 */
 export type MikanProfileKey =

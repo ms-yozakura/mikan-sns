@@ -2,7 +2,7 @@
 import styles from "./TestPage.module.css"
 import { Cite } from "../components/Cite"
 import { DecoratedText } from "../components/DecoratedText"
-import MikanRadar from "../../stats/components/MikanRadar"
+import MikanRadar from "../../post/components/MikanRadar"
 
 export function TestPage() {
 
