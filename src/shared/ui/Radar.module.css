@@ -1,0 +1,255 @@
+.wrapper {
+  --radar-bg: #fffaf5;
+  --radar-accent: #e8703a;
+  --radar-accent-soft: rgba(232, 112, 58, 0.16);
+  --radar-grid: #ecdfd2;
+  --radar-axis: #ddccbb;
+  --radar-text: #4a3626;
+  --radar-text-muted: #9c8a78;
+  --radar-icon-bg: #fff1e6;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  padding: 32px;
+  background: var(--radar-bg);
+  border-radius: 20px;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--radar-text);
+}
+
+.chartArea {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.gridRing {
+  fill: none;
+  stroke: var(--radar-grid);
+  stroke-width: 0.5;
+}
+
+.axisLine {
+  stroke: var(--radar-axis);
+  stroke-width: 0.4;
+}
+
+/* アニメーションの定義 */
+@keyframes expand {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.dataPolygon {
+  fill: var(--radar-accent-soft);
+  stroke: var(--radar-accent);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+  transform-origin: 50% 50%;
+  animation: expand 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hitArea {
+  cursor: pointer;
+  pointer-events: all;
+  /* タップ時のハイライトを無効化 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.axisLabel {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.iconBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--radar-icon-bg);
+  box-shadow: 0 1px 3px rgba(74, 54, 38, 0.12);
+}
+
+.icon {
+  width: 19px;
+  height: 19px;
+  color: var(--radar-accent);
+}
+
+.iconFallback {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--radar-accent);
+  letter-spacing: -0.02em;
+}
+
+/* Infoボタン */
+.infoButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--radar-axis);
+  background: var(--radar-icon-bg);
+  color: var(--radar-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: opacity 0.2s;
+}
+
+.infoButton:hover {
+  opacity: 0.8;
+}
+
+/* ツールチップ (値のポップアップ) */
+.tooltipContainer {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  margin-top: -8px;
+  z-index: 10;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.tooltipValue {
+  background: var(--radar-text);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -80%); }
+  to { opacity: 1; transform: translate(-50%, -100%); }
+}
+
+/* モーダル */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeOverlay 0.2s;
+}
+
+@keyframes fadeOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modalContent {
+  background: var(--radar-bg);
+  padding: 24px;
+  border-radius: 16px;
+  min-width: 260px;
+  max-width: 90vw;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modalTitle {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 0;
+  color: var(--radar-text);
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: var(--radar-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.legendList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.legendLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--radar-text);
+}
+
+.legendDirection {
+  font-size: 12px;
+  color: var(--radar-text-muted);
+  margin-left: auto;
+}
+
+@media (max-width: 420px) {
+  .wrapper {
+    padding: 20px;
+  }
+  .iconBadge {
+    width: 28px;
+    height: 28px;
+  }
+  .icon {
+    width: 16px;
+    height: 16px;
+  }
+}
