@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - main
+  workflow_dispatch:
 
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -14,36 +15,76 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # ============================================================
+      # 1. Repositoryをcheckout
+      # ============================================================
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Actions内だけ最新commitのauthorをVercelメンバーに変更
-      # GitHub上のcommit履歴には一切影響しない
+      # ============================================================
+      # 2. Actions上だけcommit authorを自分に変更
+      #    GitHub上の履歴は変更されない
+      # ============================================================
       - name: Override commit author
         run: |
           git config user.name "${{ secrets.VERCEL_GIT_NAME }}"
           git config user.email "${{ secrets.VERCEL_GIT_EMAIL }}"
           git commit --amend --no-edit --reset-author --allow-empty
 
+      # 確認用
+      - name: Show commit info
+        run: |
+          git log -1 --pretty=fuller
+
+      # ============================================================
+      # 3. Vercel CLI
+      # ============================================================
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
+      # ============================================================
+      # 4. Vercelの認証確認
+      # ============================================================
+      - name: Check Vercel Authentication
+        run: |
+          vercel whoami \
+            --token="${{ secrets.VERCEL_TOKEN }}"
+
+      # ============================================================
+      # 5. Projectにアクセスできるか確認
+      # ============================================================
+      - name: Check Vercel Project Access
+        run: |
+          vercel project inspect mikan-sns \
+            --scope=mshuto1227-2620s-projects \
+            --token="${{ secrets.VERCEL_TOKEN }}"
+
+      # ============================================================
+      # 6. Preview用のVercel設定・環境変数を取得
+      # ============================================================
       - name: Pull Vercel Environment
         run: |
           vercel pull \
             --yes \
             --environment=preview \
-            --token=${{ secrets.VERCEL_TOKEN }}
+            --token="${{ secrets.VERCEL_TOKEN }}" \
+            --debug
 
-      - name: Build
+      # ============================================================
+      # 7. Vercel上と同じ設定でbuild
+      # ============================================================
+      - name: Build Preview
         run: |
           vercel build \
-            --token=${{ secrets.VERCEL_TOKEN }}
+            --token="${{ secrets.VERCEL_TOKEN }}"
 
+      # ============================================================
+      # 8. Preview Deployment
+      # ============================================================
       - name: Deploy Preview
         run: |
           vercel deploy \
             --prebuilt \
-            --token=${{ secrets.VERCEL_TOKEN }}
+            --token="${{ secrets.VERCEL_TOKEN }}"
