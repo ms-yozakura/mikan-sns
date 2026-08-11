@@ -2,6 +2,7 @@
 import styles from "./TestPage.module.css"
 import { Cite } from "../components/Cite"
 import { DecoratedText } from "../components/DecoratedText"
+import MikanRadar from "../../stats/components/MikanRadar"
 
 export function TestPage() {
 
@@ -41,6 +42,13 @@ export function TestPage() {
       TypeScriptで文字列をこう...こねくり回してreturn()で出力してます。<br />
       中身はどうでもいいですが、ともかくtsx内で処理と描画（部品の作成）を両方行っている構造が伝わればと思います。
       <br />
+
+      <h3>3. レーダーチャートコンポネント</h3>
+      <div>
+        test/stats/components/MikanRadar.tsx内に記述されているコンポネント。<br />
+        test/stats/components/Radar.tsx内の汎用レーダーチャート描画コンポネントを呼び出しています。<br />
+      <MikanRadar title="あまいみかん" values={{ sweetness: 10, tartness: 10, umami: 6, juiciness: 8, thinness: 8, aroma: 5, texture: 4 }} />
+      </div>
       <br />
       <div>以上だよ</div>
       <br />
