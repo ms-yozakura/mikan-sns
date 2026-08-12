@@ -32,6 +32,13 @@ export async function getFeed(cursor?: Cursor, limit:number=10) {
         id,
         quantity,
         satisfaction,
+        sweetness,
+        tartness,
+        umami,
+        juiciness,
+        thinness,
+        aroma,
+        texture,
         mikan_varieties(
           name,
           color,

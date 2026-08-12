@@ -1,5 +1,8 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
+import { useModal } from "@/providers/ModalProvider";
 import styles from "./Radar.module.css";
 
 export interface RadarAxis {
@@ -17,6 +20,7 @@ interface RadarProps {
   levels?: number;
   title?: string;
   className?: string;
+  compact?: boolean;
 }
 
 const CENTER = 50;
@@ -47,13 +51,40 @@ export default function Radar({
   levels = 4,
   title,
   className,
+  compact = false,
 }: RadarProps) {
   const total = axes.length;
   
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [clickedIndices, setClickedIndices] = useState<number[]>([]);
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { openModal } = useModal();
+
+  const openLegend = () => {
+    openModal({
+      title: "アイコンについて",
+      className: styles.legendModal,
+      children: (
+        <div className={styles.legendList}>
+          {axes.map((axis) => (
+            <div key={axis.key} className={styles.legendItem}>
+              <span className={styles.iconBadge} style={{ width: 32, height: 32 }}>
+                {axis.icon ? (
+                  <Icon icon={axis.icon} className={styles.icon} style={{ width: 18, height: 18 }} aria-hidden="true" />
+                ) : (
+                  <span className={styles.iconFallback} aria-hidden="true">
+                    {axis.fallbackText ?? axis.label.slice(0, 2)}
+                  </span>
+                )}
+              </span>
+              <span className={styles.legendLabel}>{axis.label}</span>
+              <span className={styles.legendDirection}>{axis.directionLabel}</span>
+            </div>
+          ))}
+        </div>
+      ),
+    });
+  };
 
   const toggleClickIndex = (index: number) => {
     setClickedIndices((prev) =>
@@ -83,12 +114,17 @@ export default function Radar({
   );
 
   return (
-    <div className={[styles.wrapper, className].filter(Boolean).join(" ")}>
+    <div className={[styles.wrapper, compact && styles.compact, className].filter(Boolean).join(" ")}>
       {title && <h3 className={styles.title}>{title}</h3>}
 
       <button 
+        type="button"
         className={styles.infoButton} 
-        onClick={() => setIsModalOpen(true)}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          openLegend();
+        }}
         aria-label="アイコン対照表"
       >
         <Icon icon="mdi:information-variant" width="20" height="20" />
@@ -185,35 +221,6 @@ export default function Radar({
         })}
       </div>
 
-      {isModalOpen && (
-        <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h4 className={styles.modalTitle}>アイコンについて</h4>
-              <button className={styles.closeButton} onClick={() => setIsModalOpen(false)}>
-                <Icon icon="mdi:close" width="24" height="24" />
-              </button>
-            </div>
-            <div className={styles.legendList}>
-              {axes.map((axis) => (
-                <div key={axis.key} className={styles.legendItem}>
-                  <span className={styles.iconBadge} style={{ width: 32, height: 32 }}>
-                    {axis.icon ? (
-                      <Icon icon={axis.icon} className={styles.icon} style={{ width: 18, height: 18 }} aria-hidden="true" />
-                    ) : (
-                      <span className={styles.iconFallback} aria-hidden="true">
-                        {axis.fallbackText ?? axis.label.slice(0, 2)}
-                      </span>
-                    )}
-                  </span>
-                  <span className={styles.legendLabel}>{axis.label}</span>
-                  <span className={styles.legendDirection}>{axis.directionLabel}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

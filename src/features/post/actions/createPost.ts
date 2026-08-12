@@ -2,12 +2,44 @@
 
 import { createClient } from '@/infrastructure/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { MIKAN_PROFILE_KEYS, type MikanProfileKey } from '../types/mikanProfile'
+import type { MikanInput } from '../types/post'
 
 
 type State = {
   error: string
   success: boolean
   post?: any
+}
+
+function parseMikans(value: FormDataEntryValue | null): MikanInput[] {
+  const parsed: unknown = JSON.parse(typeof value === 'string' ? value : '[]')
+  if (!Array.isArray(parsed)) throw new Error('みかん情報が不正です')
+
+  return parsed.map((item): MikanInput => {
+    if (!item || typeof item !== 'object') throw new Error('みかん情報が不正です')
+    const source = item as Record<string, unknown>
+    const quantity = Number(source.quantity)
+    const satisfaction = Number(source.satisfaction)
+    if (typeof source.variety_id !== 'string' || !Number.isInteger(quantity) || quantity < 0) {
+      throw new Error('品種または個数が不正です')
+    }
+    if (!Number.isInteger(satisfaction) || satisfaction < 1 || satisfaction > 5) {
+      throw new Error('満足度が不正です')
+    }
+
+    const entries = MIKAN_PROFILE_KEYS.map((key) => [key, source[key]] as const)
+    const hasProfile = entries.some(([, score]) => score != null)
+    const profile = Object.fromEntries(entries.map(([key, rawScore]) => {
+      const score = Number(rawScore)
+      if (hasProfile && (!Number.isInteger(score) || score < 0 || score > 10)) {
+        throw new Error('味の評価は0〜10で入力してください')
+      }
+      return [key, score]
+    })) as Record<MikanProfileKey, number>
+
+    return { variety_id: source.variety_id, quantity, satisfaction, ...(hasProfile ? profile : {}) }
+  })
 }
 
 
@@ -24,9 +56,12 @@ export async function createPost(
   const visibility=formData.get("visibility") as string
 
   const images = JSON.parse(formData.get('images') as string ?? "[]")
-  const mikans = JSON.parse(
-    formData.get("mikans") as string ?? "[]"
-  )
+  let mikans: MikanInput[]
+  try {
+    mikans = parseMikans(formData.get("mikans"))
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'みかん情報が不正です', success: false }
+  }
 
   if (!body.trim()) {
     return {
@@ -62,11 +97,18 @@ export async function createPost(
       const { error } = await supabase
         .from("post_mikans")
         .insert(
-          mikans.map((m: any) => ({
+          mikans.map((m) => ({
             post_id: post.id,
             variety_id: m.variety_id,
             quantity: Number(m.quantity),
-            satisfaction: m.satisfaction
+            satisfaction: m.satisfaction,
+            sweetness: m.sweetness ?? null,
+            tartness: m.tartness ?? null,
+            umami: m.umami ?? null,
+            juiciness: m.juiciness ?? null,
+            thinness: m.thinness ?? null,
+            aroma: m.aroma ?? null,
+            texture: m.texture ?? null
           }))
         )
       if (error) throw error

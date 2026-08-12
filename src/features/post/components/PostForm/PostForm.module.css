@@ -153,6 +153,16 @@
   border: 1px dashed var(--color-primary);
 }
 
+.profileDetails { margin-top: 4px; padding-top: 10px; border-top: 1px solid #ffedd5; }
+.profileDetails summary {
+  display: flex; align-items: center; gap: 8px; color: var(--color-primary-hover);
+  font-size: 12px; font-weight: 700; cursor: pointer;
+}
+.optionalLabel {
+  padding: 2px 7px; border-radius: 999px; color: var(--color-text-light);
+  background: var(--color-white); font-size: 10px;
+}
+
 /* 品種選択ボタン */ 
 .varietyOptionsWrapper{
   height: calc(1rem + 10px);

@@ -9,6 +9,7 @@ type Props = {
   onClose: () => void
   onExited: () => void
   children: ReactNode
+  className?: string
 }
 
 export function Modal({
@@ -16,6 +17,7 @@ export function Modal({
   onClose,
   onExited,
   children,
+  className,
 }: Props) {
 
   const [visible, setVisible] = useState(open)
@@ -52,7 +54,7 @@ export function Modal({
       onMouseDown={onClose}
     >
       <div
-        className={`${styles.modal} ${closing ? styles.slideOut : ''
+        className={`${styles.modal} ${className ?? ''} ${closing ? styles.slideOut : ''
           }`}
         onMouseDown={(e) =>
           e.stopPropagation()
