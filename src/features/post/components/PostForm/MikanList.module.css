@@ -1,20 +1,28 @@
 
 .mikanList{
   display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  gap: 3px;
+  flex-direction: row;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
   margin-top: 10px;
   margin-bottom: 10px;
+  padding: 2px 2px 7px;
+  scrollbar-width: thin;
+  scrollbar-color: #f3c99e transparent;
 }
 
 .mikanTagContainer {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  width: 100%;
+  gap: 4px;
+  flex: 0 0 auto;
   justify-content: left;
 }
+
+.mikanList::-webkit-scrollbar { height: 5px; }
+.mikanList::-webkit-scrollbar-thumb { background: #f3c99e; border-radius: 999px; }
+.mikanList::-webkit-scrollbar-track { background: transparent; }
 
 .deleteButton {
   background: none;
@@ -31,4 +39,3 @@
 .deleteButton:hover {
   color: var(--color-error);
 }
-

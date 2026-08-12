@@ -206,11 +206,41 @@
 
 .mikanList {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding-top: 5px;
+  flex-direction: row;
+  gap: 8px;
+  padding: 7px 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
   position: relative;
   z-index: 10;
+  scrollbar-width: thin;
+  scrollbar-color: #f3c99e transparent;
+}
+
+.mikanList::-webkit-scrollbar { height: 5px; }
+.mikanList::-webkit-scrollbar-thumb { background: #f3c99e; border-radius: 999px; }
+.mikanList::-webkit-scrollbar-track { background: transparent; }
+
+.mikanEntry {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid #f3dfca;
+  border-radius: 16px;
+  background: #fffdf9;
+  box-sizing: border-box;
+}
+.mikanEntry.withRadar { flex-basis: 250px; }
+.mikanEntry > :first-child { width: 100%; border: 0; box-shadow: none; background: transparent; }
+.mikanRadar { width: 100%; max-width: none; margin: 0; }
+.simpleMikanColumn {
+  display: flex;
+  flex: 0 0 250px;
+  flex-direction: column;
+  gap: 6px;
+  align-self: flex-start;
 }
 
 .commentForm {
