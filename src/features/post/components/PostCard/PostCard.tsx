@@ -12,6 +12,8 @@ import Button from "@/shared/ui/Button"
 import { createComment } from "../../actions/createComment"
 import { Icon } from "@iconify/react"
 import defaultAvatar from "@/img/default-avatar.jpg"
+import MikanRadar from "../MikanRadar"
+import { readMikanProfile } from "../../types/mikanProfile"
 
 export function PostCard({
   post,
@@ -37,6 +39,12 @@ export function PostCard({
 
   // ユーザーのプロフィール画像URL（なければデフォルト）
   const avatarUrl = post.users?.avatar_url || null
+  const mikanEntries = (post.post_mikans ?? []).map((value: any) => ({
+    value,
+    profile: readMikanProfile(value),
+  }))
+  const reviewedMikans = mikanEntries.filter((entry: any) => entry.profile !== null)
+  const simpleMikans = mikanEntries.filter((entry: any) => entry.profile === null)
 
   useEffect(() => {
     if (state?.success) {
@@ -134,15 +142,32 @@ export function PostCard({
         }
       </div>
       <div className={styles.mikanList}>
-        {post.post_mikans?.map((value: any) => (
-          <MikanTag key={"aa" + value.id} mikan={
-            {
-              name: value.mikan_varieties.name,
-              quantity: value.quantity,
-              satisfaction: value.satisfaction
-            }
-          } variety={value.mikan_varieties} />
+        {reviewedMikans.map(({ value, profile }: any) => (
+            <div key={value.id} className={`${styles.mikanEntry} ${styles.withRadar}`}>
+              <MikanTag mikan={{
+                name: value.mikan_varieties.name,
+                quantity: value.quantity,
+                satisfaction: value.satisfaction
+              }} variety={value.mikan_varieties} hasTasteReview />
+              <MikanRadar title="" values={profile} compact className={styles.mikanRadar} />
+            </div>
         ))}
+        {simpleMikans.length > 0 && (
+          <div className={styles.simpleMikanColumn}>
+            {simpleMikans.map(({ value }: any) => (
+              <MikanTag
+                key={value.id}
+                slim
+                mikan={{
+                  name: value.mikan_varieties.name,
+                  quantity: value.quantity,
+                  satisfaction: value.satisfaction
+                }}
+                variety={value.mikan_varieties}
+              />
+            ))}
+          </div>
+        )}
       </div>
       {/* フッター：インタラクションボタン */}
       <div className={styles.postFooter}>
@@ -225,4 +250,3 @@ export function PostCard({
     </article >
   )
 }
-

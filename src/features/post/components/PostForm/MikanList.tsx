@@ -1,6 +1,5 @@
 'use client'
 
-import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 import type { MikanInput } from "../../types/post"
 import type { Variety } from "@/features/mikan/types/Variety"
 import styles from "./MikanList.module.css"
@@ -25,7 +24,7 @@ export function MikanList({
             const variety = varieties.find(v => v.id === mikan.variety_id)
             return (
               <div
-                key={"mikantag-container" + mikan.variety_id}
+                key={`${mikan.variety_id}-${index}`}
                 className={styles.mikanTagContainer}
               >
                 <MikanTag mikan={
@@ -36,14 +35,18 @@ export function MikanList({
                   }
                 }
                   variety={variety}
+                  hasTasteReview={typeof mikan.sweetness === "number"}
                 />
-                <button
-                  type="button"
-                  className={styles.deleteButton}
-                  onClick={() => onDelete(index)}
-                >
-                  ×
-                </button>
+                {mikans.length > 1 && (
+                  <button
+                    type="button"
+                    className={styles.deleteButton}
+                    onClick={() => onDelete(index)}
+                    aria-label={`${variety?.name || "みかん"}を削除`}
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             )
           }
