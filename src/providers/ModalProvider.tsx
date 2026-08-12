@@ -2,12 +2,10 @@
 
 import { createContext, useContext, useState, ReactNode, } from 'react'
 import { Modal } from '@/shared/ui/Modal'
-import styles from './ModalProvider.module.css'
-
-
 type ModalArgs = {
   title?: string
   children: ReactNode
+  className?: string
 }
 
 type ModalContextType = {
@@ -49,7 +47,12 @@ export function ModalProvider({
     <ModalContext.Provider value={{ openModal, closeModal, }}>
       {children}
       {modal && (
-        <Modal open={!isClosing} onClose={closeModal} onExited={handleExited}>
+        <Modal
+          open={!isClosing}
+          onClose={closeModal}
+          onExited={handleExited}
+          className={modal.className}
+        >
           {modal.title && (
             <h3>{modal.title}</h3>
           )}

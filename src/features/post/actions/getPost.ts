@@ -1,7 +1,6 @@
 'use server'
 
 import { createClient } from '@/infrastructure/supabase/server'
-import { a } from 'motion/react-client'
 
 export async function getPost(postId: string) {
   console.time("getPost")
@@ -25,6 +24,13 @@ export async function getPost(postId: string) {
         id,
         quantity,
         satisfaction,
+        sweetness,
+        tartness,
+        umami,
+        juiciness,
+        thinness,
+        aroma,
+        texture,
         mikan_varieties(
           name,
           color,

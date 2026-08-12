@@ -14,15 +14,17 @@
 
 
 .modal {
-  width: min(600px, 90vw);
+  width: var(--modal-width, min(600px, 90vw));
+  min-width: var(--modal-min-width, auto);
   max-height: 90vh;
 
   overflow: scroll;
   scrollbar-width: 0;
 
-  background: var(--color-white);
-  border-radius: 20px;
-  padding: 20px;
+  background: var(--modal-background, var(--color-white));
+  border-radius: var(--modal-border-radius, 20px);
+  padding: var(--modal-padding, 20px);
+  box-shadow: var(--modal-box-shadow, none);
 
   animation: slideUp 0.2s ease-out forwards;
 }

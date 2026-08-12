@@ -51,6 +51,13 @@ export async function getUserFeed({
         id,
         quantity,
         satisfaction,
+        sweetness,
+        tartness,
+        umami,
+        juiciness,
+        thinness,
+        aroma,
+        texture,
         mikan_varieties(
           name,
           color,
