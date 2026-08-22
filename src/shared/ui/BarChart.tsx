@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useMemo, useState } from "react";
 import { Icon } from "@iconify/react";
 import styles from "./BarChart.module.css";
@@ -13,6 +15,7 @@ export interface BarChartItem {
 export type SortOrder = "default" | "desc" | "asc";
 export type Orientation = "vertical" | "horizontal";
 export type VisibleCount = "auto" | number | "all";
+export type VerticalLabelDirection = "vertical" | "horizontal";
 
 interface BarChartProps {
   data: BarChartItem[];
@@ -23,6 +26,7 @@ interface BarChartProps {
   defaultSortOrder?: SortOrder;
   defaultVisibleCount?: VisibleCount;
   showIcons?: boolean;
+  verticalLabelDirection?: VerticalLabelDirection;
 }
 
 export default function BarChart({
@@ -34,6 +38,7 @@ export default function BarChart({
   defaultSortOrder = "default",
   defaultVisibleCount = "auto",
   showIcons = false,
+  verticalLabelDirection = "vertical",
 }: BarChartProps) {
   const [orientation, setOrientation] = useState<Orientation>(defaultOrientation);
   const [sortOrder, setSortOrder] = useState<SortOrder>(defaultSortOrder);
@@ -267,7 +272,11 @@ export default function BarChart({
                         </span>
                       )}
                       <span
-                        className={`${styles.labelText} ${styles.verticalText}`}
+                        className={`${styles.labelText} ${
+                          verticalLabelDirection === "horizontal"
+                            ? styles.verticalLabelHorizontal
+                            : styles.verticalText
+                        }`}
                         title={item.label}
                       >
                         {item.label}

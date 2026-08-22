@@ -1,0 +1,29 @@
+.statItem {
+  min-width: 0;
+  border: 1px solid #fed7aa;
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  padding: 18px;
+}
+
+.label {
+  color: var(--color-text-light);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.value {
+  margin-top: 8px;
+  color: var(--color-primary-hover);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+  line-height: 1;
+  overflow-wrap: anywhere;
+}
+
+.suffix {
+  margin-left: 4px;
+  color: var(--color-text-light);
+  font-size: 12px;
+  font-weight: 700;
+}

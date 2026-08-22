@@ -62,3 +62,12 @@
   font-weight: 700;
 }
 
+.empty {
+  margin: 0;
+  border-radius: var(--radius-sm);
+  background: #fff7ed;
+  padding: 12px;
+  color: var(--color-text-light);
+  font-size: 12px;
+  line-height: 1.6;
+}
