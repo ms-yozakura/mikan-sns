@@ -1,0 +1,28 @@
+.page { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; border: 1px solid #fed7aa; border-radius: var(--radius-lg); background: linear-gradient(135deg, #fff 0%, #fff7ed 100%); padding: 24px; }
+.eyebrow { margin: 0 0 5px; color: var(--color-primary-hover); font-size: 12px; font-weight: 800; }
+.title { margin: 0; font-size: clamp(26px, 5vw, 38px); line-height: 1.2; }
+.description { margin: 10px 0 0; color: var(--color-text-light); line-height: 1.7; }
+.period { flex: 0 0 auto; border: 1px solid #fdba74; border-radius: 999px; background: #fff; padding: 7px 13px; color: var(--color-primary-hover); font-weight: 800; }
+.emptyState { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 16px; border: 1px dashed #fdba74; border-radius: var(--radius-md); background: #fffaf5; padding: 18px; }
+.emptyIcon { font-size: 28px; }
+.emptyState h2, .emptyState p { margin: 0; }
+.emptyState h2 { font-size: 15px; }
+.emptyState p { margin-top: 4px; color: var(--color-text-light); line-height: 1.6; }
+.emptyLink { border-radius: var(--radius-sm); background: var(--color-primary); padding: 10px 14px; color: #fff; font-weight: 800; }
+.summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.detailGrid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(190px, .8fr); gap: 16px; }
+.card { min-width: 0; border: 1px solid #fed7aa; border-radius: var(--radius-md); background: #fff; padding: 20px; }
+.chartSection { min-width: 0; }
+.note { color: var(--color-text-light); font-size: 11px; }
+.rankingCard { display: flex; flex-direction: column; }
+.note { margin: auto 0 0; padding-top: 18px; line-height: 1.6; }
+
+@media (max-width: 800px) {
+  .page { padding-bottom: 20px; }
+  .header { border-radius: var(--radius-md); padding: 18px; }
+  .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .detailGrid { grid-template-columns: 1fr; }
+  .emptyState { grid-template-columns: auto 1fr; }
+  .emptyLink { grid-column: 1 / -1; text-align: center; }
+}

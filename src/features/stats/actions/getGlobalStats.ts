@@ -1,29 +1,34 @@
 'use server'
 
+import { createClient } from "@/infrastructure/supabase/server"
+import { cache } from "react"
 import type { GlobalStats } from "../types/types"
 
-export async function getGlobalStats(): Promise<GlobalStats> {
-  return {
-    monthlyCount: 3482,
-    monthlyPosts: 421,
-    activeUsers: 86,
-    averageSatisfaction: 4.58,
-    ranking: [
-      {
-        id: 1,
-        name: "せとか",
-        count: 542,
-      },
-      {
-        id: 2,
-        name: "甘平",
-        count: 481,
-      },
-      {
-        id: 3,
-        name: "日向夏",
-        count: 409,
-      },
-    ],
+const EMPTY_STATS: GlobalStats = {
+  periodLabel: new Intl.DateTimeFormat("ja-JP", {
+    month: "numeric",
+    timeZone: "Asia/Tokyo",
+  }).format(new Date()),
+  monthlyCount: 0,
+  monthlyPosts: 0,
+  activeUsers: 0,
+  averageSatisfaction: 0,
+  ranking: [],
+  monthlyTrend: [],
+}
+
+const loadGlobalStats = cache(async (): Promise<GlobalStats> => {
+  const supabase = await createClient()
+  const { data, error } = await supabase.rpc("get_global_stats")
+
+  if (error) {
+    console.error("Failed to load global stats", error)
+    return EMPTY_STATS
   }
+
+  return data as GlobalStats
+})
+
+export async function getGlobalStats(): Promise<GlobalStats> {
+  return loadGlobalStats()
 }

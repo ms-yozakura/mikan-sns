@@ -8,6 +8,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/infrastructure/supabase/server"
 import { ProtectedShell } from './ProtectedShell'
 import { HomeStatsSummary } from '@/features/stats/components/HomeStatsSummary'
+import { getGlobalStats } from '@/features/stats/actions/getGlobalStats'
 
 export default async function ProtectedLayout({
 
@@ -33,16 +34,19 @@ export default async function ProtectedLayout({
 
   }
 
-  const { data: profile } = await supabase
-    .from("users")
-    .select("avatar_url,username,display_name")
-    .eq("id", user.id)
-    .single()
+  const [{ data: profile }, stats] = await Promise.all([
+    supabase
+      .from("users")
+      .select("avatar_url,username,display_name")
+      .eq("id", user.id)
+      .single(),
+    getGlobalStats(),
+  ])
 
   return (
     <ProtectedShell
       navigation={<Navigation profile={profile} />}
-      stats={<HomeStatsSummary variant="desktop" />}
+      stats={<HomeStatsSummary variant="desktop" stats={stats} />}
     >
       {children}
     </ProtectedShell>

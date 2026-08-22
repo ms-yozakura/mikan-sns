@@ -1,15 +1,14 @@
 import Link from "next/link"
+import type { GlobalStats } from "../types/types"
 import styles from "./HomeStatsSummary.module.css"
 import { RankingSection } from "./RankingSection"
 
-
-import { popularVarieties, topEaters, monthlyStatsData } from "../test/statsDataSamples"
-
 type HomeStatsSummaryProps = {
   variant: "desktop" | "mobile"
+  stats: GlobalStats
 }
 
-export function HomeStatsSummary({ variant }: HomeStatsSummaryProps) {
+export function HomeStatsSummary({ variant, stats }: HomeStatsSummaryProps) {
   const rankingLimit = variant === "mobile" ? 2 : 3
   const showCounts = variant === "desktop"
 
@@ -20,27 +19,27 @@ export function HomeStatsSummary({ variant }: HomeStatsSummaryProps) {
           <p className={styles.eyebrow}>今月のまとめ</p>
           <h2 className={styles.title}>みかん統計</h2>
         </div>
-        <span className={styles.badge}>7月</span>
+        <span className={styles.badge}>{stats.periodLabel}</span>
       </div>
-      (データは適当です)
-
 
       <div className={styles.heroStat}>
-        <span className={styles.heroLabel}>一ヶ月のみかん消費量</span>
-        <strong className={styles.heroValue}>{monthlyStatsData[0].totalMikan}</strong>
+        <span className={styles.heroLabel}>今月食べたみかん</span>
+        <strong className={styles.heroValue}>
+          {stats.monthlyCount.toLocaleString("ja-JP")}
+          <span className={styles.heroUnit}>個</span>
+        </strong>
       </div>
 
       <div className={styles.sections}>
         <RankingSection
-          title="人気品種ランキング"
-          items={popularVarieties.slice(0, rankingLimit)}
+          title="よく食べられた品種"
+          items={stats.ranking.slice(0, rankingLimit)}
           showCounts={showCounts}
         />
-        <RankingSection
-          title="食べた個数ランキング"
-          items={topEaters.slice(0, rankingLimit)}
-          showCounts={showCounts}
-        />
+        <dl className={styles.quickStats}>
+          <div><dt>投稿</dt><dd>{stats.monthlyPosts.toLocaleString("ja-JP")}件</dd></div>
+          <div><dt>活動ユーザー</dt><dd>{stats.activeUsers.toLocaleString("ja-JP")}人</dd></div>
+        </dl>
       </div>
 
       <Link href="/stats" className={styles.moreLink}>
@@ -49,4 +48,3 @@ export function HomeStatsSummary({ variant }: HomeStatsSummaryProps) {
     </section>
   )
 }
-
