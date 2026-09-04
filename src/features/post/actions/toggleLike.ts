@@ -1,10 +1,18 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/infrastructure/supabase/server'
 
 type ToggleLikeResult =
   | { success: true; liked: boolean }
   | { success: false; error: string }
+
+function revalidateLikeViews(postId: string) {
+  revalidatePath('/home')
+  revalidatePath('/profile')
+  revalidatePath(`/post/${postId}`)
+  revalidatePath('/user/[userId]', 'page')
+}
 
 export async function toggleLike(postId: string): Promise<ToggleLikeResult> {
   const supabase = await createClient()
@@ -39,6 +47,7 @@ export async function toggleLike(postId: string): Promise<ToggleLikeResult> {
       return { success: false, error: 'いいねを解除できませんでした。' }
     }
 
+    revalidateLikeViews(postId)
     return { success: true, liked: false }
   }
 
@@ -50,6 +59,7 @@ export async function toggleLike(postId: string): Promise<ToggleLikeResult> {
   if (insertError) {
     // 別タブなどから同時に押された場合は、重複制約を最終状態として扱う。
     if (insertError.code === '23505') {
+      revalidateLikeViews(postId)
       return { success: true, liked: true }
     }
 
@@ -57,5 +67,6 @@ export async function toggleLike(postId: string): Promise<ToggleLikeResult> {
     return { success: false, error: 'いいねできませんでした。' }
   }
 
+  revalidateLikeViews(postId)
   return { success: true, liked: true }
 }
