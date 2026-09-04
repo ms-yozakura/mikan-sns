@@ -33,7 +33,7 @@ export function MikanList({
         return (
           <article
             key={`${mikan.variety_id}-${index}`}
-            className={`${styles.mikanCard} ${isActive ? styles.active : ""}`}
+            className={`${styles.mikanCard} ${isActive ? styles.active : styles.compact}`}
           >
             <div className={styles.cardHeader}>
               <button
@@ -45,13 +45,20 @@ export function MikanList({
                 <MikanIcon
                   color={variety?.color ?? "#ff9800"}
                   shape={variety?.shape ?? "unknown"}
-                  size={34}
+                  size={isActive ? 34 : 28}
                 />
                 <span className={styles.varietyText}>
                   <strong>{variety?.name || "不明"}</strong>
-                  <small>{isActive ? "選択中・上から品種変更" : "タップして編集"}</small>
+                  {!isActive && (
+                    <small className={styles.compactSummary}>
+                      <span>{mikan.quantity}個</span>
+                      <span className={styles.ratingSummary}>
+                        <Icon icon="mdi:star" aria-hidden="true" />
+                        {mikan.satisfaction}
+                      </span>
+                    </small>
+                  )}
                 </span>
-                <Icon icon="mdi:chevron-up" className={styles.focusIcon} aria-hidden="true" />
               </button>
 
               {mikans.length > 1 && (
@@ -66,44 +73,46 @@ export function MikanList({
               )}
             </div>
 
-            <div className={styles.cardControls}>
-              <div className={styles.controlGroup}>
-                <span className={styles.controlLabel}>個数</span>
-                <div className={styles.quantityStepper}>
-                  <button
-                    type="button"
-                    aria-label="個数を減らす"
-                    onClick={() => onQuantityChange(index, Math.max(0, mikan.quantity - 1))}
-                    disabled={mikan.quantity <= 0}
-                  >
-                    <Icon icon="mdi:minus" aria-hidden="true" />
-                  </button>
-                  <input
-                    type="number"
-                    min={0}
-                    inputMode="numeric"
-                    aria-label={`${variety?.name || "みかん"}の個数`}
-                    value={mikan.quantity}
-                    onChange={event => onQuantityChange(index, Math.max(0, Math.floor(Number(event.target.value || 0))))}
+            {isActive && (
+              <div className={styles.cardControls}>
+                <div className={styles.controlGroup}>
+                  <span className={styles.controlLabel}>個数</span>
+                  <div className={styles.quantityStepper}>
+                    <button
+                      type="button"
+                      aria-label="個数を減らす"
+                      onClick={() => onQuantityChange(index, Math.max(0, mikan.quantity - 1))}
+                      disabled={mikan.quantity <= 0}
+                    >
+                      <Icon icon="mdi:minus" aria-hidden="true" />
+                    </button>
+                    <input
+                      type="number"
+                      min={0}
+                      inputMode="numeric"
+                      aria-label={`${variety?.name || "みかん"}の個数`}
+                      value={mikan.quantity}
+                      onChange={event => onQuantityChange(index, Math.max(0, Math.floor(Number(event.target.value || 0))))}
+                    />
+                    <button
+                      type="button"
+                      aria-label="個数を増やす"
+                      onClick={() => onQuantityChange(index, mikan.quantity + 1)}
+                    >
+                      <Icon icon="mdi:plus" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.controlGroup}>
+                  <span className={styles.controlLabel}>満足度</span>
+                  <StarRating
+                    value={mikan.satisfaction}
+                    onChange={star => onSatisfactionChange(index, star)}
                   />
-                  <button
-                    type="button"
-                    aria-label="個数を増やす"
-                    onClick={() => onQuantityChange(index, mikan.quantity + 1)}
-                  >
-                    <Icon icon="mdi:plus" aria-hidden="true" />
-                  </button>
                 </div>
               </div>
-
-              <div className={styles.controlGroup}>
-                <span className={styles.controlLabel}>満足度</span>
-                <StarRating
-                  value={mikan.satisfaction}
-                  onChange={star => onSatisfactionChange(index, star)}
-                />
-              </div>
-            </div>
+            )}
           </article>
         )
       })}
