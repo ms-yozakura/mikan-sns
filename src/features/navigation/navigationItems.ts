@@ -1,30 +1,22 @@
-
-
 export const navigationItems = [
   {
-    label: "Home",
+    label: "ホーム",
     href: "/home",
     icon: "weui:home-outlined",
   },
   {
-    label: "Search",
+    label: "検索",
     href: "/search",
     icon: "weui:search-outlined",
   },
   {
-    label: "Inbox",
+    label: "通知",
     href: "/notifications",
-    icon: "mdi:bell",
+    icon: "mdi:bell-outline",
   },
-  /*{
-    label: "Profile",
-    href: "/profile",
-    icon: "mdi:account",
-  },*/
   {
-    label: "Setting",
+    label: "設定",
     href: "/setting",
     icon: "weui:setting-outlined",
   },
-
 ]
