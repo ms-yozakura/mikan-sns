@@ -151,6 +151,10 @@
   transition: all 0.15s ease;
 }
 
+.actionButton:disabled {
+  cursor: default;
+}
+
 .icon {
   width: 1.25rem;
   height: 1.25rem;
@@ -168,12 +172,14 @@
   background-color: #f0f9ff;
 }
 
-.likeBtn:hover {
+.likeBtn:hover,
+.likeBtn.liked {
   color: #e11d48;
   background-color: #fff1f2;
 }
 
-.likeBtn:hover .icon {
+.likeBtn:hover .icon,
+.likeBtn.liked .footerIcon {
   transform: scale(1.1);
 }
 
@@ -185,6 +191,14 @@
 .shareBtn:hover {
   color: #16a34a;
   background-color: #f0fdf4;
+}
+
+.actionError {
+  position: relative;
+  z-index: 10;
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: #be123c;
 }
 
 .imageArea {
@@ -201,7 +215,6 @@
   border: 1px solid var(--color-border);
   position: relative;
   z-index: 10;
-
 }
 
 .mikanList {
@@ -272,7 +285,7 @@
   background-color: var(--color-white);
 }
 
-
-.footerIcon{
-  font-size:1.5rem;
+.footerIcon {
+  font-size: 1.5rem;
+  transition: transform 0.15s ease;
 }
