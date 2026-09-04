@@ -10,6 +10,7 @@ type Props = {
   onExited: () => void
   children: ReactNode
   className?: string
+  hideCloseButton?: boolean
 }
 
 export function Modal({
@@ -18,6 +19,7 @@ export function Modal({
   onExited,
   children,
   className,
+  hideCloseButton = false,
 }: Props) {
 
   const [visible, setVisible] = useState(open)
@@ -60,9 +62,11 @@ export function Modal({
           e.stopPropagation()
         }
       >
-        <button className={styles.closeButton} onClick={onClose}>
-          <Icon icon="mdi:close"></Icon>
-        </button>
+        {!hideCloseButton && (
+          <button className={styles.closeButton} onClick={onClose} aria-label="閉じる">
+            <Icon icon="mdi:close" />
+          </button>
+        )}
 
         {children}
       </div>
