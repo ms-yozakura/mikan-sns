@@ -1,12 +1,95 @@
-
-
-.feedWrapper{
+.feedWrapper {
+  position: relative;
   width: 100%;
   max-width: 600px;
+  padding: 18px 10px 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  border:0.2px solid #ccc;
-  border-radius: var(--radius-md);
+  gap: 22px;
+}
+
+.feedWrapper::before,
+.feedWrapper::after {
+  content: "🍃";
+  position: absolute;
+  z-index: 0;
+  font-size: 22px;
+  opacity: .72;
+  pointer-events: none;
+}
+
+.feedWrapper::before {
+  top: 12%;
+  left: -5px;
+  transform: rotate(-28deg);
+}
+
+.feedWrapper::after {
+  top: 58%;
+  right: -4px;
+  transform: rotate(25deg) scale(.82);
+}
+
+.feedWrapper > article {
+  position: relative;
+  z-index: 1;
+  border: 1px solid #f1dcc4;
+  border-radius: 22px;
+  box-shadow: 0 9px 24px rgb(91 61 31 / 9%);
   overflow: hidden;
+  transform-origin: top center;
+}
+
+.feedWrapper > article:nth-of-type(3n + 1) {
+  transform: rotate(-.35deg);
+}
+
+.feedWrapper > article:nth-of-type(3n + 2) {
+  transform: rotate(.3deg);
+}
+
+.feedWrapper > article::before {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  top: -19px;
+  left: 50%;
+  width: 2px;
+  height: 20px;
+  background: #b48a5b;
+  box-shadow: -62px 0 #b48a5b, 62px 0 #b48a5b;
+  pointer-events: none;
+}
+
+.feedWrapper > article:nth-of-type(5n)::after {
+  content: "🍊";
+  position: absolute;
+  z-index: 3;
+  top: 42%;
+  right: -7px;
+  font-size: 18px;
+  transform: rotate(13deg);
+  pointer-events: none;
+}
+
+@media (max-width: 520px) {
+  .feedWrapper {
+    padding-inline: 4px;
+    gap: 20px;
+  }
+
+  .feedWrapper::before {
+    left: -8px;
+  }
+
+  .feedWrapper::after {
+    right: -8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedWrapper > article {
+    transform: none !important;
+  }
 }
