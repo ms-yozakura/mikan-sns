@@ -12,13 +12,25 @@ import { MikanList } from "./MikanList"
 import { getMikanVarieties } from "../../actions/getMikanVarieties"
 import { StarRating } from "./StarRating"
 import { FileUploader } from "./FileUploader"
-import { DEFAULT_MIKAN_PROFILE, type MikanProfileValues } from "../../types/mikanProfile"
+import {
+  DEFAULT_MIKAN_PROFILE,
+  MIKAN_PROFILE_KEYS,
+  readMikanProfile,
+  type MikanProfileValues,
+} from "../../types/mikanProfile"
 import { MikanProfileEditor } from "./MikanProfileEditor"
+import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 
 const DEFAULT_VARIETY_ID = "a5dab591-9888-420c-be86-b4f4b253153f"
 
 function createDefaultMikan(): MikanInput {
   return { variety_id: DEFAULT_VARIETY_ID, quantity: 1, satisfaction: 3 }
+}
+
+function clearTasteProfile(mikan: MikanInput): MikanInput {
+  const next = { ...mikan }
+  for (const key of MIKAN_PROFILE_KEYS) delete next[key]
+  return next
 }
 
 const initialState = {
@@ -42,13 +54,14 @@ export function PostFormClient({
   const [selectedVariety, setSelectedVariety] = useState(DEFAULT_VARIETY_ID)
   const [quantity, setQuantity] = useState("1")
   const [satisfaction, setSatisfaction] = useState(3)
-  const [isProfileEnabled, setIsProfileEnabled] = useState(false)
   const [profile, setProfile] = useState<MikanProfileValues>({ ...DEFAULT_MIKAN_PROFILE })
+  const [evaluationTargetVariety, setEvaluationTargetVariety] = useState(DEFAULT_VARIETY_ID)
   const [postMikans, setPostMikans] = useState<MikanInput[]>([createDefaultMikan()])
   const [editingIndex, setEditingIndex] = useState(0)
   const [varieties, setVarieties] = useState<any[]>([])
 
   const isMutating = pending || uploading
+  const evaluationVarietyIds = Array.from(new Set(postMikans.map(mikan => mikan.variety_id)))
 
   useEffect(() => {
     getMikanVarieties().then(setVarieties)
@@ -64,12 +77,19 @@ export function PostFormClient({
       setSelectedVariety(DEFAULT_VARIETY_ID)
       setQuantity("1")
       setSatisfaction(3)
-      setIsProfileEnabled(false)
+      setEvaluationTargetVariety(DEFAULT_VARIETY_ID)
       setProfile({ ...DEFAULT_MIKAN_PROFILE })
       setUploading(false)
       onSuccess?.(state.post)
     }
   }, [state.success])
+
+  useEffect(() => {
+    if (evaluationVarietyIds.includes(evaluationTargetVariety)) return
+    const nextTarget = evaluationVarietyIds[0] ?? DEFAULT_VARIETY_ID
+    setEvaluationTargetVariety(nextTarget)
+    setProfile(getProfileForVariety(nextTarget))
+  }, [postMikans, evaluationTargetVariety])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -108,10 +128,46 @@ export function PostFormClient({
     ))
   }
 
+  function changeEditingVariety(varietyId: string) {
+    setSelectedVariety(varietyId)
+    setPostMikans(prev => prev.map((mikan, index) =>
+      index === editingIndex
+        ? { ...clearTasteProfile(mikan), variety_id: varietyId }
+        : mikan
+    ))
+  }
+
   function updateQuantity(nextQuantity: number) {
     const normalizedQuantity = Math.max(0, Math.floor(nextQuantity))
     setQuantity(String(normalizedQuantity))
     updateEditingMikan({ quantity: normalizedQuantity })
+  }
+
+  function getProfileForVariety(varietyId: string): MikanProfileValues {
+    const evaluatedMikan = postMikans.find(mikan =>
+      mikan.variety_id === varietyId && readMikanProfile(mikan) !== null
+    )
+    return evaluatedMikan
+      ? readMikanProfile(evaluatedMikan) ?? { ...DEFAULT_MIKAN_PROFILE }
+      : { ...DEFAULT_MIKAN_PROFILE }
+  }
+
+  function switchEvaluationTarget(varietyId: string) {
+    setEvaluationTargetVariety(varietyId)
+    setProfile(getProfileForVariety(varietyId))
+  }
+
+  function applyProfileToVariety(varietyId: string, values: MikanProfileValues) {
+    setPostMikans(prev => {
+      let applied = false
+      return prev.map(mikan => {
+        if (mikan.variety_id !== varietyId) return mikan
+        const cleanMikan = clearTasteProfile(mikan)
+        if (applied) return cleanMikan
+        applied = true
+        return { ...cleanMikan, ...values }
+      })
+    })
   }
 
   function addAnotherMikan() {
@@ -122,8 +178,6 @@ export function PostFormClient({
     setKeyword("")
     setQuantity("1")
     setSatisfaction(3)
-    setIsProfileEnabled(false)
-    setProfile({ ...DEFAULT_MIKAN_PROFILE })
   }
 
   function deleteMikan(index: number) {
@@ -139,14 +193,6 @@ export function PostFormClient({
     setSelectedVariety(editingMikan.variety_id)
     setQuantity(String(editingMikan.quantity))
     setSatisfaction(editingMikan.satisfaction)
-    const hasProfile = typeof editingMikan.sweetness === "number"
-    setIsProfileEnabled(hasProfile)
-    setProfile(hasProfile ? {
-      sweetness: editingMikan.sweetness!, tartness: editingMikan.tartness!,
-      umami: editingMikan.umami!, juiciness: editingMikan.juiciness!,
-      thinness: editingMikan.thinness!, aroma: editingMikan.aroma!,
-      texture: editingMikan.texture!,
-    } : { ...DEFAULT_MIKAN_PROFILE })
   }
 
   return (
@@ -189,10 +235,7 @@ export function PostFormClient({
               keyword={keyword}
               setKeyword={setKeyword}
               selectedVariety={selectedVariety}
-              setSelectedVariety={(id) => {
-                setSelectedVariety(id)
-                updateEditingMikan({ variety_id: id })
-              }}
+              setSelectedVariety={changeEditingVariety}
             />
           </section>
 
@@ -271,19 +314,47 @@ export function PostFormClient({
           </section>
 
           <section className={`${styles.formSection} ${styles.compactSection}`}>
-            <details className={styles.profileDetails} onToggle={(event) => {
-              if (!event.currentTarget.open || isProfileEnabled) return
-              setIsProfileEnabled(true)
-              updateEditingMikan(profile)
-            }}>
+            <details className={styles.profileDetails}>
               <summary>
                 <span>味を詳しく評価</span>
                 <span className={styles.optionalLabel}>任意</span>
               </summary>
-              {isProfileEnabled && <MikanProfileEditor values={profile} onChange={(values) => {
+
+              <div className={styles.evaluationTargetSection}>
+                <span className={styles.subtleLabel}>評価する品種</span>
+                <div className={styles.evaluationVarietyTabs} role="tablist" aria-label="味評価する品種">
+                  {evaluationVarietyIds.map(varietyId => {
+                    const variety = varieties.find(variety => variety.id === varietyId)
+                    if (!variety) return null
+                    const isActive = varietyId === evaluationTargetVariety
+                    const hasEvaluation = postMikans.some(mikan =>
+                      mikan.variety_id === varietyId && readMikanProfile(mikan) !== null
+                    )
+
+                    return (
+                      <button
+                        key={varietyId}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        className={`${styles.evaluationVarietyTab} ${isActive ? styles.active : ""}`}
+                        onClick={() => switchEvaluationTarget(varietyId)}
+                      >
+                        <MikanIcon color={variety.color} shape={variety.shape} size={24} />
+                        <span>{variety.name}</span>
+                        {hasEvaluation && (
+                          <Icon icon="mdi:check-circle" className={styles.evaluationDoneIcon} aria-label="評価済み" />
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <MikanProfileEditor values={profile} onChange={(values) => {
                 setProfile(values)
-                updateEditingMikan(values)
-              }} />}
+                applyProfileToVariety(evaluationTargetVariety, values)
+              }} />
             </details>
           </section>
 
