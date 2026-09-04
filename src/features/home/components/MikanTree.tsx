@@ -8,21 +8,19 @@ type Branch = {
   nextX: number
   nextY: number
   width: number
-  depth: number
 }
 
 type Leaf = {
   x: number
   y: number
   angle: number
-  scale: number
+  size: number
   tone: number
 }
 
 type Fruit = {
   x: number
   y: number
-  scale: number
 }
 
 type TreeModel = {
@@ -31,13 +29,57 @@ type TreeModel = {
   fruit: Fruit[]
 }
 
+export type MikanTreePreset = "classic" | "wide" | "upright" | "dense"
+
 type MikanTreeProps = {
   seed: string
   className?: string
+  preset?: MikanTreePreset
 }
 
-const TREE_VERSION = 1
+type PresetConfig = {
+  trunkLean: number
+  sideBranchChance: number
+  leftAngleScale: number
+  rightAngleScale: number
+  lengthScale: number
+}
+
+const TREE_VERSION = 2
 const LEAF_COLORS = ["#5e9e4d", "#72ad58", "#88b96c"]
+
+// classic は添付された tree.html の値そのまま。
+// 他 preset は乱数アルゴリズムを変えず、範囲だけ少し操作する。
+const PRESETS: Record<MikanTreePreset, PresetConfig> = {
+  classic: {
+    trunkLean: 1,
+    sideBranchChance: 0.7,
+    leftAngleScale: 1,
+    rightAngleScale: 1,
+    lengthScale: 1,
+  },
+  wide: {
+    trunkLean: 1,
+    sideBranchChance: 0.72,
+    leftAngleScale: 1.18,
+    rightAngleScale: 1.18,
+    lengthScale: 1.03,
+  },
+  upright: {
+    trunkLean: 0.55,
+    sideBranchChance: 0.68,
+    leftAngleScale: 0.78,
+    rightAngleScale: 0.78,
+    lengthScale: 1,
+  },
+  dense: {
+    trunkLean: 1,
+    sideBranchChance: 0.82,
+    leftAngleScale: 1,
+    rightAngleScale: 1,
+    lengthScale: 0.98,
+  },
+}
 
 function hashString(value: string) {
   let hash = 2166136261 >>> 0
@@ -61,86 +103,93 @@ function createRandom(seed: number) {
   }
 }
 
-function createTree(seed: string): TreeModel {
-  const random = createRandom(hashString(`mikan-tree:v${TREE_VERSION}:${seed}`))
+function createTree(seed: string, preset: MikanTreePreset): TreeModel {
+  const config = PRESETS[preset]
+  const random = createRandom(hashString(`mikan-tree:v${TREE_VERSION}:${preset}:${seed}`))
   const between = (min: number, max: number) => min + random() * (max - min)
+
   const branches: Branch[] = []
   const leaves: Leaf[] = []
   const fruit: Fruit[] = []
 
-  function grow(
-    x: number,
-    y: number,
-    length: number,
-    angle: number,
-    width: number,
-    depth: number,
-  ) {
-    const bentAngle = angle + between(-0.12, 0.12)
-    const nextX = x + Math.cos(bentAngle) * length
-    const nextY = y + Math.sin(bentAngle) * length
-
-    branches.push({ x, y, nextX, nextY, width, depth })
-
-    if (depth >= 5 || length < 0.055) {
-      const leafCount = 4 + Math.floor(between(0, 3))
-
-      for (let index = 0; index < leafCount; index += 1) {
-        const spreadX = between(-0.032, 0.032)
-        const spreadY = between(-0.022, 0.022)
-        const angleJitter = between(-0.35, 0.35)
-
+  // 元 tree.html の branch() をほぼそのまま移植。
+  function branch(x: number, y: number, len: number, angle: number, thick: number) {
+    if (len < 8) {
+      if (random() < 0.6) {
         leaves.push({
-          // 葉の尖った根元を必ず枝先に置く。spread は向きのばらつきにだけ使う。
-          x: nextX,
-          y: nextY,
-          angle: bentAngle + Math.atan2(spreadY, spreadX) + angleJitter,
-          scale: between(0.78, 1.12),
+          x,
+          y,
+          angle: random() * Math.PI * 2,
+          size: between(5, 10),
           tone: Math.floor(between(0, LEAF_COLORS.length)),
         })
       }
 
-      if (random() < 0.22) {
-        fruit.push({
-          x: nextX + between(-0.018, 0.018),
-          y: nextY + between(0.008, 0.032),
-          scale: between(0.84, 1.16),
-        })
+      // 元コードの mode > 0.6 時の実付き。ホームでは常に成熟木として扱う。
+      if (random() < 0.08) {
+        fruit.push({ x, y })
       }
-
       return
     }
 
-    const nextLength = length * between(0.69, 0.78)
-    grow(
+    const nextX = x + Math.cos(angle) * len
+    const nextY = y + Math.sin(angle) * len
+
+    branches.push({ x, y, nextX, nextY, width: thick })
+
+    // メイン枝
+    branch(
       nextX,
       nextY,
-      nextLength,
-      angle + between(-0.1, 0.1),
-      width * 0.76,
-      depth + 1,
+      len * between(0.7, 0.85) * config.lengthScale,
+      angle + between(-0.4, 0.4),
+      thick * 0.85,
     )
 
-    if (depth > 0 && random() < 0.82) {
-      const side = random() < 0.5 ? -1 : 1
-      grow(
+    // 左右の横枝。元コード同様、それぞれ独立に70%で生成。
+    if (random() < config.sideBranchChance) {
+      branch(
         nextX,
         nextY,
-        length * between(0.49, 0.61),
-        angle + side * between(0.44, 0.68),
-        width * 0.58,
-        depth + 1,
+        len * between(0.4, 0.6) * config.lengthScale,
+        angle + between(-0.8, -0.3) * config.leftAngleScale,
+        thick * 0.6,
+      )
+    }
+
+    if (random() < config.sideBranchChance) {
+      branch(
+        nextX,
+        nextY,
+        len * between(0.4, 0.6) * config.lengthScale,
+        angle + between(0.3, 0.8) * config.rightAngleScale,
+        thick * 0.6,
       )
     }
   }
 
-  const lean = between(-0.05, 0.05)
-  grow(0.5, 0.94, 0.18, -Math.PI / 2 + lean, 0.035, 0)
+  // 元 tree.html の draw() と同じ6節の幹。
+  let x = 0
+  let y = 0
+  const angle = -Math.PI / 2 + between(-0.05, 0.05) * config.trunkLean
 
-  // カードの裏に樹冠が埋もれすぎないよう、左右の主枝を少し長く・横向きにする。
-  const crownY = 0.75 + between(-0.018, 0.018)
-  grow(0.5, crownY, 0.235, -Math.PI / 2 - between(0.42, 0.58), 0.029, 1)
-  grow(0.5, crownY, 0.235, -Math.PI / 2 + between(0.42, 0.58), 0.029, 1)
+  for (let index = 0; index < 6; index += 1) {
+    const nextX = x + Math.cos(angle) * 15
+    const nextY = y + Math.sin(angle) * 15
+
+    // 元は 12 - i。前回の要望を反映して根元側のみ少し太くする。
+    const originalWidth = 12 - index
+    const widthScale = index < 2 ? 1.18 : 1
+    branches.push({ x, y, nextX, nextY, width: originalWidth * widthScale })
+
+    if (index > 2) {
+      branch(nextX, nextY, between(60, 70), angle + between(-0.4, -0.1), 5)
+      branch(nextX, nextY, between(60, 70), angle + between(0.1, 0.4), 5)
+    }
+
+    x = nextX
+    y = nextY
+  }
 
   return { branches, leaves, fruit }
 }
@@ -148,7 +197,6 @@ function createTree(seed: string): TreeModel {
 function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
   const width = canvas.clientWidth
   const height = canvas.clientHeight
-
   if (width === 0 || height === 0) return
 
   const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
@@ -160,51 +208,63 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
 
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
   context.clearRect(0, 0, width, height)
-
-  const scale = Math.min(width, height)
-  const x = (value: number) => value * width
-  const y = (value: number) => value * height
-
   context.lineCap = "round"
   context.lineJoin = "round"
 
-  for (const branch of [...tree.branches].sort((left, right) => left.depth - right.depth)) {
-    const trunkScale = branch.depth === 0 ? 1.28 : branch.depth === 1 ? 1.14 : 1
+  const points = tree.branches.flatMap((item) => [
+    { x: item.x, y: item.y },
+    { x: item.nextX, y: item.nextY },
+  ])
 
-    context.strokeStyle = branch.depth < 2 ? "#765033" : "#85603d"
-    context.lineWidth = Math.max(1.5, branch.width * scale * trunkScale)
+  for (const leaf of tree.leaves) points.push({ x: leaf.x, y: leaf.y })
+  for (const item of tree.fruit) points.push({ x: item.x, y: item.y })
+
+  const minX = Math.min(...points.map((point) => point.x))
+  const maxX = Math.max(...points.map((point) => point.x))
+  const minY = Math.min(...points.map((point) => point.y))
+  const maxY = Math.max(...points.map((point) => point.y))
+
+  const treeWidth = Math.max(1, maxX - minX)
+  const treeHeight = Math.max(1, maxY - minY)
+  const drawingScale = Math.min(
+    (width * 0.94) / treeWidth,
+    (height * 0.88) / treeHeight,
+  )
+
+  const centerX = (minX + maxX) / 2
+  const bottomY = maxY
+  const screenX = (value: number) => width / 2 + (value - centerX) * drawingScale
+  const screenY = (value: number) => height * 0.94 + (value - bottomY) * drawingScale
+
+  for (const item of tree.branches) {
+    context.strokeStyle = item.width >= 7 ? "#765033" : "#85603d"
+    context.lineWidth = Math.max(1.2, item.width * drawingScale)
     context.beginPath()
-    context.moveTo(x(branch.x), y(branch.y))
-    context.quadraticCurveTo(
-      x((branch.x + branch.nextX) / 2 + 0.008 * Math.sin(branch.depth)),
-      y((branch.y + branch.nextY) / 2),
-      x(branch.nextX),
-      y(branch.nextY),
-    )
+    context.moveTo(screenX(item.x), screenY(item.y))
+    context.lineTo(screenX(item.nextX), screenY(item.nextY))
     context.stroke()
   }
 
+  // 元 tree.html の leaf() と同じ2円弧の葉。
   for (const leaf of tree.leaves) {
     context.save()
-    context.translate(x(leaf.x), y(leaf.y))
+    context.translate(screenX(leaf.x), screenY(leaf.y))
     context.rotate(leaf.angle)
-    context.scale(leaf.scale, leaf.scale)
     context.fillStyle = LEAF_COLORS[leaf.tone]
 
-    // 元の tree.html と同じ、原点側が尖った2円弧の葉。原点＝枝先なので必ず接続する。
-    const leafSize = scale * 0.026
+    const size = leaf.size * drawingScale
     context.beginPath()
     context.arc(
-      leafSize * Math.cos(Math.PI / 4),
-      -leafSize * Math.sin(Math.PI / 4),
-      leafSize,
+      size * Math.cos(Math.PI / 4),
+      -size * Math.sin(Math.PI / 4),
+      size,
       Math.PI / 4,
       Math.PI / 2,
     )
     context.arc(
-      leafSize * Math.cos(Math.PI / 4),
-      leafSize * Math.sin(Math.PI / 4),
-      leafSize,
+      size * Math.cos(Math.PI / 4),
+      size * Math.sin(Math.PI / 4),
+      size,
       5 * Math.PI / 4,
       3 * Math.PI / 2,
     )
@@ -213,34 +273,18 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
   }
 
   for (const item of tree.fruit) {
-    const radius = scale * 0.014 * item.scale
-    const fruitX = x(item.x)
-    const fruitY = y(item.y)
-
     context.fillStyle = "#f59a23"
     context.beginPath()
-    context.arc(fruitX, fruitY, radius, 0, Math.PI * 2)
+    context.arc(screenX(item.x), screenY(item.y), 5 * drawingScale, 0, Math.PI * 2)
     context.fill()
-
-    context.save()
-    context.translate(fruitX + radius * 0.35, fruitY - radius * 0.95)
-    context.rotate(-0.45)
-    context.fillStyle = "#3f873c"
-    context.beginPath()
-    context.ellipse(0, 0, radius * 0.55, radius * 0.24, 0, 0, Math.PI * 2)
-    context.fill()
-    context.restore()
   }
 
-  context.fillStyle = "#8f623e"
-  context.beginPath()
-  context.ellipse(width * 0.5, height * 0.945, width * 0.2, height * 0.018, 0, 0, Math.PI * 2)
-  context.fill()
+  // 元コードには地面楕円はないので、木の生成ロジックを尊重して描かない。
 }
 
-export function MikanTree({ seed, className }: MikanTreeProps) {
+export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const tree = useMemo(() => createTree(seed), [seed])
+  const tree = useMemo(() => createTree(seed, preset), [seed, preset])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -262,6 +306,7 @@ export function MikanTree({ seed, className }: MikanTreeProps) {
       role="img"
       aria-label="あなた固有のみかんの木"
       data-tree-version={TREE_VERSION}
+      data-tree-preset={preset}
     />
   )
 }
