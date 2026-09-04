@@ -198,7 +198,7 @@
   }
 
   .treeCanvas {
-    transform: translateX(-4%) scaleX(1.12) scaleY(1.05);
+    transform: scaleX(1.12) scaleY(1.05);
   }
 
   .treeCard {
