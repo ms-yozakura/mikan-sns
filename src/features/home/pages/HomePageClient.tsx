@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { FloatingPostButton } from "@/features/post/components/FloatingPostButton"
 import { Feed } from "../components/Feed"
+import { MikanTree } from "../components/MikanTree"
 import { useInfiniteFeed } from "../hooks/useInfiniteFeed"
 import styles from "./HomePage.module.css"
 import type { GlobalStats } from "@/features/stats/types/types"
@@ -12,9 +13,11 @@ type InitialPosts = Awaited<ReturnType<typeof import("../actions/getFeed").getFe
 export function HomePageClient({
   initialPosts,
   stats,
+  treeSeed,
 }: {
   initialPosts: InitialPosts
   stats: GlobalStats
+  treeSeed: string
 }) {
   const {
     posts,
@@ -35,13 +38,7 @@ export function HomePageClient({
         </div>
 
         <div className={styles.treeScene}>
-          <div className={styles.canopy} aria-hidden="true">
-            <span className={styles.orangeOne} />
-            <span className={styles.orangeTwo} />
-            <span className={styles.orangeThree} />
-            <span className={styles.orangeFour} />
-          </div>
-          <div className={styles.trunk} aria-hidden="true" />
+          <MikanTree seed={treeSeed} className={styles.treeCanvas} />
 
           <Link href="/stats" className={`${styles.treeCard} ${styles.statsCard}`}>
             <span className={styles.cardIcon} aria-hidden="true">📊</span>
