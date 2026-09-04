@@ -10,7 +10,6 @@ import type { MikanInput } from "../../types/post"
 import { MikanSelector } from "./MikanSelector"
 import { MikanList } from "./MikanList"
 import { getMikanVarieties } from "../../actions/getMikanVarieties"
-import { StarRating } from "./StarRating"
 import { FileUploader } from "./FileUploader"
 import {
   DEFAULT_MIKAN_PROFILE,
@@ -52,8 +51,6 @@ export function PostFormClient({
   const [uploading, setUploading] = useState(false)
   const [keyword, setKeyword] = useState("")
   const [selectedVariety, setSelectedVariety] = useState(DEFAULT_VARIETY_ID)
-  const [quantity, setQuantity] = useState("1")
-  const [satisfaction, setSatisfaction] = useState(3)
   const [profile, setProfile] = useState<MikanProfileValues>({ ...DEFAULT_MIKAN_PROFILE })
   const [evaluationTargetVariety, setEvaluationTargetVariety] = useState(DEFAULT_VARIETY_ID)
   const [postMikans, setPostMikans] = useState<MikanInput[]>([createDefaultMikan()])
@@ -75,8 +72,6 @@ export function PostFormClient({
       setEditingIndex(0)
       setKeyword("")
       setSelectedVariety(DEFAULT_VARIETY_ID)
-      setQuantity("1")
-      setSatisfaction(3)
       setEvaluationTargetVariety(DEFAULT_VARIETY_ID)
       setProfile({ ...DEFAULT_MIKAN_PROFILE })
       setUploading(false)
@@ -122,12 +117,6 @@ export function PostFormClient({
     }
   }
 
-  function updateEditingMikan(patch: Partial<MikanInput>) {
-    setPostMikans(prev => prev.map((mikan, index) =>
-      index === editingIndex ? { ...mikan, ...patch } : mikan
-    ))
-  }
-
   function changeEditingVariety(varietyId: string) {
     setSelectedVariety(varietyId)
     setPostMikans(prev => prev.map((mikan, index) =>
@@ -137,10 +126,25 @@ export function PostFormClient({
     ))
   }
 
-  function updateQuantity(nextQuantity: number) {
-    const normalizedQuantity = Math.max(0, Math.floor(nextQuantity))
-    setQuantity(String(normalizedQuantity))
-    updateEditingMikan({ quantity: normalizedQuantity })
+  function selectMikan(index: number) {
+    const mikan = postMikans[index]
+    if (!mikan) return
+    setEditingIndex(index)
+    setSelectedVariety(mikan.variety_id)
+    setKeyword("")
+  }
+
+  function updateMikanQuantity(index: number, quantity: number) {
+    const normalizedQuantity = Math.max(0, Math.floor(quantity))
+    setPostMikans(prev => prev.map((mikan, currentIndex) =>
+      currentIndex === index ? { ...mikan, quantity: normalizedQuantity } : mikan
+    ))
+  }
+
+  function updateMikanSatisfaction(index: number, satisfaction: number) {
+    setPostMikans(prev => prev.map((mikan, currentIndex) =>
+      currentIndex === index ? { ...mikan, satisfaction } : mikan
+    ))
   }
 
   function getProfileForVariety(varietyId: string): MikanProfileValues {
@@ -176,8 +180,6 @@ export function PostFormClient({
     setEditingIndex(postMikans.length)
     setSelectedVariety(DEFAULT_VARIETY_ID)
     setKeyword("")
-    setQuantity("1")
-    setSatisfaction(3)
   }
 
   function deleteMikan(index: number) {
@@ -191,8 +193,7 @@ export function PostFormClient({
     setPostMikans(next)
     setEditingIndex(nextEditingIndex)
     setSelectedVariety(editingMikan.variety_id)
-    setQuantity(String(editingMikan.quantity))
-    setSatisfaction(editingMikan.satisfaction)
+    setKeyword("")
   }
 
   return (
@@ -228,7 +229,7 @@ export function PostFormClient({
           <section className={styles.formSection}>
             <div className={styles.sectionTitleRow}>
               <h3>みかんを選ぶ</h3>
-              <span className={styles.selectedCount}>{postMikans.length}種類</span>
+              <span className={styles.selectedCount}>{postMikans.length}件</span>
             </div>
             <MikanSelector
               varieties={varieties}
@@ -237,65 +238,23 @@ export function PostFormClient({
               selectedVariety={selectedVariety}
               setSelectedVariety={changeEditingVariety}
             />
-          </section>
 
-          <section className={`${styles.formSection} ${styles.compactSection}`}>
-            <div className={styles.recordControls}>
-              <div className={styles.controlGroup}>
-                <span className={styles.controlLabel}>個数</span>
-                <div className={styles.quantityStepper}>
-                  <button
-                    type="button"
-                    aria-label="個数を減らす"
-                    onClick={() => updateQuantity(Number(quantity) - 1)}
-                    disabled={Number(quantity) <= 0}
-                  >
-                    <Icon icon="mdi:minus" aria-hidden="true" />
-                  </button>
-                  <input
-                    aria-label="みかんの個数"
-                    inputMode="numeric"
-                    min={0}
-                    type="number"
-                    value={quantity}
-                    onChange={e => updateQuantity(Number(e.target.value || 0))}
-                  />
-                  <button
-                    type="button"
-                    aria-label="個数を増やす"
-                    onClick={() => updateQuantity(Number(quantity) + 1)}
-                  >
-                    <Icon icon="mdi:plus" aria-hidden="true" />
-                  </button>
-                </div>
-              </div>
+            <button type="button" className={styles.addMikanButtonWide} onClick={addAnotherMikan}>
+              <Icon icon="mdi:plus-circle-outline" aria-hidden="true" />
+              みかんを追加
+            </button>
 
-              <div className={styles.controlGroup}>
-                <span className={styles.controlLabel}>満足度</span>
-                <StarRating value={satisfaction} onChange={(star) => {
-                  setSatisfaction(star)
-                  updateEditingMikan({ satisfaction: star })
-                }} />
-              </div>
+            <div className={styles.mikanListArea}>
+              <MikanList
+                mikans={postMikans}
+                varieties={varieties}
+                editingIndex={editingIndex}
+                onSelect={selectMikan}
+                onDelete={deleteMikan}
+                onQuantityChange={updateMikanQuantity}
+                onSatisfactionChange={updateMikanSatisfaction}
+              />
             </div>
-
-            <div className={styles.secondaryActions}>
-              <button type="button" className={styles.addMikanButton} onClick={addAnotherMikan}>
-                <Icon icon="mdi:plus" aria-hidden="true" />
-                他のみかんを追加
-              </button>
-            </div>
-
-            {postMikans.length > 1 && (
-              <div className={styles.mikanListArea}>
-                <span className={styles.subtleLabel}>追加したみかん</span>
-                <MikanList
-                  mikans={postMikans}
-                  varieties={varieties}
-                  onDelete={deleteMikan}
-                />
-              </div>
-            )}
           </section>
 
           <section className={styles.formSection}>
