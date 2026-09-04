@@ -194,8 +194,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
     return branchIndex
   }
 
-  // 元 tree.html の branch() をほぼそのまま移植。
-  // parentIndex を追加し、描画時に根元から枝先へ変形を伝播できるようにしている。
   function branch(
     x: number,
     y: number,
@@ -217,8 +215,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
           windPhase: phaseFromString(`mikan-tree-wind:${seed}:leaf:${leafIndex}`),
         })
       }
-
-      // 元コードの mode > 0.6 時の実付き。ホームでは常に成熟木として扱う。
       if (random() < 0.08) {
         fruit.push({ x, y, parentBranchIndex: parentIndex })
       }
@@ -227,17 +223,8 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
 
     const nextX = x + Math.cos(angle) * len
     const nextY = y + Math.sin(angle) * len
-    const branchIndex = addBranch({
-      x,
-      y,
-      nextX,
-      nextY,
-      width: thick,
-      angle,
-      parentIndex,
-    })
+    const branchIndex = addBranch({ x, y, nextX, nextY, width: thick, angle, parentIndex })
 
-    // メイン枝
     branch(
       nextX,
       nextY,
@@ -247,7 +234,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
       branchIndex,
     )
 
-    // 左右の横枝。元コード同様、それぞれ独立に70%で生成。
     if (random() < config.sideBranchChance) {
       branch(
         nextX,
@@ -271,7 +257,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
     }
   }
 
-  // 元 tree.html の draw() と同じ6節の幹。
   let x = 0
   let y = 0
   let trunkParentIndex: number | null = null
@@ -280,8 +265,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
   for (let index = 0; index < 6; index += 1) {
     const nextX = x + Math.cos(angle) * 15
     const nextY = y + Math.sin(angle) * 15
-
-    // 元は 12 - i。前回の要望を反映して根元側のみ少し太くする。
     const originalWidth = 12 - index
     const widthScale = index < 2 ? 1.18 : 1
     const trunkIndex = addBranch({
@@ -295,22 +278,8 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
     })
 
     if (index > 2) {
-      branch(
-        nextX,
-        nextY,
-        between(60, 70),
-        angle + between(-0.4, -0.1),
-        5,
-        trunkIndex,
-      )
-      branch(
-        nextX,
-        nextY,
-        between(60, 70),
-        angle + between(0.1, 0.4),
-        5,
-        trunkIndex,
-      )
+      branch(nextX, nextY, between(60, 70), angle + between(-0.4, -0.1), 5, trunkIndex)
+      branch(nextX, nextY, between(60, 70), angle + between(0.1, 0.4), 5, trunkIndex)
     }
 
     x = nextX
@@ -322,7 +291,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
     { x: item.x, y: item.y },
     { x: item.nextX, y: item.nextY },
   ])
-
   for (const leaf of leaves) points.push({ x: leaf.x, y: leaf.y })
   for (const item of fruit) points.push({ x: item.x, y: item.y })
 
@@ -346,9 +314,6 @@ function getWindState(timeMs: number, treePhase: number): WindState {
   const time = timeMs / 1000
   const rampProgress = Math.min(1, Math.max(0, timeMs / 700))
   const ramp = rampProgress * rampProgress * (3 - 2 * rampProgress)
-
-  // 起動後およそ3秒で一度目の「わさっ」が来て、その後は約8.5秒周期。
-  // 待機モーションとして気づけることを優先し、木ごとのphaseは揺れ方にだけ使う。
   const cycleTime = time % GUST_CYCLE_SECONDS
   const gustDistance = (cycleTime - GUST_CENTER_SECONDS) / GUST_WIDTH_SECONDS
   const gust = Math.exp(-gustDistance * gustDistance * 2.15) * ramp
@@ -356,20 +321,14 @@ function getWindState(timeMs: number, treePhase: number): WindState {
     Math.sin(time * 0.78 + treePhase) * 0.7
     + Math.sin(time * 1.31 + treePhase * 0.61) * 0.3
 
-  return {
-    envelope: gust,
-    sway,
-    strength: gust * sway,
-  }
+  return { envelope: gust, sway, strength: gust * sway }
 }
 
 function getBranchFlexibility(branch: Branch) {
-  // 幹はアイドルポーズを保ち、側枝から先だけを目視できる程度にしならせる。
   if (branch.width >= 7) return 0.00002
 
   const widthFlex = Math.min(1, Math.max(0, (7 - branch.width) / 6))
   const depthFlex = Math.min(1, Math.max(0, (branch.depth - 4) / 9))
-
   return 0.0014 + widthFlex * 0.0042 + depthFlex * 0.0026
 }
 
@@ -387,12 +346,9 @@ function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
       ? parentPose.angle + branch.relativeAngle
       : branch.baseAngle
 
-    // 枝ごとの位相を混ぜ、樹冠全体が一枚板のように左右へ振れないようにする。
     const idleSway =
       Math.sin(time * 0.95 + branch.windPhase * 0.45 - branch.depth * 0.07) * 0.68
       + Math.sin(time * 1.55 + branch.windPhase) * 0.32
-
-    // 「ﾜｻﾜｻｯ」の瞬間だけ細枝にも速い成分を少し乗せる。
     const rustle =
       (
         Math.sin(time * 8.8 + branch.windPhase) * 0.65
@@ -408,14 +364,7 @@ function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
     const angle = baseWorldAngle + windOffset
     const nextX = startX + Math.cos(angle) * branch.length
     const nextY = startY + Math.sin(angle) * branch.length
-
-    poses[index] = {
-      x: startX,
-      y: startY,
-      nextX,
-      nextY,
-      angle,
-    }
+    poses[index] = { x: startX, y: startY, nextX, nextY, angle }
   }
 
   return poses
@@ -429,7 +378,6 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
   const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
   const nextCanvasWidth = Math.round(width * pixelRatio)
   const nextCanvasHeight = Math.round(height * pixelRatio)
-
   if (canvas.width !== nextCanvasWidth || canvas.height !== nextCanvasHeight) {
     canvas.width = nextCanvasWidth
     canvas.height = nextCanvasHeight
@@ -437,53 +385,32 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
 
   const context = canvas.getContext("2d")
   if (!context) return
-
   context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
   context.clearRect(0, 0, width, height)
   context.lineCap = "round"
   context.lineJoin = "round"
 
-  // スケールは静止時の樹形で固定し、揺れに合わせて木全体が拡縮しないようにする。
-  const maxHorizontalReach = Math.max(
-    1,
-    Math.abs(tree.bounds.minX),
-    Math.abs(tree.bounds.maxX),
-  )
+  const maxHorizontalReach = Math.max(1, Math.abs(tree.bounds.minX), Math.abs(tree.bounds.maxX))
   const treeHeight = Math.max(1, tree.bounds.maxY - tree.bounds.minY)
-  const drawingScale = Math.min(
-    (width * 0.47) / maxHorizontalReach,
-    (height * 0.88) / treeHeight,
-  )
-
+  const drawingScale = Math.min((width * 0.47) / maxHorizontalReach, (height * 0.88) / treeHeight)
   const bottomY = tree.bounds.maxY
   const screenX = (value: number) => width / 2 + value * drawingScale
   const screenY = (value: number) => height * 0.94 + (value - bottomY) * drawingScale
   const wind = getWindState(timeMs, tree.windPhase)
   const poses = createBranchPoses(tree, timeMs, wind)
 
-  // 横方向に滑って見えないよう、影も根元中央に固定する。
-  const shadowShift = 0
   const shadowStretch = 1 + Math.min(0.012, Math.abs(wind.strength) * 0.01)
   context.save()
   context.filter = "blur(7px)"
   context.fillStyle = "rgb(91 58 31 / 14%)"
   context.beginPath()
-  context.ellipse(
-    width / 2 + shadowShift,
-    height * 0.943,
-    width * 0.145 * shadowStretch,
-    Math.max(4, height * 0.011),
-    0,
-    0,
-    Math.PI * 2,
-  )
+  context.ellipse(width / 2, height * 0.943, width * 0.145 * shadowStretch, Math.max(4, height * 0.011), 0, 0, Math.PI * 2)
   context.fill()
   context.restore()
 
   for (let index = 0; index < tree.branches.length; index += 1) {
     const item = tree.branches[index]
     const pose = poses[index]
-
     context.strokeStyle = item.width >= 7 ? "#765033" : "#85603d"
     context.lineWidth = Math.max(1.2, item.width * drawingScale)
     context.beginPath()
@@ -492,7 +419,6 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     context.stroke()
   }
 
-  // 葉は動いた枝先に完全追従し、その上で回転のアイドルモーションを重ねる。
   const time = timeMs / 1000
   const motionRamp = Math.min(1, Math.max(0, timeMs / 700))
 
@@ -500,41 +426,25 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     const parentPose = poses[leaf.parentBranchIndex]
     const parentBranch = tree.branches[leaf.parentBranchIndex]
     const branchRotation = parentPose.angle - parentBranch.baseAngle
-
     const idleFlutter =
       Math.sin(time * 1.95 + leaf.windPhase) * 0.105
       + Math.sin(time * 3.15 + leaf.windPhase * 0.72) * 0.042
-
     const rustleFlutter =
       (
         Math.sin(time * 13.5 + leaf.windPhase * 1.17) * 0.19
         + Math.sin(time * 19 + leaf.windPhase * 0.53) * 0.085
       )
       * wind.envelope
-
     const leafFlutter = (idleFlutter + rustleFlutter) * motionRamp
 
     context.save()
     context.translate(screenX(parentPose.nextX), screenY(parentPose.nextY))
     context.rotate(leaf.angle + branchRotation + leafFlutter)
     context.fillStyle = LEAF_COLORS[leaf.tone]
-
     const size = leaf.size * drawingScale
     context.beginPath()
-    context.arc(
-      size * Math.cos(Math.PI / 4),
-      -size * Math.sin(Math.PI / 4),
-      size,
-      Math.PI / 4,
-      Math.PI / 2,
-    )
-    context.arc(
-      size * Math.cos(Math.PI / 4),
-      size * Math.sin(Math.PI / 4),
-      size,
-      5 * Math.PI / 4,
-      3 * Math.PI / 2,
-    )
+    context.arc(size * Math.cos(Math.PI / 4), -size * Math.sin(Math.PI / 4), size, Math.PI / 4, Math.PI / 2)
+    context.arc(size * Math.cos(Math.PI / 4), size * Math.sin(Math.PI / 4), size, 5 * Math.PI / 4, 3 * Math.PI / 2)
     context.fill()
     context.restore()
   }
@@ -543,13 +453,7 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     const parentPose = poses[item.parentBranchIndex]
     context.fillStyle = "#f59a23"
     context.beginPath()
-    context.arc(
-      screenX(parentPose.nextX),
-      screenY(parentPose.nextY),
-      5 * drawingScale,
-      0,
-      Math.PI * 2,
-    )
+    context.arc(screenX(parentPose.nextX), screenY(parentPose.nextY), 5 * drawingScale, 0, Math.PI * 2)
     context.fill()
   }
 }
@@ -583,12 +487,10 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
     const tick = (now: number) => {
       animationFrame = null
       if (prefersReducedMotion || !isVisible) return
-
       if (now - lastDraw >= TARGET_FRAME_INTERVAL) {
         drawTree(canvas, tree, Math.max(0, now - animationStart))
         lastDraw = now
       }
-
       animationFrame = requestAnimationFrame(tick)
     }
 
@@ -597,13 +499,9 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
       animationFrame = requestAnimationFrame(tick)
     }
 
-    const resizeObserver = new ResizeObserver(() => {
-      renderCurrentFrame()
-    })
-
+    const resizeObserver = new ResizeObserver(renderCurrentFrame)
     const intersectionObserver = new IntersectionObserver((entries) => {
       isVisible = entries[0]?.isIntersecting ?? true
-
       if (isVisible) {
         renderCurrentFrame()
         startAnimation()
@@ -614,13 +512,11 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
 
     const handleReducedMotionChange = (event: MediaQueryListEvent) => {
       prefersReducedMotion = event.matches
-
       if (prefersReducedMotion) {
         stopAnimation()
         drawTree(canvas, tree, 0)
         return
       }
-
       animationStart = performance.now()
       lastDraw = 0
       startAnimation()
@@ -629,7 +525,6 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
     resizeObserver.observe(canvas)
     intersectionObserver.observe(canvas)
     reducedMotionQuery.addEventListener("change", handleReducedMotionChange)
-
     drawTree(canvas, tree, 0)
     startAnimation()
 
