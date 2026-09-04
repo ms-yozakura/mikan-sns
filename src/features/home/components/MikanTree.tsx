@@ -451,8 +451,8 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
   const wind = getWindState(timeMs, tree.windPhase)
   const poses = createBranchPoses(tree, timeMs, wind)
 
-  // 木本体をほぼ固定したので、影も主張させず静止に近い状態を保つ。
-  const shadowShift = Math.max(-1.2, Math.min(1.2, wind.strength * 1.1))
+  // 横方向に滑って見えないよう、影も根元中央に固定する。
+  const shadowShift = 0
   const shadowStretch = 1 + Math.min(0.012, Math.abs(wind.strength) * 0.01)
   context.save()
   context.filter = "blur(7px)"
@@ -482,8 +482,8 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     context.stroke()
   }
 
-  // 葉は常に小さく揺れ、約8.5秒ごとに一度「わさっ」と高周波の揺れが重なる。
-  // 回転だけではスマホで見えづらいため、1〜2px程度の位置揺れも足している。
+  // 葉は枝先を支点に回転だけでアイドルモーションする。
+  // 普段は少し大きめにふわふわ、約8.5秒ごとのラッスル中だけ高周波で「ﾜｻﾜｻｯ」と震える。
   const time = timeMs / 1000
   const motionRamp = Math.min(1, Math.max(0, timeMs / 700))
 
@@ -493,34 +493,20 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     const branchRotation = parentPose.angle - parentBranch.baseAngle
 
     const idleFlutter =
-      Math.sin(time * 1.85 + leaf.windPhase) * 0.07
-      + Math.sin(time * 2.75 + leaf.windPhase * 0.72) * 0.028
+      Math.sin(time * 1.95 + leaf.windPhase) * 0.09
+      + Math.sin(time * 3.15 + leaf.windPhase * 0.72) * 0.035
+
     const rustleFlutter =
       (
-        Math.sin(time * 7.4 + leaf.windPhase) * 0.18
-        + Math.sin(time * 11.2 + leaf.windPhase * 0.53) * 0.075
+        Math.sin(time * 13.5 + leaf.windPhase * 1.17) * 0.17
+        + Math.sin(time * 19 + leaf.windPhase * 0.53) * 0.075
       )
       * wind.envelope
+
     const leafFlutter = (idleFlutter + rustleFlutter) * motionRamp
 
-    const idleShiftX = Math.sin(time * 1.45 + leaf.windPhase) * 0.35
-    const idleShiftY = Math.cos(time * 1.7 + leaf.windPhase * 0.8) * 0.22
-    const rustleShiftX =
-      (
-        Math.sin(time * 8.8 + leaf.windPhase) * 1.3
-        + Math.sin(time * 13.4 + leaf.windPhase * 0.37) * 0.55
-      )
-      * wind.envelope
-    const rustleShiftY =
-      Math.cos(time * 10.1 + leaf.windPhase * 0.63)
-      * 0.8
-      * wind.envelope
-
     context.save()
-    context.translate(
-      screenX(parentPose.nextX) + (idleShiftX + rustleShiftX) * motionRamp,
-      screenY(parentPose.nextY) + (idleShiftY + rustleShiftY) * motionRamp,
-    )
+    context.translate(screenX(parentPose.nextX), screenY(parentPose.nextY))
     context.rotate(leaf.angle + branchRotation + leafFlutter)
     context.fillStyle = LEAF_COLORS[leaf.tone]
 
@@ -654,7 +640,7 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
       aria-label="あなた固有のみかんの木"
       data-tree-version={TREE_VERSION}
       data-tree-preset={preset}
-      data-tree-wind="idle-rustle"
+      data-tree-wind="idle-rustle-rotation"
     />
   )
 }
