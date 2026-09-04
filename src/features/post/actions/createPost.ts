@@ -51,7 +51,7 @@ export async function createPost(
 
   const supabase = await createClient()
 
-  const body = formData.get('body') as string
+  const body = (formData.get('body') as string | null)?.trim() ?? ''
 
   const visibility=formData.get("visibility") as string
 
@@ -63,12 +63,6 @@ export async function createPost(
     return { error: error instanceof Error ? error.message : 'みかん情報が不正です', success: false }
   }
 
-  if (!body.trim()) {
-    return {
-      error: '本文を入力してね',
-      success: false
-    }
-  }
   const { data: { user } } = await supabase.auth.getUser()
 
 
