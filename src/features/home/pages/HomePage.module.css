@@ -1,36 +1,238 @@
 .home {
   width: 100%;
   min-height: 100vh;
-  background-color: var(--color-surface);
+  background:
+    radial-gradient(circle at 12% 12%, rgb(255 255 255 / 72%) 0 12%, transparent 28%),
+    var(--color-surface);
 }
 
-.header {
-  position: sticky;
-  width: 100vw;
-  top: 0px;
-  z-index: 1;
+.treeHero {
+  width: min(100%, 680px);
+  min-height: calc(100svh - 84px);
+  margin: 0 auto;
+  padding: 28px 20px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.heroIntro {
+  text-align: center;
+}
+
+.heroIntro p,
+.timelineHeading p {
+  margin: 0 0 4px;
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.heroIntro h1,
+.timelineHeading h2 {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.heroIntro h1 {
+  font-size: clamp(22px, 6vw, 30px);
+}
+
+.treeScene {
+  position: relative;
+  width: 100%;
+  height: 560px;
+  max-height: 62svh;
+  min-height: 470px;
+  isolation: isolate;
+}
+
+.treeCanvas {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  filter:
+    drop-shadow(0 7px 5px rgb(73 45 23 / 16%))
+    drop-shadow(0 15px 16px rgb(73 45 23 / 10%));
+  transform-origin: 50% 94%;
+}
+
+.treeCard {
+  position: absolute;
+  z-index: 2;
+  min-width: 122px;
+  max-width: 160px;
+  padding: 12px 14px;
+  border: 1px solid rgb(255 210 155 / 85%);
+  border-radius: 20px;
+  background: rgb(255 253 248 / 94%);
+  color: var(--color-text);
+  box-shadow: 0 8px 22px rgb(112 72 31 / 12%);
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 3px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  backdrop-filter: blur(5px);
+  transition: transform .18s ease, box-shadow .18s ease;
 }
 
-.feedArea {
-  width: 100%;
-  min-height: 100vh;
-  background-color: var(--color-surface);
-  display: flex;
+.treeCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 11px 25px rgb(112 72 31 / 17%);
+}
+
+.treeCard strong {
+  max-width: 100%;
+  color: var(--color-primary-hover);
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardIcon {
+  font-size: 22px;
+}
+
+.statsCard { left: 0; top: 25%; transform: rotate(-2deg); }
+.statsCard:hover { transform: translateY(-2px) rotate(-2deg); }
+.favoriteCard { right: 0; top: 22%; transform: rotate(2deg); }
+.favoriteCard:hover { transform: translateY(-2px) rotate(2deg); }
+.communityCard { right: 2%; bottom: 23%; }
+.calendarCard { left: 2%; bottom: 22%; }
+
+.comingSoon {
+  cursor: default;
+}
+
+.comingSoon small {
+  color: var(--color-text-light);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.postAction {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  top: 61%;
+  transform: translate(-50%, -50%);
+}
+
+.scrollGuide {
+  align-self: center;
+  min-height: 48px;
+  padding: 4px 14px;
+  color: var(--color-text-light);
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
+  justify-content: center;
+  gap: 1px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
-.mobileStats {
-  display: none;
-  width: 100%;
+.scrollGuide span {
+  color: #557a45;
+  font-size: 30px;
+  line-height: .7;
+  animation: guideBounce 1.8s ease-in-out infinite;
 }
 
-@media (max-width: 800px) {
-  .mobileStats {
-    display: block;
+.timeline {
+  scroll-margin-top: 88px;
+  width: min(100%, 680px);
+  margin: 0 auto;
+  padding: 32px 20px 120px;
+}
+
+.timelineHeading {
+  margin: 0 auto 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timelineHeading > span {
+  font-size: 27px;
+  transform: rotate(-14deg);
+}
+
+.timelineHeading h2 {
+  font-size: 24px;
+}
+
+@keyframes guideBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@media (max-width: 520px) {
+  .treeHero {
+    box-sizing: border-box;
+    min-height: calc(100dvh - 58px);
+    padding:
+      16px
+      14px
+      calc(86px + env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+
+  .heroIntro {
+    flex: 0 0 auto;
+  }
+
+  .treeScene {
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 320px;
+    max-height: 520px;
+  }
+
+  .treeCanvas {
+    transform: scaleX(1.12) scaleY(1.05);
+  }
+
+  .treeCard {
+    min-width: 106px;
+    max-width: 128px;
+    padding: 10px;
+  }
+
+  .treeCard strong {
+    font-size: 14px;
+  }
+
+  .statsCard { left: 0; top: 7%; }
+  .favoriteCard { right: 0; top: 5%; }
+  .communityCard { right: 0; bottom: 18%; }
+  .calendarCard { left: 0; bottom: 17%; }
+
+  .postAction {
+    top: 63%;
+  }
+
+  .scrollGuide {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding-block: 0;
+  }
+
+  .timeline {
+    padding-inline: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scrollGuide span {
+    animation: none;
   }
 }

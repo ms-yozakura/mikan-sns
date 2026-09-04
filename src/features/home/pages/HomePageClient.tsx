@@ -1,8 +1,9 @@
 'use client'
 
+import Link from "next/link"
 import { FloatingPostButton } from "@/features/post/components/FloatingPostButton"
-import { HomeStatsSummary } from "@/features/stats/components/HomeStatsSummary"
 import { Feed } from "../components/Feed"
+import { MikanTree } from "../components/MikanTree"
 import { useInfiniteFeed } from "../hooks/useInfiniteFeed"
 import styles from "./HomePage.module.css"
 import type { GlobalStats } from "@/features/stats/types/types"
@@ -12,9 +13,11 @@ type InitialPosts = Awaited<ReturnType<typeof import("../actions/getFeed").getFe
 export function HomePageClient({
   initialPosts,
   stats,
+  treeSeed,
 }: {
   initialPosts: InitialPosts
   stats: GlobalStats
+  treeSeed: string
 }) {
   const {
     posts,
@@ -24,25 +27,65 @@ export function HomePageClient({
     loadMoreRef,
   } = useInfiniteFeed(initialPosts)
 
+  const favorite = stats.ranking[0]
+
   return (
     <main className={styles.home}>
-      <div className={styles.feedArea}>
-        <div className={styles.mobileStats}>
-          <HomeStatsSummary variant="mobile" stats={stats} />
+      <section className={styles.treeHero} aria-label="今月のみかんの木">
+        <div className={styles.treeScene}>
+          <MikanTree seed={treeSeed} className={styles.treeCanvas} />
+
+          <Link href="/stats" className={`${styles.treeCard} ${styles.statsCard}`}>
+            <span className={styles.cardIcon} aria-hidden="true">📊</span>
+            <span>今月のみかん</span>
+            <strong>{stats.monthlyCount.toLocaleString("ja-JP")}個</strong>
+          </Link>
+
+          <Link href="/stats" className={`${styles.treeCard} ${styles.favoriteCard}`}>
+            <span className={styles.cardIcon} aria-hidden="true">🏅</span>
+            <span>人気の品種</span>
+            <strong>{favorite?.name ?? "集計中"}</strong>
+          </Link>
+
+          <Link href="/stats" className={`${styles.treeCard} ${styles.communityCard}`}>
+            <span className={styles.cardIcon} aria-hidden="true">🍊</span>
+            <span>みんなの記録</span>
+            <strong>{stats.monthlyPosts.toLocaleString("ja-JP")}投稿</strong>
+          </Link>
+
+          <div className={`${styles.treeCard} ${styles.calendarCard} ${styles.comingSoon}`}>
+            <span className={styles.cardIcon} aria-hidden="true">📅</span>
+            <span>みかんカレンダー</span>
+            <small>準備中</small>
+          </div>
+
+          <div className={styles.postAction}>
+            <FloatingPostButton onSuccess={prependPost} />
+          </div>
         </div>
 
-        <Feed contents={posts}
+        <a href="#timeline" className={styles.scrollGuide}>
+          <span aria-hidden="true">⌄</span>
+          スクロールしてタイムラインへ
+        </a>
+      </section>
+
+      <section id="timeline" className={styles.timeline} aria-labelledby="timeline-heading">
+        <div className={styles.timelineHeading}>
+          <span aria-hidden="true">🍃</span>
+          <div>
+            <p>みんなのみかん便り</p>
+            <h2 id="timeline-heading">タイムライン</h2>
+          </div>
+        </div>
+
+        <Feed
+          contents={posts}
           hasMore={hasMore}
-
           loading={loading}
-
           loadMoreRef={loadMoreRef}
         />
-      </div>
-
-      <FloatingPostButton
-        onSuccess={prependPost}
-      />
+      </section>
     </main>
   )
 }
