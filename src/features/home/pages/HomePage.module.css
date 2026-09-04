@@ -101,6 +101,22 @@
   font-size: 22px;
 }
 
+.statsIcon {
+  color: #4f8a45;
+}
+
+.calendarIcon {
+  color: #d95b4f;
+}
+
+.favoriteIcon {
+  color: #e2b62f;
+}
+
+.communityIcon {
+  color: var(--color-primary);
+}
+
 .statsCard { left: 0; top: 25%; transform: rotate(-2deg); }
 .statsCard:hover { transform: translateY(-2px) rotate(-2deg); }
 .favoriteCard { right: 0; top: 22%; transform: rotate(2deg); }
@@ -158,16 +174,27 @@
   margin: 0 auto 22px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
-}
-
-.timelineHeading > span {
-  font-size: 27px;
-  transform: rotate(-14deg);
+  text-align: center;
 }
 
 .timelineHeading h2 {
   font-size: 24px;
+}
+
+.timelineLeaf {
+  flex: 0 0 auto;
+  color: #4f8a45;
+  font-size: 21px;
+}
+
+.timelineLeafLeft {
+  transform: rotate(-28deg) scaleX(-1);
+}
+
+.timelineLeafRight {
+  transform: rotate(28deg);
 }
 
 @keyframes guideBounce {
@@ -228,6 +255,18 @@
 
   .timeline {
     padding-inline: 14px;
+  }
+
+  .timelineHeading {
+    gap: 8px;
+  }
+
+  .timelineHeading h2 {
+    font-size: 22px;
+  }
+
+  .timelineLeaf {
+    font-size: 19px;
   }
 }
 
