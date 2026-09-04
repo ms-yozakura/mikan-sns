@@ -25,15 +25,11 @@ export function MikanSelector({
   setSelectedVariety: (id: string) => void
 }) {
   const normalizedKeyword = keyword.trim().toLocaleLowerCase("ja-JP")
-  const selected = varieties.find(v => v.id === selectedVariety)
   const visibleVarieties = normalizedKeyword
     ? varieties
       .filter(v => v.name.toLocaleLowerCase("ja-JP").includes(normalizedKeyword))
       .slice(0, 8)
-    : [
-      ...(selected ? [selected] : []),
-      ...varieties.filter(v => v.id !== selectedVariety),
-    ].slice(0, 8)
+    : varieties.slice(0, 8)
 
   return (
     <div className={styles.mikanSelector}>
