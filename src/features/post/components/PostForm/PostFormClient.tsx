@@ -239,10 +239,12 @@ export function PostFormClient({
               setSelectedVariety={changeEditingVariety}
             />
 
-            <button type="button" className={styles.addMikanButtonWide} onClick={addAnotherMikan}>
-              <Icon icon="mdi:plus-circle-outline" aria-hidden="true" />
-              みかんを追加
-            </button>
+            <div className={styles.secondaryActions}>
+              <button type="button" className={styles.addMikanButton} onClick={addAnotherMikan}>
+                <Icon icon="mdi:plus-circle-outline" aria-hidden="true" />
+                みかんを追加
+              </button>
+            </div>
 
             <div className={styles.mikanListArea}>
               <MikanList
