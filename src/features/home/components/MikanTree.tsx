@@ -163,8 +163,10 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
   context.lineJoin = "round"
 
   for (const branch of [...tree.branches].sort((left, right) => left.depth - right.depth)) {
+    const trunkScale = branch.depth === 0 ? 1.28 : branch.depth === 1 ? 1.14 : 1
+
     context.strokeStyle = branch.depth < 2 ? "#765033" : "#85603d"
-    context.lineWidth = Math.max(1.5, branch.width * scale)
+    context.lineWidth = Math.max(1.5, branch.width * scale * trunkScale)
     context.beginPath()
     context.moveTo(x(branch.x), y(branch.y))
     context.quadraticCurveTo(
@@ -182,8 +184,24 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
     context.rotate(leaf.angle)
     context.scale(leaf.scale, leaf.scale)
     context.fillStyle = LEAF_COLORS[leaf.tone]
+
+    // 元の tree.html と同じ、2つの円弧をつないだ尖りのある葉形。
+    const leafSize = scale * 0.026
     context.beginPath()
-       context.ellipse(0, 0, scale * 0.019, scale * 0.009, 0, 0, Math.PI * 2)
+    context.arc(
+      leafSize * Math.cos(Math.PI / 4),
+      -leafSize * Math.sin(Math.PI / 4),
+      leafSize,
+      Math.PI / 4,
+      Math.PI / 2,
+    )
+    context.arc(
+      leafSize * Math.cos(Math.PI / 4),
+      leafSize * Math.sin(Math.PI / 4),
+      leafSize,
+      5 * Math.PI / 4,
+      3 * Math.PI / 2,
+    )
     context.fill()
     context.restore()
   }
