@@ -192,6 +192,16 @@
 .communityCard { right: 2%; bottom: 23%; }
 .calendarCard { left: 2%; bottom: 22%; }
 
+.comingSoon {
+  cursor: default;
+}
+
+.comingSoon small {
+  color: var(--color-text-light);
+  font-size: 10px;
+  font-weight: 700;
+}
+
 .postAction {
   position: absolute;
   z-index: 4;
