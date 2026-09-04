@@ -61,10 +61,11 @@ export function HomePageClient({
             <strong>{stats.monthlyPosts.toLocaleString("ja-JP")}投稿</strong>
           </Link>
 
-          <Link href="/stats" className={`${styles.treeCard} ${styles.calendarCard}`}>
+          <div className={`${styles.treeCard} ${styles.calendarCard} ${styles.comingSoon}`}>
             <span className={styles.cardIcon} aria-hidden="true">📅</span>
             <span>みかんカレンダー</span>
-          </Link>
+            <small>準備中</small>
+          </div>
 
           <div className={styles.postAction}>
             <FloatingPostButton onSuccess={prependPost} />
