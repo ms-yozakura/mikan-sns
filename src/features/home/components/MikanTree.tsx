@@ -80,6 +80,9 @@ type PresetConfig = {
 const TREE_VERSION = 2
 const LEAF_COLORS = ["#5e9e4d", "#72ad58", "#88b96c"]
 const TARGET_FRAME_INTERVAL = 1000 / 30
+const GUST_CYCLE_SECONDS = 8.5
+const GUST_CENTER_SECONDS = 2.8
+const GUST_WIDTH_SECONDS = 0.95
 
 // classic は添付された tree.html の値そのまま。
 // 他 preset は乱数アルゴリズムを変えず、範囲だけ少し操作する。
@@ -341,30 +344,32 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
 
 function getWindState(timeMs: number, treePhase: number): WindState {
   const time = timeMs / 1000
-  const rampProgress = Math.min(1, Math.max(0, timeMs / 1600))
+  const rampProgress = Math.min(1, Math.max(0, timeMs / 700))
   const ramp = rampProgress * rampProgress * (3 - 2 * rampProgress)
 
-  // 常時大きく揺らさず、十数秒おきにふわっと風が通る強弱を作る。
-  const gustWave = (Math.sin(time * 0.29 + treePhase) + 1) / 2
-  const envelope = 0.12 + Math.pow(gustWave, 5) * 0.88
+  // 起動後およそ3秒で一度目の「わさっ」が来て、その後は約8.5秒周期。
+  // 待機モーションとして気づけることを優先し、木ごとのphaseは揺れ方にだけ使う。
+  const cycleTime = time % GUST_CYCLE_SECONDS
+  const gustDistance = (cycleTime - GUST_CENTER_SECONDS) / GUST_WIDTH_SECONDS
+  const gust = Math.exp(-gustDistance * gustDistance * 2.15) * ramp
   const sway =
-    Math.sin(time * 0.72 + treePhase) * 0.72
-    + Math.sin(time * 1.17 + treePhase * 0.63) * 0.28
+    Math.sin(time * 0.78 + treePhase) * 0.7
+    + Math.sin(time * 1.31 + treePhase * 0.61) * 0.3
 
   return {
-    envelope,
+    envelope: gust,
     sway,
-    strength: envelope * sway * ramp,
+    strength: gust * sway,
   }
 }
 
 function getBranchFlexibility(branch: Branch) {
-  // 幹はほぼ固定し、細く・深い枝ほどよくしなる。
+  // 木そのものは主役のアイドルポーズを保つ。枝先だけごく微小に呼吸する程度。
   const widthFlex = Math.min(1, Math.max(0, (6 - branch.width) / 6))
   const depthFlex = Math.min(1, Math.max(0, (branch.depth - 3) / 10))
   const tipFlex = widthFlex * 0.68 + depthFlex * 0.32
 
-  return 0.00018 + tipFlex * 0.0035
+  return 0.00003 + tipFlex * 0.00055
 }
 
 function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
@@ -381,14 +386,14 @@ function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
       : branch.baseAngle
 
     const delayedSway =
-      Math.sin(time * 0.72 + tree.windPhase - branch.depth * 0.055) * 0.78
-      + Math.sin(time * 1.17 + tree.windPhase * 0.63 - branch.depth * 0.025) * 0.22
-    const localFlutter = Math.sin(time * 1.52 + branch.windPhase) * 0.14
+      Math.sin(time * 0.78 + tree.windPhase - branch.depth * 0.055) * 0.78
+      + Math.sin(time * 1.31 + tree.windPhase * 0.63 - branch.depth * 0.025) * 0.22
+    const localFlutter = Math.sin(time * 1.7 + branch.windPhase) * 0.12
     const windOffset =
       (delayedSway + localFlutter)
-      * wind.envelope
+      * (0.22 + wind.envelope * 0.78)
       * getBranchFlexibility(branch)
-      * Math.min(1, Math.max(0, timeMs / 1600))
+      * Math.min(1, Math.max(0, timeMs / 700))
 
     const angle = baseWorldAngle + windOffset
     const nextX = startX + Math.cos(angle) * branch.length
@@ -446,9 +451,9 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
   const wind = getWindState(timeMs, tree.windPhase)
   const poses = createBranchPoses(tree, timeMs, wind)
 
-  // 根元の影。風向きに合わせて1〜3pxだけ動かし、木より先に描いて背面を維持する。
-  const shadowShift = Math.max(-3, Math.min(3, wind.strength * 2.4))
-  const shadowStretch = 1 + Math.min(0.035, Math.abs(wind.strength) * 0.025)
+  // 木本体をほぼ固定したので、影も主張させず静止に近い状態を保つ。
+  const shadowShift = Math.max(-1.2, Math.min(1.2, wind.strength * 1.1))
+  const shadowStretch = 1 + Math.min(0.012, Math.abs(wind.strength) * 0.01)
   context.save()
   context.filter = "blur(7px)"
   context.fillStyle = "rgb(91 58 31 / 14%)"
@@ -477,22 +482,45 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     context.stroke()
   }
 
-  // 元 tree.html の leaf() と同じ2円弧の葉。
-  // 枝先に追従させたうえで、葉だけにごく小さな flutter を加える。
+  // 葉は常に小さく揺れ、約8.5秒ごとに一度「わさっ」と高周波の揺れが重なる。
+  // 回転だけではスマホで見えづらいため、1〜2px程度の位置揺れも足している。
   const time = timeMs / 1000
+  const motionRamp = Math.min(1, Math.max(0, timeMs / 700))
+
   for (const leaf of tree.leaves) {
     const parentPose = poses[leaf.parentBranchIndex]
     const parentBranch = tree.branches[leaf.parentBranchIndex]
     const branchRotation = parentPose.angle - parentBranch.baseAngle
-    const leafFlutter =
-      Math.sin(time * 2.1 + leaf.windPhase)
+
+    const idleFlutter =
+      Math.sin(time * 1.85 + leaf.windPhase) * 0.07
+      + Math.sin(time * 2.75 + leaf.windPhase * 0.72) * 0.028
+    const rustleFlutter =
+      (
+        Math.sin(time * 7.4 + leaf.windPhase) * 0.18
+        + Math.sin(time * 11.2 + leaf.windPhase * 0.53) * 0.075
+      )
       * wind.envelope
-      * Math.min(1, Math.abs(wind.sway) + 0.25)
-      * 0.035
-      * Math.min(1, Math.max(0, timeMs / 1600))
+    const leafFlutter = (idleFlutter + rustleFlutter) * motionRamp
+
+    const idleShiftX = Math.sin(time * 1.45 + leaf.windPhase) * 0.35
+    const idleShiftY = Math.cos(time * 1.7 + leaf.windPhase * 0.8) * 0.22
+    const rustleShiftX =
+      (
+        Math.sin(time * 8.8 + leaf.windPhase) * 1.3
+        + Math.sin(time * 13.4 + leaf.windPhase * 0.37) * 0.55
+      )
+      * wind.envelope
+    const rustleShiftY =
+      Math.cos(time * 10.1 + leaf.windPhase * 0.63)
+      * 0.8
+      * wind.envelope
 
     context.save()
-    context.translate(screenX(parentPose.nextX), screenY(parentPose.nextY))
+    context.translate(
+      screenX(parentPose.nextX) + (idleShiftX + rustleShiftX) * motionRamp,
+      screenY(parentPose.nextY) + (idleShiftY + rustleShiftY) * motionRamp,
+    )
     context.rotate(leaf.angle + branchRotation + leafFlutter)
     context.fillStyle = LEAF_COLORS[leaf.tone]
 
@@ -626,7 +654,7 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
       aria-label="あなた固有のみかんの木"
       data-tree-version={TREE_VERSION}
       data-tree-preset={preset}
-      data-tree-wind="subtle"
+      data-tree-wind="idle-rustle"
     />
   )
 }
