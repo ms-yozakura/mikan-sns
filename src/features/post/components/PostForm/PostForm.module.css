@@ -1,338 +1,535 @@
-/* ==========================================
-   フォーム全体のコンテナ
-   ========================================== */
+.postModal {
+  --modal-width: min(680px, calc(100vw - 24px));
+  --modal-padding: 0;
+  --modal-border-radius: 24px;
+  --modal-background: #fffdfa;
+  --modal-box-shadow: 0 22px 70px rgba(77, 47, 22, 0.22);
+}
+
 .formContainer {
-  background-color: var(--color-surface);
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  border: 1px solid #ffedd5;
-  /* ほんのりみかん色の境界線 */
-  box-shadow: 0 4px 20px -2px rgba(249, 115, 22, 0.06);
-  max-width: 600px;
   width: 100%;
-  box-sizing: border-box;
+  background: #fffdfa;
+  color: var(--color-text);
   font-family: var(--font-base);
 }
 
-/* 入力エリアのラッパー */
-.inputWrapper {
+.form {
   width: 100%;
-  margin-bottom: 16px;
 }
 
-/* テキストエリアのスタイリング */
-.textarea {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid var(--color-surface);
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  color: var(--color-text);
-  font-weight: 500;
-  line-height: 1.2;
-  resize: none;
-  box-sizing: border-box;
-  background-color: var(--color-white);
-  transition: all 0.2s ease;
-}
-
-.textarea:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  background-color: var(--color-white);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
-}
-
-.textarea:disabled {
-  background-color: #f3f4f6;
-  color: var(--color-text-light);
-  cursor: not-allowed;
-}
-
-.visibilityWrapper{
+.formHeader {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   display: grid;
-  grid-template-columns: 50% 50%;
-  margin: 5px;
-  border: 1px solid var(--color-primary);
-  border-radius: 10px;
-  overflow: hidden;
-  width: 30%;
-  min-width: 130px;
-}
-
-.visibilityButton label{
-  background-color: var(--color-white);
-  padding:0.5rem;
-  text-align: center;
-}
-.visibilityButton input:checked + label{
-  background-color: var(--color-primary);
-  color: var(--color-white);
-}
-
-.visibilityButton input{
-  visibility:hidden;
-  display: none;
-}
-
-/* ==========================================
-   みかん情報（品種・個数・満足度）の追加エリア
-   ========================================== */
-.varietyTitle {
-  display: flex;
-  flex-direction: row;
+  grid-template-columns: 44px 1fr auto;
   align-items: center;
-  line-height: 20px;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(255, 253, 250, 0.96);
+  border-bottom: 1px solid #f2e3d5;
+  backdrop-filter: blur(14px);
 }
 
-.mikanSearchWrapper {
+.formHeader h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 800;
+  color: #3b2a20;
+}
+
+.headerCloseButton,
+.headerSubmitButton,
+.quantityStepper button,
+.addMikanButton,
+.varietyCard {
+  font: inherit;
+}
+
+.headerCloseButton {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #eadfd5;
+  border-radius: 50%;
+  background: #fff;
+  color: #5f534b;
+  cursor: pointer;
+  font-size: 19px;
+}
+
+.headerCloseButton:hover {
+  background: #fff7ef;
+  color: var(--color-primary);
+}
+
+.headerSubmitButton {
+  min-width: 74px;
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 6px 15px rgba(249, 115, 22, 0.18);
+}
+
+.headerSubmitButton:disabled {
+  background: var(--color-primary-disable, #fdba74);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.formBody {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  margin-bottom: 16px;
-  background-color: var(--color-surface);
-  border-radius: var(--radius-md);
-  border: 1px dashed #ffeedb;
+  gap: 14px;
+  padding: 18px;
 }
 
-.form label {
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fff7f7;
+  color: #b91c1c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.formSection {
+  padding: 14px;
+  border: 1px solid #f0e4d8;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.compactSection {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.sectionTitleRow,
+.fieldLabel,
+.visibilitySection {
+  display: flex;
+  align-items: center;
+}
+
+.sectionTitleRow {
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sectionTitleRow h3 {
+  margin: 0;
+  font-size: 13px;
+  color: #3e3128;
+  font-weight: 800;
+}
+
+.selectedCount,
+.optionalLabel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #9a6b42;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mikanSelector {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: bold;
-  color: var(--color-primary-hover);
+  gap: 10px;
 }
 
-.form .mikanInfo {
-  display: flex;
-  flex-direction: row;
-  gap: 0.5rem 2rem;
-  padding-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-.form .searchBox {
+.searchBox {
   position: relative;
-  width: 100%;
 }
 
 .searchIcon {
   position: absolute;
-  left: 12px;
+  left: 11px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--color-primary);
-  font-size: 20px;
+  color: #a79b92;
+  font-size: 17px;
   pointer-events: none;
 }
 
-.mikanSearchWrapper .mikanSearchInput {
+.mikanSearchInput {
   width: 100%;
-  border-radius: 999px;
-  border: 1px solid var(--color-surface);
-  font-size: 13px;
-  padding: 5px;
-  padding-left: 2.5rem;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  border: 1px solid #e9e3dc;
+  border-radius: 12px;
+  background: #fdfcfb;
   color: var(--color-text);
-  transition: 0.5px;
-  font-weight: 550;
-}
-
-.mikanSearchWrapper .mikanSearchInput:focus {
-  box-shadow: var(--shadow-card);
+  font-size: 12px;
   outline: none;
-  border-color: var(--color-primary);
-  background-color: var(--color-white);
-  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
 
-.mikanBox {
-  padding: 10px;
-  border-radius: 20px;
-  border: 1px dashed var(--color-primary);
+.mikanSearchInput:focus {
+  border-color: #fdba74;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.09);
 }
 
-.profileDetails { margin-top: 4px; padding-top: 10px; border-top: 1px solid #ffedd5; }
-.profileDetails summary {
-  display: flex; align-items: center; gap: 8px; color: var(--color-primary-hover);
-  font-size: 12px; font-weight: 700; cursor: pointer;
-}
-.optionalLabel {
-  padding: 2px 7px; border-radius: 999px; color: var(--color-text-light);
-  background: var(--color-white); font-size: 10px;
+.varietyGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
 }
 
-/* 品種選択ボタン */ 
-.varietyOptionsWrapper{
-  height: calc(1rem + 10px);
-}
-.varietyOption {
-  background-color: var(--color-white);
-  border: 1px solid #fed7aa;
-  color: var(--color-primary-hover);
-  padding: 4px 12px;
-  border-radius: 16px;
-  font-size: 0.8rem;
+.varietyCard {
+  position: relative;
+  min-width: 0;
+  min-height: 82px;
+  padding: 8px 5px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid #f0e4d8;
+  border-radius: 13px;
+  background: #fffdf8;
+  color: #5c4a3f;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
+.varietyCard > span:not(.selectedMark) {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+}
 
-.varietyOption.selected {
-  background-color: var(--color-primary);
-  color: var(--color-white);
+.varietyCard:hover {
+  transform: translateY(-1px);
+  border-color: #fdba74;
+  background: #fff8ef;
+}
+
+.varietyCard.selected {
   border-color: var(--color-primary);
+  background: #fff6eb;
+  box-shadow: inset 0 0 0 1px rgba(249, 115, 22, 0.14);
 }
 
-.varietyOption:hover {
-  background-color: #ffedd5;
-  border-color: var(--color-primary);
-  color: var(--color-primary-hover);
-}
-
-.mikanInfo .quantityInput {
-  width: 5rem;
-  height: 28px;
-  border-radius: 999px;
-  border: none;
-  padding-left: 1rem;
-}
-
-.mikanInfo .addMikan{
-  margin-left: auto;
-  align-self: flex-end;
-}
-
-/* 選択中の品種表示テキスト */
-.mikaninfo p {
-  margin: 4px 0 0 0;
-  font-size: 14px;
+.selectedMark {
+  position: absolute;
+  top: 5px;
+  right: 5px;
   color: var(--color-primary);
-  font-weight: bold;
+  font-size: 15px;
+}
+
+.noVarietyResult {
+  margin: 2px 0 0;
+  padding: 12px;
+  border-radius: 12px;
+  background: #faf8f5;
+  color: var(--color-text-light);
+  text-align: center;
+  font-size: 11px;
+}
+
+.recordControls {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.8fr) minmax(190px, 1.2fr);
+  gap: 16px;
+  align-items: end;
+}
+
+.controlGroup {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.controlLabel,
+.fieldLabel {
+  color: #51443a;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.quantityStepper {
+  width: fit-content;
+  display: grid;
+  grid-template-columns: 34px 46px 34px;
   align-items: center;
+  border: 1px solid #eadfd5;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #fff;
 }
 
-.fileULWrapper {
-  margin-top: 10px;
+.quantityStepper button {
+  width: 34px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: #6e5d50;
+  cursor: pointer;
+  font-size: 16px;
 }
 
-/* フッター */
-.formFooter {
+.quantityStepper button:hover:not(:disabled) {
+  background: #fff4e9;
+  color: var(--color-primary);
+}
+
+.quantityStepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.quantityStepper input {
+  width: 46px;
+  height: 32px;
+  border: 0;
+  border-left: 1px solid #f0e4d8;
+  border-right: 1px solid #f0e4d8;
+  outline: none;
+  background: #fff;
+  color: #352b25;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  appearance: textfield;
+}
+
+.quantityStepper input::-webkit-outer-spin-button,
+.quantityStepper input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+.secondaryActions {
   display: flex;
   justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.addMikanButton {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  border-top: 1px solid #f3f4f6;
-  padding-top: 16px;
-}
-
-/* エラーメッセージ */
-.errorMessage {
-  font-size: 13px;
-  color: var(--color-error);
-  font-weight: 500;
-  margin-right: auto;
-}
-
-/* 送信ボタン（みかんを投げる） */
-.submitButton {
-  padding: 10px 24px;
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: 14px;
-  font-weight: bold;
+  gap: 4px;
+  padding: 7px 10px;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary-hover, #c65d0e);
+  font-size: 11px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.15);
 }
 
-.submitButton:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
-  transform: translateY(-1px);
+.addMikanButton:hover {
+  text-decoration: underline;
 }
 
-.submitButton:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
+.mikanListArea {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed #eadfd5;
 }
 
-.submitButton:disabled {
-  background-color: #fed7aa;
-  /* 無効化時は薄いみかん色に */
-  color: rgba(255, 255, 255, 0.8);
+.subtleLabel {
+  color: #8a7c71;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.fieldLabel {
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 92px;
+  padding: 12px;
+  border: 1px solid #e7e0d9;
+  border-radius: 12px;
+  background: #fefdfc;
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 1.55;
+  resize: vertical;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.textarea::placeholder {
+  color: #b2aaa3;
+}
+
+.textarea:focus {
+  border-color: #fdba74;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.09);
+}
+
+.textarea:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
 }
 
-/* フッター */
-.formFooter {
+.profileDetails summary {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 12px;
-  border-top: 1px solid #f3f4f6;
-  padding-top: 16px;
-}
-
-/* エラーメッセージ */
-.errorMessage {
-  font-size: 13px;
-  color: var(--color-error);
-  font-weight: 500;
-  margin-right: auto;
-}
-
-/* 送信ボタン（みかんを投げる） */
-.submitButton {
-  padding: 10px 24px;
-  background-color: var(--color-primary);
-  color: var(--color-white);
-  border: none;
-  border-radius: var(--radius-lg);
-  font-size: 14px;
-  font-weight: bold;
+  gap: 8px;
+  color: #5b4d43;
+  font-size: 11px;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.15);
+  list-style: none;
 }
 
-.submitButton:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
-  transform: translateY(-1px);
-}
-
-.submitButton:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
-}
-
-.submitButton:disabled {
-  background-color: var(--color-primary-disable);
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-
-.none {
+.profileDetails summary::-webkit-details-marker {
   display: none;
 }
 
-.submitButtonWrapper {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-}
-
-.submitButton {
+.profileDetails summary::after {
+  content: "＋";
   margin-left: auto;
-  right: 10px;
+  color: #9d8f84;
+  font-size: 15px;
 }
 
-@media (max-width:500px) {
-  .formContainer {
-    padding: 6px;
+.profileDetails[open] summary::after {
+  content: "−";
+}
+
+.visibilitySection {
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.visibilityWrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-width: 200px;
+  padding: 3px;
+  border: 1px solid #eadfd5;
+  border-radius: 999px;
+  background: #faf7f3;
+}
+
+.visibilityButton input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.visibilityButton label {
+  min-height: 30px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border-radius: 999px;
+  color: #817166;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.visibilityButton input:checked + label {
+  background: #fff;
+  color: var(--color-primary-hover, #c65d0e);
+  box-shadow: 0 2px 8px rgba(73, 47, 28, 0.08);
+}
+
+@media (max-width: 560px) {
+  .postModal {
+    --modal-width: calc(100vw - 14px);
+    --modal-border-radius: 20px;
+  }
+
+  .formHeader {
+    grid-template-columns: 38px 1fr auto;
+    gap: 8px;
+    padding: 12px 13px;
+  }
+
+  .formHeader h2 {
+    font-size: 14px;
+  }
+
+  .headerCloseButton {
+    width: 32px;
+    height: 32px;
+  }
+
+  .headerSubmitButton {
+    min-width: 64px;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .formBody {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .formSection {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .varietyGrid {
+    gap: 6px;
+  }
+
+  .varietyCard {
+    min-height: 76px;
+    padding-inline: 3px;
+  }
+
+  .varietyCard > span:not(.selectedMark) {
+    font-size: 9px;
+  }
+
+  .recordControls {
+    grid-template-columns: 1fr 1.3fr;
+    gap: 10px;
+  }
+
+  .visibilitySection {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .visibilityWrapper {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .recordControls {
+    grid-template-columns: 1fr;
   }
 }
