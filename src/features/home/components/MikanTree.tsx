@@ -86,10 +86,15 @@ function createTree(seed: string): TreeModel {
       const leafCount = 4 + Math.floor(between(0, 3))
 
       for (let index = 0; index < leafCount; index += 1) {
+        const spreadX = between(-0.032, 0.032)
+        const spreadY = between(-0.022, 0.022)
+        const angleJitter = between(-0.35, 0.35)
+
         leaves.push({
-          x: nextX + between(-0.032, 0.032),
-          y: nextY + between(-0.022, 0.022),
-          angle: between(-1.25, 1.25),
+          // 葉の尖った根元を必ず枝先に置く。spread は向きのばらつきにだけ使う。
+          x: nextX,
+          y: nextY,
+          angle: bentAngle + Math.atan2(spreadY, spreadX) + angleJitter,
           scale: between(0.78, 1.12),
           tone: Math.floor(between(0, LEAF_COLORS.length)),
         })
@@ -132,9 +137,10 @@ function createTree(seed: string): TreeModel {
   const lean = between(-0.05, 0.05)
   grow(0.5, 0.94, 0.18, -Math.PI / 2 + lean, 0.035, 0)
 
+  // カードの裏に樹冠が埋もれすぎないよう、左右の主枝を少し長く・横向きにする。
   const crownY = 0.75 + between(-0.018, 0.018)
-  grow(0.5, crownY, 0.2, -Math.PI / 2 - between(0.25, 0.4), 0.027, 1)
-  grow(0.5, crownY, 0.2, -Math.PI / 2 + between(0.25, 0.4), 0.027, 1)
+  grow(0.5, crownY, 0.235, -Math.PI / 2 - between(0.42, 0.58), 0.029, 1)
+  grow(0.5, crownY, 0.235, -Math.PI / 2 + between(0.42, 0.58), 0.029, 1)
 
   return { branches, leaves, fruit }
 }
@@ -185,7 +191,7 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
     context.scale(leaf.scale, leaf.scale)
     context.fillStyle = LEAF_COLORS[leaf.tone]
 
-    // 元の tree.html と同じ、2つの円弧をつないだ尖りのある葉形。
+    // 元の tree.html と同じ、原点側が尖った2円弧の葉。原点＝枝先なので必ず接続する。
     const leafSize = scale * 0.026
     context.beginPath()
     context.arc(
