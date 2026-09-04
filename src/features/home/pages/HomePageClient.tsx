@@ -31,12 +31,7 @@ export function HomePageClient({
 
   return (
     <main className={styles.home}>
-      <section className={styles.treeHero} aria-labelledby="tree-heading">
-        <div className={styles.heroIntro}>
-          <p>今月のみかんの木</p>
-          <h1 id="tree-heading">みかんを楽しもう</h1>
-        </div>
-
+      <section className={styles.treeHero} aria-label="今月のみかんの木">
         <div className={styles.treeScene}>
           <MikanTree seed={treeSeed} className={styles.treeCanvas} />
 
