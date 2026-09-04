@@ -1,6 +1,7 @@
 'use client'
 
 import Link from "next/link"
+import { Icon } from "@iconify/react"
 import { FloatingPostButton } from "@/features/post/components/FloatingPostButton"
 import { Feed } from "../components/Feed"
 import { MikanTree } from "../components/MikanTree"
@@ -36,25 +37,25 @@ export function HomePageClient({
           <MikanTree seed={treeSeed} className={styles.treeCanvas} />
 
           <Link href="/stats" className={`${styles.treeCard} ${styles.statsCard}`}>
-            <span className={styles.cardIcon} aria-hidden="true">📊</span>
+            <Icon icon="mdi:chart-box-outline" className={styles.cardIcon} aria-hidden="true" />
             <span>今月のみかん</span>
             <strong>{stats.monthlyCount.toLocaleString("ja-JP")}個</strong>
           </Link>
 
           <Link href="/stats" className={`${styles.treeCard} ${styles.favoriteCard}`}>
-            <span className={styles.cardIcon} aria-hidden="true">🏅</span>
+            <Icon icon="mdi:crown-outline" className={styles.cardIcon} aria-hidden="true" />
             <span>人気の品種</span>
             <strong>{favorite?.name ?? "集計中"}</strong>
           </Link>
 
           <Link href="/stats" className={`${styles.treeCard} ${styles.communityCard}`}>
-            <span className={styles.cardIcon} aria-hidden="true">🍊</span>
+            <Icon icon="mdi:account-group-outline" className={styles.cardIcon} aria-hidden="true" />
             <span>みんなの記録</span>
             <strong>{stats.monthlyPosts.toLocaleString("ja-JP")}投稿</strong>
           </Link>
 
           <div className={`${styles.treeCard} ${styles.calendarCard} ${styles.comingSoon}`}>
-            <span className={styles.cardIcon} aria-hidden="true">📅</span>
+            <Icon icon="mdi:calendar-month-outline" className={styles.cardIcon} aria-hidden="true" />
             <span>みかんカレンダー</span>
             <small>準備中</small>
           </div>
@@ -72,11 +73,7 @@ export function HomePageClient({
 
       <section id="timeline" className={styles.timeline} aria-labelledby="timeline-heading">
         <div className={styles.timelineHeading}>
-          <span aria-hidden="true">🍃</span>
-          <div>
-            <p>みんなのみかん便り</p>
-            <h2 id="timeline-heading">タイムライン</h2>
-          </div>
+          <h2 id="timeline-heading">タイムライン</h2>
         </div>
 
         <Feed
