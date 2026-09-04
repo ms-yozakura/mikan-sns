@@ -1,27 +1,25 @@
 'use client'
 
-import { Modal } from "@/shared/ui/Modal"
-import styles from "./PostCard.module.css"
-import { useRouter } from 'next/navigation'
-import { useModal } from "@/providers/ModalProvider"
-import { MikanIcon } from "@/features/mikan/components/MikanIcon"
-import MikanTag from "@/features/mikan/components/MikanTag"
-import Link from "next/link"
-import { useActionState, useEffect, useState } from "react"
-import Button from "@/shared/ui/Button"
-import { createComment } from "../../actions/createComment"
-import { Icon } from "@iconify/react"
-import defaultAvatar from "@/img/default-avatar.jpg"
-import MikanRadar from "../MikanRadar"
-import { readMikanProfile } from "../../types/mikanProfile"
+import styles from './PostCard.module.css'
+import { useModal } from '@/providers/ModalProvider'
+import MikanTag from '@/features/mikan/components/MikanTag'
+import Link from 'next/link'
+import { useActionState, useEffect, useState } from 'react'
+import Button from '@/shared/ui/Button'
+import { createComment } from '../../actions/createComment'
+import { toggleLike } from '../../actions/toggleLike'
+import { Icon } from '@iconify/react'
+import defaultAvatar from '@/img/default-avatar.jpg'
+import MikanRadar from '../MikanRadar'
+import { readMikanProfile } from '../../types/mikanProfile'
 
 export function PostCard({
   post,
   enableCommentForm = true,
-  enablePostLink = true
+  enablePostLink = true,
 }: {
-  post: any,
-  enableCommentForm?: boolean,
+  post: any
+  enableCommentForm?: boolean
   enablePostLink?: boolean
 }) {
   const formattedDate = new Date(post.created_at).toLocaleString('ja-JP', {
@@ -30,14 +28,18 @@ export function PostCard({
     hour: '2-digit',
     minute: '2-digit',
   })
-  const router = useRouter()
-  const { openModal, closeModal } = useModal()
+  const { openModal } = useModal()
 
   const [commentFormDisp, setCommentFormDisp] = useState(false)
+  const [liked, setLiked] = useState(Boolean(post.liked_by_me))
+  const [likeCount, setLikeCount] = useState(
+    Number(post.like_count ?? post.post_likes?.[0]?.count ?? 0)
+  )
+  const [likePending, setLikePending] = useState(false)
+  const [likeError, setLikeError] = useState<string | null>(null)
 
   const [state, action, pending] = useActionState(createComment, null)
 
-  // ユーザーのプロフィール画像URL（なければデフォルト）
   const avatarUrl = post.users?.avatar_url || null
   const mikanEntries = (post.post_mikans ?? []).map((value: any) => ({
     value,
@@ -52,27 +54,50 @@ export function PostCard({
     }
   }, [state])
 
+  const handleLike = async () => {
+    if (likePending) return
+
+    const previousLiked = liked
+    const previousCount = likeCount
+    const nextLiked = !previousLiked
+
+    setLikeError(null)
+    setLiked(nextLiked)
+    setLikeCount(Math.max(0, previousCount + (nextLiked ? 1 : -1)))
+    setLikePending(true)
+
+    const result = await toggleLike(post.id)
+
+    if (!result.success) {
+      setLiked(previousLiked)
+      setLikeCount(previousCount)
+      setLikeError(result.error)
+      setLikePending(false)
+      return
+    }
+
+    if (result.liked !== nextLiked) {
+      setLiked(result.liked)
+      setLikeCount(previousCount)
+    }
+
+    setLikePending(false)
+  }
+
   return (
-    <article
-      className={styles.postCard}
-    >
-      {
-        enablePostLink &&
-        <Link
-          className={styles.cardLink}
-          href={`/post/${post.id}`}
-        ></Link>
-      }
-      {/* ヘッダー：アイコンと名前 */}
-      <div
-        className={styles.postHeader}
-      >
+    <article className={styles.postCard}>
+      {enablePostLink && (
+        <Link className={styles.cardLink} href={`/post/${post.id}`}></Link>
+      )}
+
+      <div className={styles.postHeader}>
         <Link
           href={`/user/${post.users?.username}`}
           onClick={(e) => {
-            e.stopPropagation() // カード全体のクリックイベントを抑止
+            e.stopPropagation()
           }}
-          className={styles.avatarWrapper}>
+          className={styles.avatarWrapper}
+        >
           <img
             src={avatarUrl ?? defaultAvatar.src}
             alt={`${post.users?.display_name}'s avatar`}
@@ -82,75 +107,69 @@ export function PostCard({
         <Link
           href={`/user/${post.users?.username}`}
           onClick={(e) => {
-            e.stopPropagation() // カード全体のクリックイベントを抑止
+            e.stopPropagation()
           }}
           className={styles.postUserInfo}
         >
           <div className={styles.nameContainer}>
-            <h3 className={styles.postAuthor}>{post.users?.display_name || '名無しの柑橘'}</h3>
+            <h3 className={styles.postAuthor}>
+              {post.users?.display_name || '名無しの柑橘'}
+            </h3>
             <span className={styles.postUsername}>@{post.users?.username || 'user'}</span>
           </div>
           <span className={styles.postDate}>{formattedDate}</span>
         </Link>
-        {post.visibility != "public" &&
-          <div className={styles.visibilityTag}>
-            {post.visibility}
-          </div>
-        }
+        {post.visibility != 'public' && (
+          <div className={styles.visibilityTag}>{post.visibility}</div>
+        )}
       </div>
 
-      {/* 本文 */}
       <div className={styles.postBody}>
         <p>{post.body}</p>
       </div>
 
       <div className={styles.imageArea}>
-        {
-          post.post_images?.some(
-            (img: any) => img.thumbnail_url
-          ) && (
-            <>
-              {
-                post.post_images.map((img: any) => {
+        {post.post_images?.some((img: any) => img.thumbnail_url) && (
+          <>
+            {post.post_images.map((img: any) => {
+              if (!img.thumbnail_url) return null
 
-                  if (!img.thumbnail_url) return null
-
-                  return (
-                    <img
-                      key={img.thumbnail_url}
-                      src={img.thumbnail_url}
-                      className={styles.image}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        openModal({
-                          children: (
-                            <div className={styles.imageModalBody}>
-                              <img
-                                src={img.url}
-                                className={styles.bigImage}
-                              />
-                            </div>
-                          ),
-                        })
-                      }}
-                    />
-                  )
-                })
-              }
-            </>
-          )
-        }
+              return (
+                <img
+                  key={img.thumbnail_url}
+                  src={img.thumbnail_url}
+                  className={styles.image}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    openModal({
+                      children: (
+                        <div className={styles.imageModalBody}>
+                          <img src={img.url} className={styles.bigImage} />
+                        </div>
+                      ),
+                    })
+                  }}
+                />
+              )
+            })}
+          </>
+        )}
       </div>
+
       <div className={styles.mikanList}>
         {reviewedMikans.map(({ value, profile }: any) => (
-            <div key={value.id} className={`${styles.mikanEntry} ${styles.withRadar}`}>
-              <MikanTag mikan={{
+          <div key={value.id} className={`${styles.mikanEntry} ${styles.withRadar}`}>
+            <MikanTag
+              mikan={{
                 name: value.mikan_varieties.name,
                 quantity: value.quantity,
-                satisfaction: value.satisfaction
-              }} variety={value.mikan_varieties} hasTasteReview />
-              <MikanRadar title="" values={profile} compact className={styles.mikanRadar} />
-            </div>
+                satisfaction: value.satisfaction,
+              }}
+              variety={value.mikan_varieties}
+              hasTasteReview
+            />
+            <MikanRadar title="" values={profile} compact className={styles.mikanRadar} />
+          </div>
         ))}
         {simpleMikans.length > 0 && (
           <div className={styles.simpleMikanColumn}>
@@ -161,7 +180,7 @@ export function PostCard({
                 mikan={{
                   name: value.mikan_varieties.name,
                   quantity: value.quantity,
-                  satisfaction: value.satisfaction
+                  satisfaction: value.satisfaction,
                 }}
                 variety={value.mikan_varieties}
               />
@@ -169,13 +188,12 @@ export function PostCard({
           </div>
         )}
       </div>
-      {/* フッター：インタラクションボタン */}
+
       <div className={styles.postFooter}>
         <button
           className={`${styles.actionButton} ${styles.commentBtn}`}
           onClick={(e) => {
             e.stopPropagation()
-            // コメント一覧/作成へのモック
             setCommentFormDisp(true)
           }}
           aria-label="コメント"
@@ -185,22 +203,26 @@ export function PostCard({
         </button>
 
         <button
-          className={`${styles.actionButton} ${styles.likeBtn}`}
+          className={`${styles.actionButton} ${styles.likeBtn} ${liked ? styles.liked : ''}`}
           onClick={(e) => {
             e.stopPropagation()
-            // いいね処理のモック
+            void handleLike()
           }}
-          aria-label="いいね"
+          aria-label={liked ? 'いいねを解除' : 'いいね'}
+          aria-pressed={liked}
+          disabled={likePending}
         >
-          <Icon className={styles.footerIcon} icon="iconamoon:heart" />
-          <span className={styles.actionCount}>0</span>
+          <Icon
+            className={styles.footerIcon}
+            icon={liked ? 'iconamoon:heart-fill' : 'iconamoon:heart'}
+          />
+          <span className={styles.actionCount}>{likeCount}</span>
         </button>
 
         <button
           className={`${styles.actionButton} ${styles.bookmarkBtn}`}
           onClick={(e) => {
             e.stopPropagation()
-            // ブックマーク処理のモック
           }}
           aria-label="ブックマーク"
         >
@@ -211,42 +233,33 @@ export function PostCard({
           className={`${styles.actionButton} ${styles.shareBtn}`}
           onClick={(e) => {
             e.stopPropagation()
-            // シェア処理のモック
           }}
           aria-label="シェア"
         >
           <Icon className={styles.footerIcon} icon="iconamoon:share-1" />
         </button>
       </div>
-      {
-        (commentFormDisp && enableCommentForm) && (
-          <form
-            action={action}
-            className={styles.commentForm}
-          >
-            <input
-              type="hidden"
-              name="postId"
-              value={post.id}
-            />
-            <textarea
-              name="body"
-              placeholder="コメントを入力"
-              autoFocus
-              onBlur={() =>
-                setTimeout(() => setCommentFormDisp(false), 100)
-              }
-            />
-            <Button
-              size="s"
-              type="submit"
-              disabled={pending}
-            >
-              送信
-            </Button>
-          </form>
-        )
-      }
-    </article >
+
+      {likeError && (
+        <p className={styles.actionError} role="status">
+          {likeError}
+        </p>
+      )}
+
+      {commentFormDisp && enableCommentForm && (
+        <form action={action} className={styles.commentForm}>
+          <input type="hidden" name="postId" value={post.id} />
+          <textarea
+            name="body"
+            placeholder="コメントを入力"
+            autoFocus
+            onBlur={() => setTimeout(() => setCommentFormDisp(false), 100)}
+          />
+          <Button size="s" type="submit" disabled={pending}>
+            送信
+          </Button>
+        </form>
+      )}
+    </article>
   )
 }
