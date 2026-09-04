@@ -7,7 +7,7 @@
   width: 100%;
   min-height: 58px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding:
     max(8px, env(safe-area-inset-top))
     18px
@@ -19,23 +19,22 @@
 }
 
 .brand {
+  position: absolute;
+  left: 50%;
+  top: calc(max(8px, env(safe-area-inset-top)) + 17px);
+  transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   min-width: 0;
   text-decoration: none;
-}
-
-.logo {
-  font-size: 22px;
-  line-height: 1;
 }
 
 .title {
   color: var(--color-text);
   font-size: 18px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 .actions {
