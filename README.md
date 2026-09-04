@@ -1,4 +1,3 @@
-
 # Mikan SNS（仮）
 
 東大みかん愛好会向けのSNS
@@ -46,6 +45,7 @@ MikanSNSは、東大みかん愛好会員同士の交流を目的としたSNSで
 - [❌️実装の進捗と予定](docs/roadmap.md)
 
 初心者用
+
 - [❌️Next.jsについて](docs/next.md)
 - [❌️Supabaseについて](docs/supabase.md)
 - [✅️開発のチュートリアル](/docs/dev_test.md)
@@ -60,8 +60,11 @@ MikanSNSは、東大みかん愛好会員同士の交流を目的としたSNSで
 
 ```
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
+
+Vercelでは両方の環境変数をProductionとPreviewに設定してください。
+`NEXT_PUBLIC_*` はビルド時に埋め込まれるため、設定変更後は再デプロイが必要です。
 
 ### 実行
 
