@@ -15,87 +15,56 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ============================================================
-      # 1. Repositoryをcheckout
-      # ============================================================
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # ============================================================
-      # 2. Actions上だけcommit authorを自分に変更
-      #    GitHub上の履歴は変更されない
-      # ============================================================
+      # Vercelチームに紐づくauthorで一時的にbuildする。
+      # GitHub上の履歴は変更しない。
       - name: Override commit author
         run: |
           git config user.name "${{ secrets.VERCEL_GIT_NAME }}"
           git config user.email "${{ secrets.VERCEL_GIT_EMAIL }}"
           git commit --amend --no-edit --reset-author --allow-empty
 
-      # 確認用
       - name: Show commit info
-        run: |
-          git log -1 --pretty=fuller
+        run: git log -1 --pretty=fuller
 
-      # ============================================================
-      # 3. Vercel CLI
-      # ============================================================
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: npm install --global vercel@59.11.2
 
-      # ============================================================
-      # 4. Vercelの認証確認
-      # ============================================================
       - name: Check Vercel Authentication
         run: |
           vercel whoami \
             --token="${{ secrets.VERCEL_TOKEN }}"
 
-      # ============================================================
-      # 5. Projectにアクセスできるか確認
-      # ============================================================
       - name: Check Vercel Project Access
         run: |
           vercel project inspect mikan-sns \
             --scope=mshuto1227-2620s-projects \
             --token="${{ secrets.VERCEL_TOKEN }}"
 
-      # ============================================================
-      # 6. Preview用のVercel設定・環境変数を取得
-      # ============================================================
-      - name: Pull Vercel Environment
+      # Projectとのリンク情報を取得する。Sensitiveな環境変数は
+      # GitHub Actionsへpullできないため、ここではローカルbuildしない。
+      - name: Pull Vercel Project Configuration
         run: |
           vercel pull \
             --yes \
             --environment=preview \
-            --token="${{ secrets.VERCEL_TOKEN }}" \
-            --debug
-
-      # ============================================================
-      # 7. Vercel上と同じ設定でbuild
-      # ============================================================
-      - name: Build Preview
-        run: |
-          vercel build \
             --token="${{ secrets.VERCEL_TOKEN }}"
 
-      # ============================================================
-      # 8. Preview Deployment
-      # ============================================================
+      # ソースをVercelへ送り、Preview環境変数を利用してVercel上でbuildする。
       - name: Deploy Preview
         id: deploy
         shell: bash
         run: |
           deployment_url="$(vercel deploy \
-            --prebuilt \
+            --yes \
             --token="${{ secrets.VERCEL_TOKEN }}")"
           echo "url=${deployment_url}" >> "${GITHUB_OUTPUT}"
           echo "Preview deployed to ${deployment_url}"
 
-      # ============================================================
-      # 9. ActionsのSummaryに確認用URLを表示
-      # ============================================================
       - name: Publish Preview URL
         shell: bash
         run: |
