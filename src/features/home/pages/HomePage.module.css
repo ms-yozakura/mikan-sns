@@ -174,13 +174,24 @@
 
 @media (max-width: 520px) {
   .treeHero {
-    min-height: calc(100svh - 74px);
-    padding-inline: 14px;
+    box-sizing: border-box;
+    min-height: calc(100dvh - 58px);
+    padding:
+      16px
+      14px
+      calc(86px + env(safe-area-inset-bottom));
+    gap: 8px;
+  }
+
+  .heroIntro {
+    flex: 0 0 auto;
   }
 
   .treeScene {
-    height: 520px;
-    min-height: 440px;
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 320px;
+    max-height: 520px;
   }
 
   .treeCard {
@@ -197,6 +208,12 @@
   .favoriteCard { right: 0; top: 21%; }
   .communityCard { right: 0; bottom: 21%; }
   .calendarCard { left: 0; bottom: 20%; }
+
+  .scrollGuide {
+    flex: 0 0 auto;
+    min-height: 36px;
+    padding-block: 0;
+  }
 
   .timeline {
     padding-inline: 14px;
