@@ -224,17 +224,34 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
   const minY = Math.min(...points.map((point) => point.y))
   const maxY = Math.max(...points.map((point) => point.y))
 
-  const treeWidth = Math.max(1, maxX - minX)
+  const maxHorizontalReach = Math.max(1, Math.abs(minX), Math.abs(maxX))
   const treeHeight = Math.max(1, maxY - minY)
   const drawingScale = Math.min(
-    (width * 0.94) / treeWidth,
+    (width * 0.47) / maxHorizontalReach,
     (height * 0.88) / treeHeight,
   )
 
-  const centerX = (minX + maxX) / 2
   const bottomY = maxY
-  const screenX = (value: number) => width / 2 + (value - centerX) * drawingScale
+  // 根元 x=0 を必ず画面中央に固定する。
+  const screenX = (value: number) => width / 2 + value * drawingScale
   const screenY = (value: number) => height * 0.94 + (value - bottomY) * drawingScale
+
+  // 根元の影。木より先に描くことで必ず背面に置く。
+  context.save()
+  context.filter = "blur(7px)"
+  context.fillStyle = "rgb(91 58 31 / 14%)"
+  context.beginPath()
+  context.ellipse(
+    width / 2,
+    height * 0.943,
+    width * 0.145,
+    Math.max(4, height * 0.011),
+    0,
+    0,
+    Math.PI * 2,
+  )
+  context.fill()
+  context.restore()
 
   for (const item of tree.branches) {
     context.strokeStyle = item.width >= 7 ? "#765033" : "#85603d"
@@ -278,8 +295,6 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel) {
     context.arc(screenX(item.x), screenY(item.y), 5 * drawingScale, 0, Math.PI * 2)
     context.fill()
   }
-
-  // 元コードには地面楕円はないので、木の生成ロジックを尊重して描かない。
 }
 
 export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProps) {
