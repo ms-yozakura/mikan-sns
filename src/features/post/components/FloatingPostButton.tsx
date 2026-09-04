@@ -2,6 +2,7 @@
 
 import { FloatingActionButton } from "@/shared/ui/FloatingActionButton"
 import { PostForm } from "@/features/post/components/PostForm/PostForm"
+import postStyles from "@/features/post/components/PostForm/PostForm.module.css"
 import { Icon } from "@iconify/react"
 import { useModal } from "@/providers/ModalProvider"
 import { useRouter } from "next/navigation"
@@ -14,9 +15,11 @@ export function FloatingPostButton({ onSuccess }: { onSuccess: (post: any) => vo
     <FloatingActionButton
       onClick={() =>
         openModal({
-          title: "投稿を作成",
+          className: postStyles.postModal,
+          hideCloseButton: true,
           children: (
             <PostForm
+              onClose={closeModal}
               onSuccess={(post: any) => {
                 closeModal()
                 router.refresh()
