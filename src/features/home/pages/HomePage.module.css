@@ -204,10 +204,10 @@
     font-size: 14px;
   }
 
-  .statsCard { left: 0; top: 24%; }
-  .favoriteCard { right: 0; top: 21%; }
-  .communityCard { right: 0; bottom: 21%; }
-  .calendarCard { left: 0; bottom: 20%; }
+  .statsCard { left: 0; top: 7%; }
+  .favoriteCard { right: 0; top: 5%; }
+  .communityCard { right: 0; bottom: 18%; }
+  .calendarCard { left: 0; bottom: 17%; }
 
   .scrollGuide {
     flex: 0 0 auto;
