@@ -2,17 +2,12 @@
 
 import { FloatingActionButton } from "@/shared/ui/FloatingActionButton"
 import { PostForm } from "@/features/post/components/PostForm/PostForm"
-
 import { Icon } from "@iconify/react"
-
 import { useModal } from "@/providers/ModalProvider"
 import { useRouter } from "next/navigation"
-import { useInfiniteFeed } from "@/features/home/hooks/useInfiniteFeed"
 
-export function FloatingPostButton({ onSuccess }: { onSuccess: (post:any) => void }) {
-
+export function FloatingPostButton({ onSuccess }: { onSuccess: (post: any) => void }) {
   const router = useRouter()
-
   const { openModal, closeModal } = useModal()
 
   return (
@@ -22,7 +17,7 @@ export function FloatingPostButton({ onSuccess }: { onSuccess: (post:any) => voi
           title: "投稿を作成",
           children: (
             <PostForm
-              onSuccess={(post:any) => {
+              onSuccess={(post: any) => {
                 closeModal()
                 router.refresh()
                 onSuccess(post)
@@ -32,7 +27,8 @@ export function FloatingPostButton({ onSuccess }: { onSuccess: (post:any) => voi
         })
       }
     >
-      <Icon icon="material-symbols:add-rounded" />
+      <Icon icon="material-symbols:add-rounded" aria-hidden="true" />
+      <span>投稿する</span>
     </FloatingActionButton>
   )
 }
