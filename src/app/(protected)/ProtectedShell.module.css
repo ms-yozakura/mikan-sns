@@ -23,8 +23,6 @@
   padding-top: 30px;
 }
 
-
-
 @media (max-width: 800px) {
   .shell {
     display: block;
@@ -32,10 +30,13 @@
   }
 
   .mainColumn {
-    width: min(90%, 600px);
-    min-height: calc(100vh - 64px);
+    width: min(100% - 24px, 600px);
+    min-height: calc(100vh - 58px);
     margin: 0 auto;
-    padding: 5px 0;
+    padding:
+      5px
+      0
+      calc(88px + env(safe-area-inset-bottom));
   }
 
   .statsRail {
