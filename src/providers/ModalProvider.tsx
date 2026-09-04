@@ -6,6 +6,7 @@ type ModalArgs = {
   title?: string
   children: ReactNode
   className?: string
+  hideCloseButton?: boolean
 }
 
 type ModalContextType = {
@@ -52,6 +53,7 @@ export function ModalProvider({
           onClose={closeModal}
           onExited={handleExited}
           className={modal.className}
+          hideCloseButton={modal.hideCloseButton}
         >
           {modal.title && (
             <h3>{modal.title}</h3>
