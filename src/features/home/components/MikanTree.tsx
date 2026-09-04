@@ -364,16 +364,18 @@ function getWindState(timeMs: number, treePhase: number): WindState {
 }
 
 function getBranchFlexibility(branch: Branch) {
-  // 木そのものは主役のアイドルポーズを保つ。枝先だけごく微小に呼吸する程度。
-  const widthFlex = Math.min(1, Math.max(0, (6 - branch.width) / 6))
-  const depthFlex = Math.min(1, Math.max(0, (branch.depth - 3) / 10))
-  const tipFlex = widthFlex * 0.68 + depthFlex * 0.32
+  // 幹はアイドルポーズを保ち、側枝から先だけを目視できる程度にしならせる。
+  if (branch.width >= 7) return 0.00002
 
-  return 0.00003 + tipFlex * 0.00055
+  const widthFlex = Math.min(1, Math.max(0, (7 - branch.width) / 6))
+  const depthFlex = Math.min(1, Math.max(0, (branch.depth - 4) / 9))
+
+  return 0.0014 + widthFlex * 0.0042 + depthFlex * 0.0026
 }
 
 function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
   const time = timeMs / 1000
+  const motionRamp = Math.min(1, Math.max(0, timeMs / 700))
   const poses = new Array<BranchPose>(tree.branches.length)
 
   for (let index = 0; index < tree.branches.length; index += 1) {
@@ -385,15 +387,23 @@ function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
       ? parentPose.angle + branch.relativeAngle
       : branch.baseAngle
 
-    const delayedSway =
-      Math.sin(time * 0.78 + tree.windPhase - branch.depth * 0.055) * 0.78
-      + Math.sin(time * 1.31 + tree.windPhase * 0.63 - branch.depth * 0.025) * 0.22
-    const localFlutter = Math.sin(time * 1.7 + branch.windPhase) * 0.12
+    // 枝ごとの位相を混ぜ、樹冠全体が一枚板のように左右へ振れないようにする。
+    const idleSway =
+      Math.sin(time * 0.95 + branch.windPhase * 0.45 - branch.depth * 0.07) * 0.68
+      + Math.sin(time * 1.55 + branch.windPhase) * 0.32
+
+    // 「ﾜｻﾜｻｯ」の瞬間だけ細枝にも速い成分を少し乗せる。
+    const rustle =
+      (
+        Math.sin(time * 8.8 + branch.windPhase) * 0.65
+        + Math.sin(time * 13.6 + branch.windPhase * 0.57) * 0.35
+      )
+      * wind.envelope
+
     const windOffset =
-      (delayedSway + localFlutter)
-      * (0.22 + wind.envelope * 0.78)
+      (idleSway * 0.85 + rustle * 0.72)
       * getBranchFlexibility(branch)
-      * Math.min(1, Math.max(0, timeMs / 700))
+      * motionRamp
 
     const angle = baseWorldAngle + windOffset
     const nextX = startX + Math.cos(angle) * branch.length
@@ -482,8 +492,7 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     context.stroke()
   }
 
-  // 葉は枝先を支点に回転だけでアイドルモーションする。
-  // 普段は少し大きめにふわふわ、約8.5秒ごとのラッスル中だけ高周波で「ﾜｻﾜｻｯ」と震える。
+  // 葉は動いた枝先に完全追従し、その上で回転のアイドルモーションを重ねる。
   const time = timeMs / 1000
   const motionRamp = Math.min(1, Math.max(0, timeMs / 700))
 
@@ -493,13 +502,13 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     const branchRotation = parentPose.angle - parentBranch.baseAngle
 
     const idleFlutter =
-      Math.sin(time * 1.95 + leaf.windPhase) * 0.09
-      + Math.sin(time * 3.15 + leaf.windPhase * 0.72) * 0.035
+      Math.sin(time * 1.95 + leaf.windPhase) * 0.105
+      + Math.sin(time * 3.15 + leaf.windPhase * 0.72) * 0.042
 
     const rustleFlutter =
       (
-        Math.sin(time * 13.5 + leaf.windPhase * 1.17) * 0.17
-        + Math.sin(time * 19 + leaf.windPhase * 0.53) * 0.075
+        Math.sin(time * 13.5 + leaf.windPhase * 1.17) * 0.19
+        + Math.sin(time * 19 + leaf.windPhase * 0.53) * 0.085
       )
       * wind.envelope
 
@@ -640,7 +649,7 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
       aria-label="あなた固有のみかんの木"
       data-tree-version={TREE_VERSION}
       data-tree-preset={preset}
-      data-tree-wind="idle-rustle-rotation"
+      data-tree-wind="branch-idle-rustle"
     />
   )
 }
