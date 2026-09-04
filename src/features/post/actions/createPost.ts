@@ -16,6 +16,8 @@ function parseMikans(value: FormDataEntryValue | null): MikanInput[] {
   const parsed: unknown = JSON.parse(typeof value === 'string' ? value : '[]')
   if (!Array.isArray(parsed)) throw new Error('みかん情報が不正です')
 
+  const evaluatedVarieties = new Set<string>()
+
   return parsed.map((item): MikanInput => {
     if (!item || typeof item !== 'object') throw new Error('みかん情報が不正です')
     const source = item as Record<string, unknown>
@@ -38,6 +40,13 @@ function parseMikans(value: FormDataEntryValue | null): MikanInput[] {
       return [key, score]
     })) as Record<MikanProfileKey, number>
 
+    if (hasProfile) {
+      if (evaluatedVarieties.has(source.variety_id)) {
+        throw new Error('同じ品種には味評価を1つだけ設定できます')
+      }
+      evaluatedVarieties.add(source.variety_id)
+    }
+
     return { variety_id: source.variety_id, quantity, satisfaction, ...(hasProfile ? profile : {}) }
   })
 }
@@ -51,7 +60,7 @@ export async function createPost(
 
   const supabase = await createClient()
 
-  const body = formData.get('body') as string
+  const body = (formData.get('body') as string | null)?.trim() ?? ''
 
   const visibility=formData.get("visibility") as string
 
@@ -63,12 +72,6 @@ export async function createPost(
     return { error: error instanceof Error ? error.message : 'みかん情報が不正です', success: false }
   }
 
-  if (!body.trim()) {
-    return {
-      error: '本文を入力してね',
-      success: false
-    }
-  }
   const { data: { user } } = await supabase.auth.getUser()
 
 
@@ -121,8 +124,8 @@ export async function createPost(
         .insert(
           images.map(
             (img: any) => ({
-              post_id: post.id, 
-              url: img.url, 
+              post_id: post.id,
+              url: img.url,
               thumbnail_url: img.thumbnail_url,
               order_index: img.order_index
             })

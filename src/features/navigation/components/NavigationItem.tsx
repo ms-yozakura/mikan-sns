@@ -10,6 +10,7 @@ type Props = {
     label: string
     href: string
     icon: string
+    activeIcon?: string
   }
 }
 
@@ -23,7 +24,12 @@ export function NavigationItem({ item }: Props) {
       className={`${styles.item} ${active ? styles.active : ""}`}
       aria-current={active ? "page" : undefined}
     >
-      <Icon icon={item.icon} width={24} height={24} aria-hidden="true" />
+      <Icon
+        icon={active ? (item.activeIcon ?? item.icon) : item.icon}
+        width={24}
+        height={24}
+        aria-hidden="true"
+      />
       <span>{item.label}</span>
     </Link>
   )

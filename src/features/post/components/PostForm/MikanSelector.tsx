@@ -24,58 +24,56 @@ export function MikanSelector({
   selectedVariety: string
   setSelectedVariety: (id: string) => void
 }) {
-
-  const filtered = varieties.filter(v => v.name.includes(keyword)).slice(0,5)
-  const selected = varieties.find(v => v.id === selectedVariety)
+  const normalizedKeyword = keyword.trim().toLocaleLowerCase("ja-JP")
+  const visibleVarieties = normalizedKeyword
+    ? varieties
+      .filter(v => v.name.toLocaleLowerCase("ja-JP").includes(normalizedKeyword))
+      .slice(0, 8)
+    : varieties.slice(0, 8)
 
   return (
-    <div className={styles.mikanSearchWrapper}>
-      <label>
-        <div className={styles.varietyTitle}>
-          品種
-          {
-            selected && (
-              <>
-                ：
-                <MikanIcon color={selected.color} shape={selected.shape} />
-                {selected.name}
+    <div className={styles.mikanSelector}>
+      <div className={styles.searchBox}>
+        <Icon
+          icon="mdi:magnify"
+          className={styles.searchIcon}
+          aria-hidden="true"
+        />
+        <input
+          type="search"
+          aria-label="みかんの品種を検索"
+          placeholder="みかんを検索..."
+          value={keyword}
+          className={styles.mikanSearchInput}
+          onChange={e => setKeyword(e.target.value)}
+        />
+      </div>
 
-              </>
-            )
-          }
-        </div>
+      <div className={styles.varietyGrid}>
+        {visibleVarieties.map(v => {
+          const isSelected = v.id === selectedVariety
 
-        <div className={styles.searchBox}>
-          <Icon
-            icon="mdi:magnify"
-            className={styles.searchIcon}
-          />
+          return (
+            <button
+              key={v.id}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => setSelectedVariety(v.id)}
+              className={`${styles.varietyCard} ${isSelected ? styles.selected : ""}`}
+            >
+              <MikanIcon color={v.color} shape={v.shape} size={42} />
+              <span>{v.name}</span>
+              {isSelected && (
+                <Icon icon="mdi:check-circle" className={styles.selectedMark} aria-hidden="true" />
+              )}
+            </button>
+          )
+        })}
+      </div>
 
-          <input
-            placeholder="みかんを検索"
-            value={keyword}
-            className={styles.mikanSearchInput}
-            onChange={e => setKeyword(e.target.value)}
-          />
-        </div>
-        <div className={styles.varietyOptionsWrapper}>
-          {
-            filtered.map(v => (
-              <button
-                key={v.id}
-                type="button"
-                onClick={() => setSelectedVariety(v.id)}
-                className={`
-                  ${styles.varietyOption}
-                  ${v.id === selectedVariety ? styles.selected : ""}
-                `}
-              >
-                {v.name}
-              </button>
-            ))
-          }
-        </div>
-      </label>
+      {visibleVarieties.length === 0 && (
+        <p className={styles.noVarietyResult}>該当する品種が見つかりません</p>
+      )}
     </div>
   )
 }

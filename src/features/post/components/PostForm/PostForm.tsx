@@ -2,9 +2,14 @@
 
 import { PostFormClient } from "./PostFormClient"
 
-export function PostForm({ onSuccess }: { onSuccess: (post: any) => void }) {
-
+export function PostForm({
+  onSuccess,
+  onClose,
+}: {
+  onSuccess: (post: any) => void
+  onClose?: () => void
+}) {
   return (
-    <PostFormClient onSuccess={onSuccess} />
+    <PostFormClient onSuccess={onSuccess} onClose={onClose} />
   )
 }

@@ -1,41 +1,190 @@
-
-.mikanList{
+.mikanList {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 8px;
-  overflow-x: auto;
-  overflow-y: hidden;
   margin-top: 10px;
-  margin-bottom: 10px;
-  padding: 2px 2px 7px;
-  scrollbar-width: thin;
-  scrollbar-color: #f3c99e transparent;
 }
 
-.mikanTagContainer {
+.mikanCard {
+  border: 1px solid #eee0d4;
+  border-radius: 14px;
+  background: #fffdfa;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.mikanCard.active {
+  border-color: var(--color-primary);
+  background: #fff8ef;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.08);
+}
+
+.mikanCard.compact {
+  background: #fff;
+}
+
+.cardHeader {
   display: flex;
-  flex-direction: row;
-  gap: 4px;
-  flex: 0 0 auto;
-  justify-content: left;
+  align-items: stretch;
 }
 
-.mikanList::-webkit-scrollbar { height: 5px; }
-.mikanList::-webkit-scrollbar-thumb { background: #f3c99e; border-radius: 999px; }
-.mikanList::-webkit-scrollbar-track { background: transparent; }
+.active .cardHeader {
+  border-bottom: 1px solid #f2e7dc;
+}
 
-.deleteButton {
-  background: none;
-  border: none;
-  color: var(--color-text-light);
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
+.varietyButton {
+  min-width: 0;
+  flex: 1;
   display: flex;
   align-items: center;
-  transition: color 0.2s;
+  gap: 8px;
+  padding: 9px 10px;
+  border: 0;
+  background: transparent;
+  color: #4f4035;
+  text-align: left;
+  cursor: pointer;
+}
+
+.compact .varietyButton {
+  padding: 6px 9px;
+}
+
+.varietyButton:hover {
+  background: #fff7ef;
+}
+
+.varietyText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.varietyText strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.compactSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8f8075;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.ratingSummary {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.ratingSummary svg {
+  color: var(--color-primary);
+  font-size: 12px;
+}
+
+.deleteButton {
+  width: 38px;
+  border: 0;
+  border-left: 1px solid #f2e7dc;
+  background: transparent;
+  color: #a39286;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.compact .deleteButton {
+  width: 34px;
 }
 
 .deleteButton:hover {
+  background: #fff4f2;
   color: var(--color-error);
+}
+
+.cardControls {
+  display: grid;
+  grid-template-columns: minmax(128px, 0.75fr) minmax(180px, 1.25fr);
+  gap: 14px;
+  align-items: end;
+  padding: 10px 12px 12px;
+}
+
+.controlGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.controlLabel {
+  color: #6a594d;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.quantityStepper {
+  width: fit-content;
+  display: grid;
+  grid-template-columns: 32px 44px 32px;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid #eadfd5;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.quantityStepper button {
+  width: 32px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: #6e5d50;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.quantityStepper button:hover:not(:disabled) {
+  background: #fff4e9;
+  color: var(--color-primary);
+}
+
+.quantityStepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.quantityStepper input {
+  width: 44px;
+  height: 30px;
+  border: 0;
+  border-left: 1px solid #f0e4d8;
+  border-right: 1px solid #f0e4d8;
+  outline: none;
+  background: #fff;
+  color: #352b25;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 800;
+  appearance: textfield;
+}
+
+.quantityStepper input::-webkit-outer-spin-button,
+.quantityStepper input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+@media (max-width: 430px) {
+  .cardControls {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
 }
