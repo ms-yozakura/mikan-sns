@@ -1,10 +1,16 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/infrastructure/supabase/server'
 
 type ToggleFollowResult =
   | { success: true; following: boolean }
   | { success: false; error: string }
+
+function revalidateFollowViews() {
+  revalidatePath('/profile')
+  revalidatePath('/user/[userId]', 'page')
+}
 
 export async function toggleFollow(targetUserId: string): Promise<ToggleFollowResult> {
   const supabase = await createClient()
@@ -43,6 +49,7 @@ export async function toggleFollow(targetUserId: string): Promise<ToggleFollowRe
       return { success: false, error: 'フォローを解除できませんでした。' }
     }
 
+    revalidateFollowViews()
     return { success: true, following: false }
   }
 
@@ -53,6 +60,7 @@ export async function toggleFollow(targetUserId: string): Promise<ToggleFollowRe
 
   if (insertError) {
     if (insertError.code === '23505') {
+      revalidateFollowViews()
       return { success: true, following: true }
     }
 
@@ -60,5 +68,6 @@ export async function toggleFollow(targetUserId: string): Promise<ToggleFollowRe
     return { success: false, error: 'フォローできませんでした。' }
   }
 
+  revalidateFollowViews()
   return { success: true, following: true }
 }
