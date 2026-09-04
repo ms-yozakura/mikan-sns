@@ -37,25 +37,41 @@ export function HomePageClient({
           <MikanTree seed={treeSeed} className={styles.treeCanvas} />
 
           <Link href="/stats" className={`${styles.treeCard} ${styles.statsCard}`}>
-            <Icon icon="mdi:chart-box-outline" className={styles.cardIcon} aria-hidden="true" />
+            <Icon
+              icon="mdi:chart-box-outline"
+              className={`${styles.cardIcon} ${styles.statsIcon}`}
+              aria-hidden="true"
+            />
             <span>今月のみかん</span>
             <strong>{stats.monthlyCount.toLocaleString("ja-JP")}個</strong>
           </Link>
 
           <Link href="/stats" className={`${styles.treeCard} ${styles.favoriteCard}`}>
-            <Icon icon="mdi:crown-outline" className={styles.cardIcon} aria-hidden="true" />
+            <Icon
+              icon="mdi:crown-outline"
+              className={`${styles.cardIcon} ${styles.favoriteIcon}`}
+              aria-hidden="true"
+            />
             <span>人気の品種</span>
             <strong>{favorite?.name ?? "集計中"}</strong>
           </Link>
 
           <Link href="/stats" className={`${styles.treeCard} ${styles.communityCard}`}>
-            <Icon icon="mdi:account-group-outline" className={styles.cardIcon} aria-hidden="true" />
+            <Icon
+              icon="mdi:account-group-outline"
+              className={`${styles.cardIcon} ${styles.communityIcon}`}
+              aria-hidden="true"
+            />
             <span>みんなの記録</span>
             <strong>{stats.monthlyPosts.toLocaleString("ja-JP")}投稿</strong>
           </Link>
 
           <div className={`${styles.treeCard} ${styles.calendarCard} ${styles.comingSoon}`}>
-            <Icon icon="mdi:calendar-month-outline" className={styles.cardIcon} aria-hidden="true" />
+            <Icon
+              icon="mdi:calendar-month-outline"
+              className={`${styles.cardIcon} ${styles.calendarIcon}`}
+              aria-hidden="true"
+            />
             <span>みかんカレンダー</span>
             <small>準備中</small>
           </div>
@@ -73,7 +89,9 @@ export function HomePageClient({
 
       <section id="timeline" className={styles.timeline} aria-labelledby="timeline-heading">
         <div className={styles.timelineHeading}>
-          <h2 id="timeline-heading">タイムライン</h2>
+          <Icon icon="mdi:leaf" className={`${styles.timelineLeaf} ${styles.timelineLeafLeft}`} aria-hidden="true" />
+          <h2 id="timeline-heading">みんなの投稿</h2>
+          <Icon icon="mdi:leaf" className={`${styles.timelineLeaf} ${styles.timelineLeafRight}`} aria-hidden="true" />
         </div>
 
         <Feed
