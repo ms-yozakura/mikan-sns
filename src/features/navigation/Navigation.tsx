@@ -6,16 +6,22 @@ import { NavigationBar } from "./components/NavigationBar"
 import { Sidebar } from "./components/SideBar"
 import type { NavigationProfile } from "./types"
 
-export function Navigation({ profile }: { profile: NavigationProfile }) {
+export function Navigation({
+  profile,
+  unreadCount = 0,
+}: {
+  profile: NavigationProfile
+  unreadCount?: number
+}) {
   return (
     <div className={styles.navigation}>
       <div className={styles.mobile}>
-        <MobileHeader profile={profile} />
-        <NavigationBar />
+        <MobileHeader profile={profile} unreadCount={unreadCount} />
+        <NavigationBar unreadCount={unreadCount} />
       </div>
 
       <div className={styles.desktop}>
-        <Sidebar profile={profile} />
+        <Sidebar profile={profile} unreadCount={unreadCount} />
       </div>
     </div>
   )
