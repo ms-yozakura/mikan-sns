@@ -1,12 +1,17 @@
 .list { width: 100%; background: var(--color-white); }
 .item {
+  position: relative;
   display: flex; align-items: flex-start; gap: 12px; min-height: 82px; padding: 14px 16px;
-  color: var(--color-text); text-decoration: none; border-bottom: 1px solid var(--color-border);
+  color: var(--color-text); border-bottom: 1px solid var(--color-border);
   transition: background-color 150ms ease;
 }
 .item:hover { background: color-mix(in srgb, var(--color-primary) 4%, var(--color-white)); }
 .unread { background: color-mix(in srgb, var(--color-primary) 8%, var(--color-white)); }
-.avatarWrap { position: relative; flex: 0 0 46px; width: 46px; height: 46px; }
+.targetLink { position: absolute; inset: 0; z-index: 1; }
+.avatarWrap {
+  position: relative; z-index: 2; flex: 0 0 46px; width: 46px; height: 46px;
+  border-radius: 50%; -webkit-tap-highlight-color: transparent;
+}
 .avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 1px solid var(--color-border); }
 .typeIcon {
   position: absolute; right: -3px; bottom: -3px; display: grid; place-items: center;
@@ -18,13 +23,20 @@
 .follow { background: var(--color-primary); }
 .content { min-width: 0; flex: 1; }
 .content p { margin: 0; font-size: 0.875rem; line-height: 1.5; }
-.content strong { font-weight: 700; }
+.actorName {
+  position: relative; z-index: 2; color: inherit; font-weight: 700;
+  text-decoration: none; -webkit-tap-highlight-color: transparent;
+}
+.actorName:hover { text-decoration: underline; }
 .content time { display: block; margin-top: 4px; color: var(--color-text-light); font-size: 0.75rem; }
 .commentPreview {
   overflow: hidden; margin-top: 4px !important; color: var(--color-text-light);
   text-overflow: ellipsis; white-space: nowrap;
 }
-.unreadDot { width: 8px; height: 8px; margin-top: 8px; flex: 0 0 8px; border-radius: 50%; background: var(--color-primary); }
+.unreadDot {
+  position: relative; z-index: 2; width: 8px; height: 8px; margin-top: 8px;
+  flex: 0 0 8px; border-radius: 50%; background: var(--color-primary); pointer-events: none;
+}
 .empty { display: grid; place-items: center; gap: 10px; padding: 72px 20px; color: var(--color-text-light); }
 .empty svg { width: 40px; height: 40px; }
 .empty p { margin: 0; font-size: 0.9375rem; }
