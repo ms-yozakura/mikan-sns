@@ -12,9 +12,10 @@ type Props = {
     icon: string
     activeIcon?: string
   }
+  badgeCount?: number
 }
 
-export function SideBarItem({ item }: Props) {
+export function SideBarItem({ item, badgeCount = 0 }: Props) {
   const pathname = usePathname()
   const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
 
@@ -24,10 +25,13 @@ export function SideBarItem({ item }: Props) {
       className={`${styles.item} ${active ? styles.active : ""}`}
       aria-current={active ? "page" : undefined}
     >
-      <Icon
-        icon={active ? (item.activeIcon ?? item.icon) : item.icon}
-        className={styles.icon}
-      />
+      <span className={styles.iconWrap}>
+        <Icon
+          icon={active ? (item.activeIcon ?? item.icon) : item.icon}
+          className={styles.icon}
+        />
+        {badgeCount > 0 && <span className={styles.badge}>{badgeCount > 99 ? "99+" : badgeCount}</span>}
+      </span>
       <span className={styles.label}>{item.label}</span>
     </Link>
   )

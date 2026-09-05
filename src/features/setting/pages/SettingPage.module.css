@@ -89,3 +89,53 @@
 .dangerButton:hover {
   background-color: #b91c1c;
 }
+
+.logoutSection {
+  width: 100%;
+}
+
+.logoutControl {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  color: #b42318;
+  background: #fff;
+  border: 1px solid #f2b8b5;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+
+.logoutButton:hover {
+  background: #fff5f4;
+  border-color: #e98f8a;
+}
+
+.logoutButton:disabled {
+  cursor: default;
+  opacity: 0.65;
+}
+
+.logoutButton svg {
+  width: 18px;
+  height: 18px;
+}
+
+.logoutError {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.75rem;
+}
+

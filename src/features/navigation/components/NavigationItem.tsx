@@ -12,9 +12,10 @@ type Props = {
     icon: string
     activeIcon?: string
   }
+  badgeCount?: number
 }
 
-export function NavigationItem({ item }: Props) {
+export function NavigationItem({ item, badgeCount = 0 }: Props) {
   const pathname = usePathname()
   const active = pathname === item.href || pathname.startsWith(`${item.href}/`)
 
@@ -24,12 +25,15 @@ export function NavigationItem({ item }: Props) {
       className={`${styles.item} ${active ? styles.active : ""}`}
       aria-current={active ? "page" : undefined}
     >
-      <Icon
-        icon={active ? (item.activeIcon ?? item.icon) : item.icon}
-        width={24}
-        height={24}
-        aria-hidden="true"
-      />
+      <span className={styles.iconWrap}>
+        <Icon
+          icon={active ? (item.activeIcon ?? item.icon) : item.icon}
+          width={24}
+          height={24}
+          aria-hidden="true"
+        />
+        {badgeCount > 0 && <span className={styles.badge}>{badgeCount > 99 ? "99+" : badgeCount}</span>}
+      </span>
       <span>{item.label}</span>
     </Link>
   )
