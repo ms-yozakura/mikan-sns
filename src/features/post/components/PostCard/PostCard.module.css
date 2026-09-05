@@ -3,8 +3,6 @@
   width: 100%;
   max-width: 600px;
   background-color: #ffffff;
-  /*border: 1px solid #e2e8f0;
-  border-radius: var(--radius-md);*/
   padding: 1.75rem;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
@@ -21,271 +19,81 @@
   border-bottom: 0.5px solid #ccc;
 }
 
-/*.postCard:hover {
-  border-color: #cbd5e1;
-  box-shadow: var(--shadow-card);
-  transform: translateY(-1px);
-}*/
-
-.cardLink {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-/* ヘッダー */
-.postHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
+.cardLink { position: absolute; inset: 0; z-index: 1; }
+.postHeader { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
 .avatarWrapper {
-  width: 2.75rem;
-  height: 2.75rem;
-  border-radius: 50%;
-  overflow: hidden;
-  background-color: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  z-index: 10;
+  width: 2.75rem; height: 2.75rem; border-radius: 50%; overflow: hidden;
+  background-color: #f1f5f9; border: 1px solid #e2e8f0; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;
 }
-
-.avatarImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatarPlaceholder {
-  font-size: 1.5rem;
-  user-select: none;
-}
-
-.postUserInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-  position: relative;
-  z-index: 10;
-}
-
-.nameContainer {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.postAuthor {
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
-}
-
-.postAuthor:hover {
-  text-decoration: underline;
-}
-
-.postUsername {
-  font-size: 0.8125rem;
-  color: var(--color-text-light);
-}
-
-.postDate {
-  font-size: 0.75rem;
-  color: #94a3b8;
-}
-
+.avatarImage { width: 100%; height: 100%; object-fit: cover; }
+.avatarPlaceholder { font-size: 1.5rem; user-select: none; }
+.postUserInfo { display: flex; flex-direction: column; gap: 0.125rem; position: relative; z-index: 10; }
+.nameContainer { display: flex; align-items: baseline; gap: 0.5rem; flex-wrap: wrap; }
+.postAuthor { font-size: 0.9375rem; font-weight: 700; color: var(--color-text); margin: 0; }
+.postAuthor:hover { text-decoration: underline; }
+.postUsername { font-size: 0.8125rem; color: var(--color-text-light); }
+.postDate { font-size: 0.75rem; color: #94a3b8; }
 .visibilityTag {
-  font-size: 0.7rem;
-  line-height: 0.7rem;
-  color: var(--color-primary);
-  border: 1px solid var(--color-primary);
-  border-radius: 999px;
-  background-color: var(--color-surface);
-  padding: 0.25rem;
+  font-size: 0.7rem; line-height: 0.7rem; color: var(--color-primary);
+  border: 1px solid var(--color-primary); border-radius: 999px;
+  background-color: var(--color-surface); padding: 0.25rem;
 }
-
-/* 本文 */
 .postBody {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: var(--color-text);
-  margin-bottom: 1rem;
-  white-space: pre-wrap;
-  word-break: break-word;
-  padding-left: 0.25rem;
+  font-size: 0.9375rem; line-height: 1.6; color: var(--color-text); margin-bottom: 1rem;
+  white-space: pre-wrap; word-break: break-word; padding-left: 0.25rem;
 }
-
-.postBody p {
-  margin: 0;
-}
-
-/* フッター＆各種ボタン */
+.postBody p { margin: 0; }
 .postFooter {
-  display: flex;
-  justify-content: space-between;
-  max-width: 24rem;
-  padding-top: 0.5rem;
-  z-index: 10;
-  position: relative;
+  display: flex; justify-content: space-between; max-width: 24rem;
+  padding-top: 0.5rem; z-index: 10; position: relative;
 }
-
 .actionButton {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  background: none;
-  border: none;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: var(--radius-sm);
-  transition: all 0.15s ease;
+  display: flex; align-items: center; gap: 0.375rem; background: none; border: none;
+  color: #94a3b8; cursor: pointer; padding: 0.5rem;
+  border-radius: var(--radius-sm); transition: color 0.15s ease;
 }
-
-.actionButton:disabled {
-  cursor: default;
-}
-
-.icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  transition: transform 0.15s ease;
-}
-
-.actionCount {
-  font-size: 0.8125rem;
-  font-weight: 500;
-}
-
-/* ボタン個別のホバーエフェクト */
-.commentBtn:hover {
-  color: #0284c7;
-  background-color: #f0f9ff;
-}
-
-.likeBtn:hover,
-.likeBtn.liked {
-  color: #e11d48;
-  background-color: #fff1f2;
-}
-
-.likeBtn:hover .icon,
-.likeBtn.liked .footerIcon {
-  transform: scale(1.1);
-}
-
-.bookmarkBtn:hover {
-  color: var(--color-primary);
-  background-color: var(--color-surface);
-}
-
-.shareBtn:hover {
-  color: #16a34a;
-  background-color: #f0fdf4;
-}
-
-.actionError {
-  position: relative;
-  z-index: 10;
-  margin: 0.25rem 0 0;
-  font-size: 0.75rem;
-  color: #be123c;
-}
-
-.imageArea {
-  width: 100%;
-  display: flex;
-  gap: 2px;
-}
-
+.actionButton:disabled { cursor: default; }
+.icon { width: 1.25rem; height: 1.25rem; transition: transform 0.15s ease; }
+.actionCount { font-size: 0.8125rem; font-weight: 500; }
+.commentBtn:hover { color: #0284c7; }
+.likeBtn:hover, .likeBtn.liked { color: #e11d48; }
+.likeBtn:hover .icon, .likeBtn.liked .footerIcon { transform: scale(1.1); }
+.bookmarkBtn:hover { color: var(--color-primary); }
+.shareBtn:hover { color: #16a34a; }
+.actionError { position: relative; z-index: 10; margin: 0.25rem 0 0; font-size: 0.75rem; color: #be123c; }
+.imageArea { width: 100%; display: flex; gap: 2px; }
 .imageArea .image {
-  width: 20%;
-  aspect-ratio: 1/1;
-  object-fit: cover;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  position: relative;
-  z-index: 10;
+  width: 20%; aspect-ratio: 1/1; object-fit: cover; border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border); position: relative; z-index: 10;
 }
-
 .mikanList {
-  display: flex;
-  flex-direction: row;
-  gap: 8px;
-  padding: 7px 2px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  position: relative;
-  z-index: 10;
-  scrollbar-width: thin;
+  display: flex; flex-direction: row; gap: 8px; padding: 7px 2px; overflow-x: auto;
+  overflow-y: hidden; position: relative; z-index: 10; scrollbar-width: thin;
   scrollbar-color: #f3c99e transparent;
 }
-
 .mikanList::-webkit-scrollbar { height: 5px; }
 .mikanList::-webkit-scrollbar-thumb { background: #f3c99e; border-radius: 999px; }
 .mikanList::-webkit-scrollbar-track { background: transparent; }
-
 .mikanEntry {
-  display: flex;
-  flex: 0 0 auto;
-  flex-direction: column;
-  gap: 7px;
-  padding: 8px;
-  border: 1px solid #f3dfca;
-  border-radius: 16px;
-  background: #fffdf9;
-  box-sizing: border-box;
+  display: flex; flex: 0 0 auto; flex-direction: column; gap: 7px; padding: 8px;
+  border: 1px solid #f3dfca; border-radius: 16px; background: #fffdf9; box-sizing: border-box;
 }
 .mikanEntry.withRadar { flex-basis: 250px; }
 .mikanEntry > :first-child { width: 100%; border: 0; box-shadow: none; background: transparent; }
 .mikanRadar { width: 100%; max-width: none; margin: 0; }
 .simpleMikanColumn {
-  display: flex;
-  flex: 0 0 250px;
-  flex-direction: column;
-  gap: 6px;
-  align-self: flex-start;
+  display: flex; flex: 0 0 250px; flex-direction: column; gap: 6px; align-self: flex-start;
 }
-
 .commentForm {
-  position: relative;
-  width: 100%;
-  z-index: 10;
-  display: grid;
-  grid-template-columns: 80% 1fr;
-  gap: 1rem;
-  align-items: center;
-  margin-top: 1.5rem;
+  position: relative; width: 100%; z-index: 10; display: grid; grid-template-columns: 80% 1fr;
+  gap: 1rem; align-items: center; margin-top: 1.5rem;
 }
-
 .commentForm textarea {
-  width: 100%;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--color-border);
-  font-size: 0.8rem;
-  padding: 5px;
-  padding-left: 1rem;
-  color: var(--color-text);
-  transition: 0.5px;
+  width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--color-border);
+  font-size: 0.8rem; padding: 5px; padding-left: 1rem; color: var(--color-text); transition: 0.5px;
 }
-
 .commentForm textarea:focus {
-  box-shadow: none;
-  outline: none;
-  border-color: var(--color-primary);
-  background-color: var(--color-white);
+  box-shadow: none; outline: none; border-color: var(--color-primary); background-color: var(--color-white);
 }
-
-.footerIcon {
-  font-size: 1.5rem;
-  transition: transform 0.15s ease;
-}
+.footerIcon { font-size: 1.5rem; transition: transform 0.15s ease; }
