@@ -5,7 +5,13 @@ import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 import type { NavigationProfile } from "../types"
 import styles from "./MobileHeader.module.css"
 
-export function MobileHeader({ profile }: { profile: NavigationProfile }) {
+export function MobileHeader({
+  profile,
+  unreadCount = 0,
+}: {
+  profile: NavigationProfile
+  unreadCount?: number
+}) {
   const avatarSrc = profile?.avatar_url ?? defaultAvatar.src
 
   return (
@@ -19,19 +25,16 @@ export function MobileHeader({ profile }: { profile: NavigationProfile }) {
         <Link
           href="/notifications"
           className={styles.iconButton}
-          aria-label="通知を見る"
+          aria-label={unreadCount > 0 ? `未読通知 ${unreadCount}件` : "通知を見る"}
         >
           <Icon icon="mdi:bell-outline" width={22} height={22} aria-hidden="true" />
+          {unreadCount > 0 && (
+            <span className={styles.badge}>{unreadCount > 99 ? "99+" : unreadCount}</span>
+          )}
         </Link>
 
         <Link href="/profile" className={styles.avatarLink} aria-label="プロフィールを見る">
-          <img
-            src={avatarSrc}
-            alt=""
-            width={34}
-            height={34}
-            className={styles.avatar}
-          />
+          <img src={avatarSrc} alt="" width={34} height={34} className={styles.avatar} />
         </Link>
       </div>
     </header>
