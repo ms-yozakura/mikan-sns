@@ -15,15 +15,8 @@ export function SettingPage() {
           <ProfileEditForm />
         </section>
 
-        <section className={styles.card}>
-          <h2 className={styles.sectionTitle}>アカウント</h2>
-          <div className={styles.accountAction}>
-            <div>
-              <h3 className={styles.actionTitle}>ログアウト</h3>
-              <p className={styles.actionDescription}>この端末のMikanSNSからログアウトします。</p>
-            </div>
-            <LogoutButton />
-          </div>
+        <section className={styles.logoutSection} aria-label="アカウント">
+          <LogoutButton />
         </section>
 
         <section className={`${styles.card} ${styles.dangerZone}`}>
