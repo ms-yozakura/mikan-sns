@@ -148,7 +148,7 @@
   cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--radius-sm);
-  transition: all 0.15s ease;
+  transition: color 0.15s ease;
 }
 
 .actionButton:disabled {
@@ -169,13 +169,11 @@
 /* ボタン個別のホバーエフェクト */
 .commentBtn:hover {
   color: #0284c7;
-  background-color: #f0f9ff;
 }
 
 .likeBtn:hover,
 .likeBtn.liked {
   color: #e11d48;
-  background-color: #fff1f2;
 }
 
 .likeBtn:hover .icon,
@@ -185,12 +183,10 @@
 
 .bookmarkBtn:hover {
   color: var(--color-primary);
-  background-color: var(--color-surface);
 }
 
 .shareBtn:hover {
   color: #16a34a;
-  background-color: #f0fdf4;
 }
 
 .actionError {
