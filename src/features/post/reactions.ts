@@ -11,18 +11,6 @@ export const REACTIONS = [
     icon: 'mdi:emoticon-tongue-outline',
     activeIcon: 'mdi:emoticon-tongue',
   },
-  {
-    type: 'want',
-    label: '食べたい',
-    icon: 'mdi:fruit-citrus',
-    activeIcon: 'mdi:fruit-citrus',
-  },
-  {
-    type: 'best',
-    label: '最高',
-    icon: 'mdi:star-four-points-outline',
-    activeIcon: 'mdi:star-four-points',
-  },
 ] as const
 
 export type ReactionType = (typeof REACTIONS)[number]['type']
@@ -32,8 +20,6 @@ export type ReactionCounts = Record<ReactionType, number>
 export const EMPTY_REACTION_COUNTS: ReactionCounts = {
   like: 0,
   delicious: 0,
-  want: 0,
-  best: 0,
 }
 
 export function isReactionType(value: unknown): value is ReactionType {
