@@ -7,14 +7,22 @@ import defaultAvatar from '@/img/default-avatar.jpg'
 import { markNotificationsRead } from '../actions/markNotificationsRead'
 import styles from './NotificationsList.module.css'
 
+type Actor = {
+  username: string | null
+  display_name: string | null
+  avatar_url: string | null
+}
+
+type Comment = { body: string | null }
+
 type NotificationItem = {
   id: string
-  type: 'like' | 'comment' | 'follow' | string
+  type: string
   post_id: string | null
   is_read: boolean
   created_at: string
-  actor: { username: string | null; display_name: string | null; avatar_url: string | null } | null
-  comments: { body: string | null } | null
+  actor: Actor | Actor[] | null
+  comments: Comment | Comment[] | null
 }
 
 const notificationCopy = {
@@ -52,7 +60,10 @@ export function NotificationsList({ notifications }: { notifications: Notificati
           ? `/post/${notification.post_id}`
           : `/user/${actor?.username ?? ''}`
         const formattedDate = new Date(notification.created_at).toLocaleString('ja-JP', {
-          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
         })
 
         return (
