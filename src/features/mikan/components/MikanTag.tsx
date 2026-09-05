@@ -1,3 +1,4 @@
+
 import { MikanIcon } from './MikanIcon';
 import styles from './MikanTag.module.css';
 import { Variety } from '../types/Variety';
