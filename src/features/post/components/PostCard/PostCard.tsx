@@ -7,7 +7,13 @@ import Link from 'next/link'
 import { useActionState, useEffect, useState } from 'react'
 import Button from '@/shared/ui/Button'
 import { createComment } from '../../actions/createComment'
-import { toggleLike } from '../../actions/toggleLike'
+import { toggleReaction } from '../../actions/toggleReaction'
+import {
+  REACTIONS,
+  createReactionCounts,
+  type ReactionCounts,
+  type ReactionType,
+} from '../../reactions'
 import { Icon } from '@iconify/react'
 import defaultAvatar from '@/img/default-avatar.jpg'
 import MikanRadar from '../MikanRadar'
@@ -31,12 +37,15 @@ export function PostCard({
   const { openModal } = useModal()
 
   const [commentFormDisp, setCommentFormDisp] = useState(false)
-  const [liked, setLiked] = useState(Boolean(post.liked_by_me))
-  const [likeCount, setLikeCount] = useState(
-    Number(post.like_count ?? post.post_likes?.[0]?.count ?? 0)
+  const [reactionByMe, setReactionByMe] = useState<ReactionType | null>(
+    post.reaction_by_me ?? (post.liked_by_me ? 'like' : null)
   )
-  const [likePending, setLikePending] = useState(false)
-  const [likeError, setLikeError] = useState<string | null>(null)
+  const [reactionCounts, setReactionCounts] = useState<ReactionCounts>(() => ({
+    ...createReactionCounts(),
+    ...(post.reaction_counts ?? { like: Number(post.like_count ?? post.post_likes?.[0]?.count ?? 0) }),
+  }))
+  const [reactionPending, setReactionPending] = useState(false)
+  const [reactionError, setReactionError] = useState<string | null>(null)
 
   const [state, action, pending] = useActionState(createComment, null)
 
@@ -54,34 +63,42 @@ export function PostCard({
     }
   }, [state])
 
-  const handleLike = async () => {
-    if (likePending) return
+  const handleReaction = async (reaction: ReactionType) => {
+    if (reactionPending) return
 
-    const previousLiked = liked
-    const previousCount = likeCount
-    const nextLiked = !previousLiked
+    const previousReaction = reactionByMe
+    const previousCounts = { ...reactionCounts }
+    const nextReaction = previousReaction === reaction ? null : reaction
+    const nextCounts = { ...previousCounts }
 
-    setLikeError(null)
-    setLiked(nextLiked)
-    setLikeCount(Math.max(0, previousCount + (nextLiked ? 1 : -1)))
-    setLikePending(true)
+    if (previousReaction) {
+      nextCounts[previousReaction] = Math.max(0, nextCounts[previousReaction] - 1)
+    }
+    if (nextReaction) {
+      nextCounts[nextReaction] += 1
+    }
 
-    const result = await toggleLike(post.id)
+    setReactionError(null)
+    setReactionByMe(nextReaction)
+    setReactionCounts(nextCounts)
+    setReactionPending(true)
+
+    const result = await toggleReaction(post.id, reaction)
 
     if (!result.success) {
-      setLiked(previousLiked)
-      setLikeCount(previousCount)
-      setLikeError(result.error)
-      setLikePending(false)
+      setReactionByMe(previousReaction)
+      setReactionCounts(previousCounts)
+      setReactionError(result.error)
+      setReactionPending(false)
       return
     }
 
-    if (result.liked !== nextLiked) {
-      setLiked(result.liked)
-      setLikeCount(previousCount)
+    if (result.reaction !== nextReaction) {
+      setReactionByMe(result.reaction)
+      setReactionCounts(previousCounts)
     }
 
-    setLikePending(false)
+    setReactionPending(false)
   }
 
   return (
@@ -166,7 +183,6 @@ export function PostCard({
                 satisfaction: value.satisfaction,
               }}
               variety={value.mikan_varieties}
-              hasTasteReview
             />
             <MikanRadar title="" values={profile} compact className={styles.mikanRadar} />
           </div>
@@ -202,47 +218,37 @@ export function PostCard({
           <span className={styles.actionCount}>{post.comments?.[0]?.count ?? 0}</span>
         </button>
 
-        <button
-          className={`${styles.actionButton} ${styles.likeBtn} ${liked ? styles.liked : ''}`}
-          onClick={(e) => {
-            e.stopPropagation()
-            void handleLike()
-          }}
-          aria-label={liked ? 'いいねを解除' : 'いいね'}
-          aria-pressed={liked}
-          disabled={likePending}
-        >
-          <Icon
-            className={styles.footerIcon}
-            icon={liked ? 'iconamoon:heart-fill' : 'iconamoon:heart'}
-          />
-          <span className={styles.actionCount}>{likeCount}</span>
-        </button>
-
-        <button
-          className={`${styles.actionButton} ${styles.bookmarkBtn}`}
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-          aria-label="ブックマーク"
-        >
-          <Icon className={styles.footerIcon} icon="iconamoon:bookmark" />
-        </button>
-
-        <button
-          className={`${styles.actionButton} ${styles.shareBtn}`}
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-          aria-label="シェア"
-        >
-          <Icon className={styles.footerIcon} icon="iconamoon:share-1" />
-        </button>
+        <div className={styles.reactionGroup} aria-label="リアクション">
+          {REACTIONS.map((reaction) => {
+            const active = reactionByMe === reaction.type
+            return (
+              <button
+                key={reaction.type}
+                className={`${styles.actionButton} ${styles.reactionButton} ${active ? styles.reactionActive : ''}`}
+                data-reaction={reaction.type}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  void handleReaction(reaction.type)
+                }}
+                aria-label={`${reaction.label}${active ? 'を解除' : ''}`}
+                aria-pressed={active}
+                title={reaction.label}
+                disabled={reactionPending}
+              >
+                <Icon
+                  className={styles.footerIcon}
+                  icon={active ? reaction.activeIcon : reaction.icon}
+                />
+                <span className={styles.actionCount}>{reactionCounts[reaction.type]}</span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      {likeError && (
+      {reactionError && (
         <p className={styles.actionError} role="status">
-          {likeError}
+          {reactionError}
         </p>
       )}
 
