@@ -4,11 +4,13 @@
   bottom: max(10px, env(safe-area-inset-bottom));
   left: 12px;
   z-index: 100;
+
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   align-items: center;
   min-height: 62px;
   padding: 6px 10px;
+
   background: color-mix(in srgb, var(--color-white) 94%, transparent);
   border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
   border-radius: var(--radius-lg);
@@ -25,19 +27,39 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
+
   color: var(--color-text-light);
   text-decoration: none;
   border-radius: var(--radius-md);
   font-size: 10px;
   font-weight: 600;
   line-height: 1;
-  transition: color 160ms ease, transform 160ms ease;
+  transition:
+    color 160ms ease,
+    transform 160ms ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-.item:active { transform: scale(0.94); }
-.active { color: var(--color-primary); }
-.iconWrap { position: relative; display: grid; place-items: center; }
+.item:active {
+  transform: scale(0.94);
+}
+
+.active {
+  color: var(--color-primary);
+}
+
+@media (min-width: 801px) {
+  .container {
+    display: none;
+  }
+}
+
+.iconWrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
 .badge {
   position: absolute;
   top: -7px;
@@ -54,8 +76,4 @@
   font-size: 8px;
   font-weight: 800;
   line-height: 1;
-}
-
-@media (min-width: 801px) {
-  .container { display: none; }
 }
