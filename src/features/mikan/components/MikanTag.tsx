@@ -1,4 +1,3 @@
-
 import { MikanIcon } from './MikanIcon';
 import styles from './MikanTag.module.css';
 import { Variety } from '../types/Variety';
@@ -12,7 +11,6 @@ type MikanReport = {
 export default function MikanTag({
   mikan,
   variety,
-  hasTasteReview = false,
   slim = false,
 }: {
   mikan: MikanReport
@@ -39,12 +37,6 @@ export default function MikanTag({
               </span>
             ))}
           </span>
-          {hasTasteReview && (
-            <span className={styles.reviewBadge}>
-              <span className={styles.reviewMark} aria-hidden="true">◆</span>
-              味レビューあり
-            </span>
-          )}
         </span>
       </span>
     </div>
