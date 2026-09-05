@@ -5,7 +5,7 @@ import { createClient } from '@/infrastructure/supabase/server'
 import { isReactionType, type ReactionType } from '../reactions'
 
 type ToggleReactionResult =
-  | { success: true; reaction: ReactionType | null }
+  | { success: true; active: boolean; reaction: ReactionType }
   | { success: false; error: string }
 
 function revalidateReactionViews(postId: string) {
@@ -34,9 +34,10 @@ export async function toggleReaction(
 
   const { data: existingReaction, error: selectError } = await supabase
     .from('post_likes')
-    .select('id, reaction_type')
+    .select('id')
     .eq('post_id', postId)
     .eq('user_id', user.id)
+    .eq('reaction_type', reaction)
     .maybeSingle()
 
   if (selectError) {
@@ -44,7 +45,7 @@ export async function toggleReaction(
     return { success: false, error: 'リアクションの状態を取得できませんでした。' }
   }
 
-  if (existingReaction?.reaction_type === reaction) {
+  if (existingReaction) {
     const { error: deleteError } = await supabase
       .from('post_likes')
       .delete()
@@ -56,22 +57,7 @@ export async function toggleReaction(
     }
 
     revalidateReactionViews(postId)
-    return { success: true, reaction: null }
-  }
-
-  if (existingReaction) {
-    const { error: updateError } = await supabase
-      .from('post_likes')
-      .update({ reaction_type: reaction })
-      .eq('id', existingReaction.id)
-
-    if (updateError) {
-      console.error('REACTION UPDATE ERROR:', updateError)
-      return { success: false, error: 'リアクションを変更できませんでした。' }
-    }
-
-    revalidateReactionViews(postId)
-    return { success: true, reaction }
+    return { success: true, active: false, reaction }
   }
 
   const { error: insertError } = await supabase.from('post_likes').insert({
@@ -80,28 +66,11 @@ export async function toggleReaction(
     reaction_type: reaction,
   })
 
-  if (insertError) {
-    if (insertError.code === '23505') {
-      const { data: currentReaction } = await supabase
-        .from('post_likes')
-        .select('reaction_type')
-        .eq('post_id', postId)
-        .eq('user_id', user.id)
-        .maybeSingle()
-
-      revalidateReactionViews(postId)
-      return {
-        success: true,
-        reaction: isReactionType(currentReaction?.reaction_type)
-          ? currentReaction.reaction_type
-          : 'like',
-      }
-    }
-
+  if (insertError && insertError.code !== '23505') {
     console.error('REACTION INSERT ERROR:', insertError)
     return { success: false, error: 'リアクションできませんでした。' }
   }
 
   revalidateReactionViews(postId)
-  return { success: true, reaction }
+  return { success: true, active: true, reaction }
 }

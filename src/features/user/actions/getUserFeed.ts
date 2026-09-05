@@ -59,6 +59,7 @@ export async function getUserFeed({
         id,
         quantity,
         satisfaction,
+        short_comment,
         sweetness,
         tartness,
         umami,
@@ -95,14 +96,14 @@ export async function getUserFeed({
 
   const summaries = new Map<
     string,
-    { counts: ReturnType<typeof createReactionCounts>; byMe: ReactionType | null }
+    { counts: ReturnType<typeof createReactionCounts>; byMe: Set<ReactionType> }
   >()
 
   if (posts?.length) {
     for (const post of posts) {
       summaries.set(String(post.id), {
         counts: createReactionCounts(),
-        byMe: null,
+        byMe: new Set<ReactionType>(),
       })
     }
 
@@ -126,7 +127,7 @@ export async function getUserFeed({
 
       summary.counts[row.reaction_type] += 1
       if (user && row.user_id === user.id) {
-        summary.byMe = row.reaction_type
+        summary.byMe.add(row.reaction_type)
       }
     }
   }
@@ -171,13 +172,15 @@ export async function getUserFeed({
 
   const postsWithReactionState = (posts ?? []).map((post) => {
     const summary = summaries.get(String(post.id))
+    const reactionsByMe = summary ? Array.from(summary.byMe) : []
 
     return {
       ...post,
-      like_count: summary?.counts.like ?? post.post_likes?.[0]?.count ?? 0,
-      liked_by_me: summary?.byMe === 'like',
+      like_count: summary?.counts.like ?? 0,
+      liked_by_me: reactionsByMe.includes('like'),
       reaction_counts: summary?.counts ?? createReactionCounts(),
-      reaction_by_me: summary?.byMe ?? null,
+      reactions_by_me: reactionsByMe,
+      reaction_by_me: reactionsByMe[0] ?? null,
     }
   })
 

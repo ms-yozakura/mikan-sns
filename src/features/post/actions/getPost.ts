@@ -32,6 +32,7 @@ export async function getPost(postId: string) {
         id,
         quantity,
         satisfaction,
+        short_comment,
         sweetness,
         tartness,
         umami,
@@ -72,22 +73,25 @@ export async function getPost(postId: string) {
   }
 
   const reactionCounts = createReactionCounts()
-  let reactionByMe: ReactionType | null = null
+  const reactionsByMe = new Set<ReactionType>()
 
   for (const row of reactionRows ?? []) {
     if (!isReactionType(row.reaction_type)) continue
     reactionCounts[row.reaction_type] += 1
     if (user && row.user_id === user.id) {
-      reactionByMe = row.reaction_type
+      reactionsByMe.add(row.reaction_type)
     }
   }
+
+  const myReactions = Array.from(reactionsByMe)
 
   console.timeEnd('getPost')
   return {
     ...data,
     like_count: reactionCounts.like,
-    liked_by_me: reactionByMe === 'like',
+    liked_by_me: myReactions.includes('like'),
     reaction_counts: reactionCounts,
-    reaction_by_me: reactionByMe,
+    reactions_by_me: myReactions,
+    reaction_by_me: myReactions[0] ?? null,
   }
 }
