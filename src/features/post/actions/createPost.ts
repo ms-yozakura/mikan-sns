@@ -87,6 +87,13 @@ export async function createPost(prevState: State, formData: FormData): Promise<
     }
   }
 
+  if (!body && mikans.length === 0 && images.length === 0) {
+    return {
+      error: '本文・みかん・写真のいずれかを追加してください',
+      success: false,
+    }
+  }
+
   const {
     data: { user },
   } = await supabase.auth.getUser()

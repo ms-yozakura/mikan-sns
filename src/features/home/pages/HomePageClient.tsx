@@ -1,33 +1,49 @@
 'use client'
 
 import Link from "next/link"
+import { useCallback, useState } from "react"
 import { Icon } from "@iconify/react"
 import { FloatingPostButton } from "@/features/post/components/FloatingPostButton"
 import { Feed } from "../components/Feed"
 import { MikanTree } from "../components/MikanTree"
-import { useInfiniteFeed } from "../hooks/useInfiniteFeed"
+import { getFeed, type FeedScope } from "../actions/getFeed"
+import { useInfiniteFeed, type InfiniteFeedPost } from "../hooks/useInfiniteFeed"
 import styles from "./HomePage.module.css"
 import type { GlobalStats } from "@/features/stats/types/types"
 
-type InitialPosts = Awaited<ReturnType<typeof import("../actions/getFeed").getFeed>>
+type InitialPosts = Awaited<ReturnType<typeof getFeed>>
 
 export function HomePageClient({
   initialPosts,
+  initialFollowingPosts,
   stats,
   treeSeed,
 }: {
   initialPosts: InitialPosts
+  initialFollowingPosts: InitialPosts
   stats: GlobalStats
   treeSeed: string
 }) {
-  const {
-    posts,
-    prependPost,
-    loading,
-    hasMore,
-    loadMoreRef,
-  } = useInfiniteFeed(initialPosts)
+  const [feedScope, setFeedScope] = useState<FeedScope>("all")
+  const fetchAllPosts = useCallback(
+    (cursor: { id: number | string; created_at: string }) => getFeed(cursor, 10, "all") as Promise<InfiniteFeedPost[]>,
+    []
+  )
+  const fetchFollowingPosts = useCallback(
+    (cursor: { id: number | string; created_at: string }) => getFeed(cursor, 10, "following") as Promise<InfiniteFeedPost[]>,
+    []
+  )
 
+  const allFeed = useInfiniteFeed(
+    initialPosts as InfiniteFeedPost[],
+    fetchAllPosts
+  )
+  const followingFeed = useInfiniteFeed(
+    initialFollowingPosts as InfiniteFeedPost[],
+    fetchFollowingPosts
+  )
+
+  const activeFeed = feedScope === "all" ? allFeed : followingFeed
   const favorite = stats.ranking[0]
 
   return (
@@ -77,7 +93,7 @@ export function HomePageClient({
           </div>
 
           <div className={styles.postAction}>
-            <FloatingPostButton onSuccess={prependPost} />
+            <FloatingPostButton onSuccess={allFeed.prependPost} />
           </div>
         </div>
 
@@ -94,11 +110,32 @@ export function HomePageClient({
           <Icon icon="mdi:leaf" className={`${styles.timelineLeaf} ${styles.timelineLeafRight}`} aria-hidden="true" />
         </div>
 
+        <div className={styles.feedTabs} role="tablist" aria-label="タイムラインの表示範囲">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={feedScope === "all"}
+            className={`${styles.feedTab} ${feedScope === "all" ? styles.feedTabActive : ""}`}
+            onClick={() => setFeedScope("all")}
+          >
+            すべて
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={feedScope === "following"}
+            className={`${styles.feedTab} ${feedScope === "following" ? styles.feedTabActive : ""}`}
+            onClick={() => setFeedScope("following")}
+          >
+            フォロー中
+          </button>
+        </div>
+
         <Feed
-          contents={posts}
-          hasMore={hasMore}
-          loading={loading}
-          loadMoreRef={loadMoreRef}
+          contents={activeFeed.posts}
+          hasMore={activeFeed.hasMore}
+          loading={activeFeed.loading}
+          loadMoreRef={activeFeed.loadMoreRef}
         />
       </section>
     </main>

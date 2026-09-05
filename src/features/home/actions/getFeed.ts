@@ -12,11 +12,36 @@ type Cursor = {
   created_at: string
 }
 
-export async function getFeed(cursor?: Cursor, limit: number = 10) {
+export type FeedScope = 'all' | 'following'
+
+export async function getFeed(
+  cursor?: Cursor,
+  limit: number = 10,
+  scope: FeedScope = 'all'
+) {
   const supabase = await createClient()
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  let followedUserIds: string[] | null = null
+
+  if (scope === 'following') {
+    if (!user) return []
+
+    const { data: follows, error: followsError } = await supabase
+      .from('follows')
+      .select('follow')
+      .eq('follower', user.id)
+
+    if (followsError) {
+      console.error('GET FOLLOWING FEED FOLLOWS ERROR:', followsError)
+      throw followsError
+    }
+
+    followedUserIds = (follows ?? []).map((row) => row.follow)
+    if (followedUserIds.length === 0) return []
+  }
 
   let query = supabase
     .from('posts')
@@ -56,6 +81,12 @@ export async function getFeed(cursor?: Cursor, limit: number = 10) {
     .order('created_at', { ascending: false })
     .order('id', { ascending: false })
     .limit(limit)
+
+  if (scope === 'following' && followedUserIds) {
+    query = query
+      .eq('visibility', 'public')
+      .in('user_id', followedUserIds)
+  }
 
   if (cursor) {
     query = query.or(

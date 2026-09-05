@@ -6,8 +6,9 @@ import { HomePageClient } from "./HomePageClient"
 export async function HomePage() {
   const supabase = await createClient()
 
-  const [initialPosts, stats, { data: { user } }] = await Promise.all([
+  const [initialPosts, initialFollowingPosts, stats, { data: { user } }] = await Promise.all([
     getFeed(),
+    getFeed(undefined, 10, "following"),
     getGlobalStats(),
     supabase.auth.getUser(),
   ])
@@ -15,6 +16,7 @@ export async function HomePage() {
   return (
     <HomePageClient
       initialPosts={initialPosts}
+      initialFollowingPosts={initialFollowingPosts}
       stats={stats}
       treeSeed={user?.id ?? "mikan-guest"}
     />
