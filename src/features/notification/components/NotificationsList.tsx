@@ -56,9 +56,10 @@ export function NotificationsList({ notifications }: { notifications: Notificati
           icon: 'mdi:bell',
           text: '新しいお知らせがあります',
         }
-        const href = notification.post_id
+        const targetHref = notification.post_id
           ? `/post/${notification.post_id}`
           : `/user/${actor?.username ?? ''}`
+        const actorHref = `/user/${actor?.username ?? ''}`
         const formattedDate = new Date(notification.created_at).toLocaleString('ja-JP', {
           month: 'short',
           day: 'numeric',
@@ -67,20 +68,32 @@ export function NotificationsList({ notifications }: { notifications: Notificati
         })
 
         return (
-          <Link
+          <article
             key={notification.id}
-            href={href}
             className={`${styles.item} ${notification.is_read ? '' : styles.unread}`}
           >
-            <div className={styles.avatarWrap}>
+            <Link
+              href={targetHref}
+              className={styles.targetLink}
+              aria-label={notification.post_id ? '対象の投稿を見る' : 'ユーザーを見る'}
+            />
+
+            <Link
+              href={actorHref}
+              className={styles.avatarWrap}
+              aria-label={`${actor?.display_name || 'ユーザー'}のプロフィールを見る`}
+            >
               <img src={actor?.avatar_url ?? defaultAvatar.src} alt="" className={styles.avatar} />
               <span className={`${styles.typeIcon} ${styles[notification.type] ?? ''}`}>
                 <Icon icon={copy.icon} aria-hidden="true" />
               </span>
-            </div>
+            </Link>
+
             <div className={styles.content}>
               <p>
-                <strong>{actor?.display_name || '名無しの柑橘'}</strong>
+                <Link href={actorHref} className={styles.actorName}>
+                  {actor?.display_name || '名無しの柑橘'}
+                </Link>
                 さんが{copy.text}
               </p>
               {notification.type === 'comment' && comment?.body && (
@@ -88,8 +101,9 @@ export function NotificationsList({ notifications }: { notifications: Notificati
               )}
               <time dateTime={notification.created_at}>{formattedDate}</time>
             </div>
+
             {!notification.is_read && <span className={styles.unreadDot} aria-label="未読" />}
-          </Link>
+          </article>
         )
       })}
     </div>
