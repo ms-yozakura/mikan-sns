@@ -1,0 +1,27 @@
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.mikan {
+  color: #f58220;
+}
+
+.sns {
+  color: #4a2f1f;
+}
+
+.compact {
+  font-size: 24px;
+}
+
+.default {
+  font-size: 28px;
+}
+
+.large {
+  font-size: 40px;
+}

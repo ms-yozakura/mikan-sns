@@ -1,10 +1,8 @@
 'use client'
 
-import { useActionState, useEffect } from 'react' // 💡 useEffect を追加
-import { useRouter } from 'next/navigation'        // 💡 useRouter を追加
-import Link from 'next/link' // 💡 追加：Link コンポーネントをインポート
+import { useActionState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { signUp } from '@/features/auth/actions/signup'
-import styles from './SignupPage.module.css' // 💡 追加：CSSファイルを読み込む
 import AuthLayout from '../components/AuthLayout'
 import Message from '@/shared/ui/Message'
 import { SignupForm } from '../components/SignupForm'
@@ -27,7 +25,6 @@ export function SignupPage() {
     initialState
   )
 
-  // 登録成功（state.success が true）したら2秒後にルートにリダイレクト
   useEffect(() => {
     if (state.success) {
       const timer = setTimeout(() => {
@@ -39,12 +36,7 @@ export function SignupPage() {
   }, [state.success, router])
 
   return (
-
-    <AuthLayout
-      title='みかんSNS'
-      subtitle='フレッシュなつながりを、はじめよう。'
-    >
-{/*メッセージ*/}
+    <AuthLayout subtitle='フレッシュなつながりを、はじめよう。'>
       {state.error && (
         <Message type="error">
           {"⚠️"+state.error}
@@ -53,11 +45,10 @@ export function SignupPage() {
 
       {state.success && (
         <Message type="success">
-            🎉 登録成功！
+          🎉 登録成功！
         </Message>
       )}
 
-      {/*フォーム*/}
       {!state.success && (
         <SignupForm
           formAction={formAction}
@@ -65,8 +56,6 @@ export function SignupPage() {
           defaultValue={state.value}
         />
       )}
-
     </AuthLayout>
   )
 }
-
