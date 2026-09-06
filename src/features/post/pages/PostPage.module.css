@@ -1,15 +1,20 @@
 .page {
   min-height: 100vh;
-  background-color: var(--color-surface);
+  width: 100%;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(255, 207, 143, 0.16), transparent 34%),
+    radial-gradient(circle at 10% 78%, rgba(255, 226, 188, 0.18), transparent 32%),
+    var(--color-surface);
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 0.5rem;
 }
 
 .header {
   position: sticky;
   width: 100vw;
-  top: 0px;
+  top: 0;
   z-index: 1000;
   display: flex;
   flex-direction: column;

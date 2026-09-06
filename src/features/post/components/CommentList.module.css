@@ -1,8 +1,17 @@
-.commentList {
-  position: relative;
-  margin-left: 10px;
+.commentSection {
+  width: 100%;
+  padding: 0.1rem 0.25rem 1rem;
 }
-.commentNum{
-  padding: 1.2rem;
+
+.commentNum {
+  padding: 0.25rem 0.35rem 0.75rem;
+  font-size: 0.92rem;
+  font-weight: 700;
   color: var(--color-text-light);
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
