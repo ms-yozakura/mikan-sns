@@ -1,11 +1,10 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Icon } from '@iconify/react'
 import { MikanIcon } from '@/features/mikan/components/MikanIcon'
 import { SegmentedTabs } from '@/shared/ui/SegmentedTabs'
-import type { MikanCalendarData } from '../actions/getMikanCalendarData'
+import { getMikanCalendarData, type MikanCalendarData } from '../actions/getMikanCalendarData'
 import styles from './MikanCalendarPage.module.css'
 
 type View = 'calendar' | 'dictionary'
@@ -35,15 +34,18 @@ function currentJstDate() {
   }
 }
 
-export function MikanCalendarClient({ data }: { data: MikanCalendarData }) {
-  const router = useRouter()
+function defaultSelectedDay(data: MikanCalendarData, today: ReturnType<typeof currentJstDate>) {
+  return today.year === data.year && today.month === data.month
+    ? today.day
+    : data.dayRecords[0]?.day ?? null
+}
+
+export function MikanCalendarClient({ data: initialData }: { data: MikanCalendarData }) {
+  const [data, setData] = useState(initialData)
   const [view, setView] = useState<View>('calendar')
+  const [monthLoading, setMonthLoading] = useState(false)
   const today = currentJstDate()
-  const defaultSelected =
-    today.year === data.year && today.month === data.month
-      ? today.day
-      : data.dayRecords[0]?.day ?? null
-  const [selectedDay, setSelectedDay] = useState<number | null>(defaultSelected)
+  const [selectedDay, setSelectedDay] = useState<number | null>(() => defaultSelectedDay(initialData, today))
 
   const dayMap = useMemo(
     () => new Map(data.dayRecords.map((record) => [record.day, record])),
@@ -63,13 +65,31 @@ export function MikanCalendarClient({ data }: { data: MikanCalendarData }) {
 
   const selectedRecord = selectedDay ? dayMap.get(selectedDay) : undefined
 
+  async function loadMonth(year: number, month: number) {
+    if (monthLoading || (year === data.year && month === data.month)) return
+
+    setMonthLoading(true)
+    try {
+      const nextData = await getMikanCalendarData(year, month)
+      setData(nextData)
+      setSelectedDay(defaultSelectedDay(nextData, today))
+
+      const url = new URL(window.location.href)
+      url.searchParams.set('year', String(nextData.year))
+      url.searchParams.set('month', String(nextData.month))
+      window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`)
+    } finally {
+      setMonthLoading(false)
+    }
+  }
+
   function moveMonth(delta: number) {
     const next = new Date(Date.UTC(data.year, data.month - 1 + delta, 1))
-    router.push(`/calendar?year=${next.getUTCFullYear()}&month=${next.getUTCMonth() + 1}`)
+    void loadMonth(next.getUTCFullYear(), next.getUTCMonth() + 1)
   }
 
   function goCurrentMonth() {
-    router.push(`/calendar?year=${today.year}&month=${today.month}`)
+    void loadMonth(today.year, today.month)
   }
 
   return (
@@ -77,14 +97,13 @@ export function MikanCalendarClient({ data }: { data: MikanCalendarData }) {
       <header className={styles.header}>
         <div className={styles.titleRow}>
           <div>
-            <p className={styles.eyebrow}>MY MIKAN LOG</p>
-            <h1>みかんカレンダー</h1>
+            <p className={styles.eyebrow}>わたしの記録</p>
+            <h1>みかんログ</h1>
           </div>
           <span className={styles.headerFruit} aria-hidden="true">
             <MikanIcon size={58} />
           </span>
         </div>
-        <p className={styles.description}>食べたみかんを、日付と品種から振り返れます。</p>
       </header>
 
       <SegmentedTabs
@@ -99,15 +118,34 @@ export function MikanCalendarClient({ data }: { data: MikanCalendarData }) {
         <>
           <section className={styles.calendarCard} aria-label={`${data.year}年${data.month}月のみかんカレンダー`}>
             <div className={styles.monthControls}>
-              <button type="button" className={styles.iconButton} onClick={() => moveMonth(-1)} aria-label="前の月">
+              <button
+                type="button"
+                className={styles.iconButton}
+                onClick={() => moveMonth(-1)}
+                aria-label="前の月"
+                disabled={monthLoading}
+              >
                 <Icon icon="mdi:chevron-left" aria-hidden="true" />
               </button>
               <h2>{data.year}年 {data.month}月</h2>
               <div className={styles.monthActions}>
-                <button type="button" className={styles.iconButton} onClick={() => moveMonth(1)} aria-label="次の月">
+                <button
+                  type="button"
+                  className={styles.iconButton}
+                  onClick={() => moveMonth(1)}
+                  aria-label="次の月"
+                  disabled={monthLoading}
+                >
                   <Icon icon="mdi:chevron-right" aria-hidden="true" />
                 </button>
-                <button type="button" className={styles.todayButton} onClick={goCurrentMonth}>今月</button>
+                <button
+                  type="button"
+                  className={styles.todayButton}
+                  onClick={goCurrentMonth}
+                  disabled={monthLoading || (data.year === today.year && data.month === today.month)}
+                >
+                  今月
+                </button>
               </div>
             </div>
 
@@ -115,7 +153,7 @@ export function MikanCalendarClient({ data }: { data: MikanCalendarData }) {
               {WEEKDAYS.map((weekday) => <span key={weekday}>{weekday}</span>)}
             </div>
 
-            <div className={styles.calendarGrid}>
+            <div className={styles.calendarGrid} aria-busy={monthLoading}>
               {cells.map((day, index) => {
                 if (!day) return <span key={`blank-${index}`} className={styles.blankCell} />
                 const record = dayMap.get(day)
@@ -192,9 +230,7 @@ export function MikanCalendarClient({ data }: { data: MikanCalendarData }) {
         <section className={styles.dictionarySection}>
           <div className={styles.dictionaryHeader}>
             <div>
-              <p className={styles.eyebrow}>MIKAN COLLECTION</p>
               <h2>みかん図鑑</h2>
-              <p>Supabase の品種マスターから、登録されているみかんを一覧表示しています。</p>
             </div>
             <div className={styles.progressBadge}>
               <strong>{data.discoveredCount}</strong>
