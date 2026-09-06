@@ -16,6 +16,11 @@ type PushState =
   | 'disabled'
   | 'enabled'
 
+type BadgeNavigator = Navigator & {
+  setAppBadge?: (contents?: number) => Promise<void>
+  clearAppBadge?: () => Promise<void>
+}
+
 function urlBase64ToUint8Array(base64String: string) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4)
   const base64 = (base64String + padding)
@@ -170,6 +175,29 @@ export function PushNotificationControl() {
     })
   }
 
+  const testAppBadge = async () => {
+    const badgeNavigator = navigator as BadgeNavigator
+
+    if (!badgeNavigator.setAppBadge) {
+      setMessage('このPWAではBadging APIが利用できません。')
+      return
+    }
+
+    if (Notification.permission !== 'granted') {
+      setMessage(`通知権限が ${Notification.permission} のため、バッジを表示できません。`)
+      return
+    }
+
+    try {
+      await badgeNavigator.setAppBadge(7)
+      setMessage('setAppBadge(7) は成功しました。ホーム画面のMikanSNSアイコンを確認してください。')
+    } catch (error) {
+      console.error('APP BADGE TEST ERROR:', error)
+      const detail = error instanceof Error ? `${error.name}: ${error.message}` : String(error)
+      setMessage(`バッジ設定でエラーが発生しました: ${detail}`)
+    }
+  }
+
   if (state === 'loading') {
     return <div className={styles.card}>通知設定を確認しています…</div>
   }
@@ -208,6 +236,15 @@ export function PushNotificationControl() {
       >
         {isPending ? '変更中…' : state === 'enabled' ? 'オフにする' : 'オンにする'}
       </button>
+      {state === 'enabled' ? (
+        <button
+          type="button"
+          className={`${styles.secondaryButton} ${styles.testButton}`}
+          onClick={() => void testAppBadge()}
+        >
+          バッジテスト 7
+        </button>
+      ) : null}
       {message ? <p className={styles.message}>{message}</p> : null}
     </div>
   )
