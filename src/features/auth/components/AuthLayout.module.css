@@ -30,17 +30,15 @@
 }
 
 .logo {
-  display: block;
-  font-size: 48px;
+  display: flex;
+  justify-content: center;
   margin-bottom: 10px;
 }
 
 .title {
-  margin: 0 0 8px;
-
-  font-size: 24px;
-
-  color: var(--color-text);
+  display: flex;
+  justify-content: center;
+  margin: 0 0 10px;
 }
 
 .subtitle {

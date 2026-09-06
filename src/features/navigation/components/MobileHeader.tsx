@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Icon } from "@iconify/react"
 import defaultAvatar from "@/img/default-avatar.jpg"
 import { MikanIcon } from "@/features/mikan/components/MikanIcon"
+import { MikanBrandLogo } from "@/shared/ui/MikanBrandLogo"
 import type { NavigationProfile } from "../types"
 import styles from "./MobileHeader.module.css"
 
@@ -18,7 +19,7 @@ export function MobileHeader({
     <header className={styles.mobileHeader}>
       <Link href="/home" className={styles.brand} aria-label="MikanSNS ホーム">
         <MikanIcon size={28} />
-        <span className={styles.title}>MikanSNS</span>
+        <MikanBrandLogo size="compact" />
       </Link>
 
       <div className={styles.actions}>

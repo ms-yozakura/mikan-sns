@@ -7,6 +7,8 @@ import Link from "next/link"
 import defaultAvatar from "@/img/default-avatar.jpg"
 import { Icon } from "@iconify/react"
 import { logout } from "@/features/auth/actions/logout"
+import { MikanIcon } from "@/features/mikan/components/MikanIcon"
+import { MikanBrandLogo } from "@/shared/ui/MikanBrandLogo"
 import { useRouter } from "next/navigation"
 import type { NavigationProfile } from "../types"
 
@@ -25,8 +27,8 @@ export function Sidebar({
   return (
     <aside className={styles.container}>
       <div className={styles.logoSpace}>
-        <span className={styles.logo}>🍊</span>
-        <span className={styles.title}>MikanSNS</span>
+        <MikanIcon size={30} />
+        <MikanBrandLogo size="default" className={styles.title} />
       </div>
 
       <nav className={styles.nav}>
