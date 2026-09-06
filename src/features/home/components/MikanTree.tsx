@@ -55,10 +55,31 @@ type BranchPose = {
   angle: number
 }
 
+type ShakeImpulse = {
+  startedAt: number
+  strength: number
+}
+
+type FallingFruit = {
+  fruitIndex: number
+  startedAt: number
+  x: number
+  y: number
+  velocityX: number
+  gravity: number
+  bounceRatio: number
+}
+
+type MotionState = {
+  impulses: ShakeImpulse[]
+  fallingFruit: FallingFruit[]
+}
+
 type WindState = {
   envelope: number
   sway: number
   strength: number
+  interaction: number
 }
 
 export type MikanTreePreset = "classic" | "wide" | "upright" | "dense"
@@ -83,9 +104,11 @@ const TARGET_FRAME_INTERVAL = 1000 / 30
 const GUST_CYCLE_SECONDS = 8.5
 const GUST_CENTER_SECONDS = 2.8
 const GUST_WIDTH_SECONDS = 0.95
+const INTERACTION_DURATION_MS = 950
+const FRUIT_DROP_COOLDOWN_MS = 4_000
+const MAX_PIXEL_RATIO = 2.75
+const MAX_CANVAS_PIXELS = 2_800_000
 
-// classic は添付された tree.html の値そのまま。
-// 他 preset は乱数アルゴリズムを変えず、範囲だけ少し操作する。
 const PRESETS: Record<MikanTreePreset, PresetConfig> = {
   classic: {
     trunkLean: 1,
@@ -119,12 +142,10 @@ const PRESETS: Record<MikanTreePreset, PresetConfig> = {
 
 function hashString(value: string) {
   let hash = 2166136261 >>> 0
-
   for (let index = 0; index < value.length; index += 1) {
     hash ^= value.charCodeAt(index)
     hash = Math.imul(hash, 16777619)
   }
-
   return hash >>> 0
 }
 
@@ -134,7 +155,6 @@ function phaseFromString(value: string) {
 
 function createRandom(seed: number) {
   let state = seed
-
   return () => {
     let value = state += 0x6D2B79F5
     value = Math.imul(value ^ value >>> 15, value | 1)
@@ -152,7 +172,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
   const config = PRESETS[preset]
   const random = createRandom(hashString(`mikan-tree:v${TREE_VERSION}:${preset}:${seed}`))
   const between = (min: number, max: number) => min + random() * (max - min)
-
   const branches: Branch[] = []
   const leaves: Leaf[] = []
   const fruit: Fruit[] = []
@@ -176,7 +195,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
   }) {
     const branchIndex = branches.length
     const parent = parentIndex === null ? null : branches[parentIndex]
-
     branches.push({
       x,
       y,
@@ -190,7 +208,6 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
       depth: parent ? parent.depth + 1 : 0,
       windPhase: phaseFromString(`mikan-tree-wind:${seed}:branch:${branchIndex}`),
     })
-
     return branchIndex
   }
 
@@ -265,14 +282,12 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
   for (let index = 0; index < 6; index += 1) {
     const nextX = x + Math.cos(angle) * 15
     const nextY = y + Math.sin(angle) * 15
-    const originalWidth = 12 - index
-    const widthScale = index < 2 ? 1.18 : 1
     const trunkIndex = addBranch({
       x,
       y,
       nextX,
       nextY,
-      width: originalWidth * widthScale,
+      width: (12 - index) * (index < 2 ? 1.18 : 1),
       angle,
       parentIndex: trunkParentIndex,
     })
@@ -310,23 +325,41 @@ function createTree(seed: string, preset: MikanTreePreset): TreeModel {
   }
 }
 
-function getWindState(timeMs: number, treePhase: number): WindState {
+function getInteractionStrength(timeMs: number, impulses: ShakeImpulse[]) {
+  let strength = 0
+  for (const impulse of impulses) {
+    const age = timeMs - impulse.startedAt
+    if (age < 0 || age > INTERACTION_DURATION_MS) continue
+    strength += Math.min(1, age / 85) * Math.exp(-age / 330) * impulse.strength
+  }
+  return Math.min(1.8, strength)
+}
+
+function getWindState(timeMs: number, treePhase: number, impulses: ShakeImpulse[] = []): WindState {
   const time = timeMs / 1000
   const rampProgress = Math.min(1, Math.max(0, timeMs / 700))
   const ramp = rampProgress * rampProgress * (3 - 2 * rampProgress)
   const cycleTime = time % GUST_CYCLE_SECONDS
   const gustDistance = (cycleTime - GUST_CENTER_SECONDS) / GUST_WIDTH_SECONDS
   const gust = Math.exp(-gustDistance * gustDistance * 2.15) * ramp
+  const interaction = getInteractionStrength(timeMs, impulses)
   const sway =
     Math.sin(time * 0.78 + treePhase) * 0.7
     + Math.sin(time * 1.31 + treePhase * 0.61) * 0.3
+  const interactionSway =
+    Math.sin(time * 18.5 + treePhase * 0.82) * 0.68
+    + Math.sin(time * 27.4 + treePhase * 1.31) * 0.32
 
-  return { envelope: gust, sway, strength: gust * sway }
+  return {
+    envelope: Math.min(1.8, gust + interaction),
+    sway,
+    strength: gust * sway + interaction * interactionSway,
+    interaction,
+  }
 }
 
 function getBranchFlexibility(branch: Branch) {
   if (branch.width >= 7) return 0.00002
-
   const widthFlex = Math.min(1, Math.max(0, (7 - branch.width) / 6))
   const depthFlex = Math.min(1, Math.max(0, (branch.depth - 4) / 9))
   return 0.0014 + widthFlex * 0.0042 + depthFlex * 0.0026
@@ -345,7 +378,6 @@ function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
     const baseWorldAngle = parentPose
       ? parentPose.angle + branch.relativeAngle
       : branch.baseAngle
-
     const idleSway =
       Math.sin(time * 0.95 + branch.windPhase * 0.45 - branch.depth * 0.07) * 0.68
       + Math.sin(time * 1.55 + branch.windPhase) * 0.32
@@ -355,12 +387,16 @@ function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
         + Math.sin(time * 13.6 + branch.windPhase * 0.57) * 0.35
       )
       * wind.envelope
-
+    const interactionRustle =
+      (
+        Math.sin(time * 19.5 + branch.windPhase * 1.17) * 0.68
+        + Math.sin(time * 28.5 + branch.windPhase * 0.71) * 0.32
+      )
+      * wind.interaction
     const windOffset =
-      (idleSway * 0.85 + rustle * 0.72)
+      (idleSway * 0.85 + rustle * 0.72 + interactionRustle * 1.55)
       * getBranchFlexibility(branch)
       * motionRamp
-
     const angle = baseWorldAngle + windOffset
     const nextX = startX + Math.cos(angle) * branch.length
     const nextY = startY + Math.sin(angle) * branch.length
@@ -370,12 +406,52 @@ function createBranchPoses(tree: TreeModel, timeMs: number, wind: WindState) {
   return poses
 }
 
-function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
+function getFallingFruitPosition(item: FallingFruit, elapsedMs: number, groundY: number) {
+  const elapsed = Math.max(0, (elapsedMs - item.startedAt) / 1000)
+  const distanceToGround = Math.max(0, groundY - item.y)
+  const firstImpactTime = Math.sqrt((2 * distanceToGround) / item.gravity)
+  const firstImpactVelocity = item.gravity * firstImpactTime
+  const bounceVelocity = firstImpactVelocity * item.bounceRatio
+  const secondImpactDuration = bounceVelocity > 0 ? (2 * bounceVelocity) / item.gravity : 0
+  const motionDuration = firstImpactTime + secondImpactDuration
+  const horizontalTime = Math.min(elapsed, motionDuration)
+  const x = item.x + item.velocityX * horizontalTime
+
+  if (elapsed <= firstImpactTime) {
+    return {
+      x,
+      y: Math.min(groundY, item.y + 0.5 * item.gravity * elapsed * elapsed),
+      settled: false,
+    }
+  }
+
+  const bounceElapsed = elapsed - firstImpactTime
+  if (bounceElapsed <= secondImpactDuration) {
+    return {
+      x,
+      y: Math.min(
+        groundY,
+        groundY - bounceVelocity * bounceElapsed + 0.5 * item.gravity * bounceElapsed * bounceElapsed,
+      ),
+      settled: false,
+    }
+  }
+
+  return { x, y: groundY, settled: true }
+}
+
+function getCanvasPixelRatio(width: number, height: number) {
+  const deviceRatio = window.devicePixelRatio || 1
+  const pixelBudgetRatio = Math.sqrt(MAX_CANVAS_PIXELS / Math.max(1, width * height))
+  return Math.max(1, Math.min(deviceRatio, MAX_PIXEL_RATIO, pixelBudgetRatio))
+}
+
+function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number, motion: MotionState) {
   const width = canvas.clientWidth
   const height = canvas.clientHeight
   if (width === 0 || height === 0) return
 
-  const pixelRatio = Math.min(window.devicePixelRatio || 1, 2)
+  const pixelRatio = getCanvasPixelRatio(width, height)
   const nextCanvasWidth = Math.round(width * pixelRatio)
   const nextCanvasHeight = Math.round(height * pixelRatio)
   if (canvas.width !== nextCanvasWidth || canvas.height !== nextCanvasHeight) {
@@ -396,15 +472,23 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
   const bottomY = tree.bounds.maxY
   const screenX = (value: number) => width / 2 + value * drawingScale
   const screenY = (value: number) => height * 0.94 + (value - bottomY) * drawingScale
-  const wind = getWindState(timeMs, tree.windPhase)
+  const wind = getWindState(timeMs, tree.windPhase, motion.impulses)
   const poses = createBranchPoses(tree, timeMs, wind)
+  const shadowStretch = 1 + Math.min(0.018, Math.abs(wind.strength) * 0.012)
 
-  const shadowStretch = 1 + Math.min(0.012, Math.abs(wind.strength) * 0.01)
   context.save()
   context.filter = "blur(7px)"
   context.fillStyle = "rgb(91 58 31 / 14%)"
   context.beginPath()
-  context.ellipse(width / 2, height * 0.943, width * 0.145 * shadowStretch, Math.max(4, height * 0.011), 0, 0, Math.PI * 2)
+  context.ellipse(
+    width / 2,
+    height * 0.956,
+    width * 0.145 * shadowStretch,
+    Math.max(4, height * 0.011),
+    0,
+    0,
+    Math.PI * 2,
+  )
   context.fill()
   context.restore()
 
@@ -435,7 +519,13 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
         + Math.sin(time * 19 + leaf.windPhase * 0.53) * 0.085
       )
       * wind.envelope
-    const leafFlutter = (idleFlutter + rustleFlutter) * motionRamp
+    const interactionFlutter =
+      (
+        Math.sin(time * 24 + leaf.windPhase * 0.91) * 0.26
+        + Math.sin(time * 34 + leaf.windPhase * 1.43) * 0.12
+      )
+      * wind.interaction
+    const leafFlutter = (idleFlutter + rustleFlutter + interactionFlutter) * motionRamp
 
     context.save()
     context.translate(screenX(parentPose.nextX), screenY(parentPose.nextY))
@@ -449,11 +539,42 @@ function drawTree(canvas: HTMLCanvasElement, tree: TreeModel, timeMs: number) {
     context.restore()
   }
 
-  for (const item of tree.fruit) {
+  const droppedFruitIndexes = new Set(motion.fallingFruit.map((item) => item.fruitIndex))
+  tree.fruit.forEach((item, fruitIndex) => {
+    if (droppedFruitIndexes.has(fruitIndex)) return
     const parentPose = poses[item.parentBranchIndex]
     context.fillStyle = "#f59a23"
     context.beginPath()
     context.arc(screenX(parentPose.nextX), screenY(parentPose.nextY), 5 * drawingScale, 0, Math.PI * 2)
+    context.fill()
+  })
+
+  for (const item of motion.fallingFruit) {
+    const position = getFallingFruitPosition(item, timeMs, bottomY)
+    const radius = 5 * drawingScale
+
+    if (!position.settled) {
+      const distanceToGround = Math.max(0, bottomY - position.y)
+      const shadowOpacity = Math.max(0.05, 0.13 - distanceToGround * 0.00045)
+      context.save()
+      context.fillStyle = `rgb(91 58 31 / ${shadowOpacity})`
+      context.beginPath()
+      context.ellipse(
+        screenX(position.x),
+        screenY(bottomY) + radius * 0.75,
+        radius * 0.9,
+        Math.max(1.4, radius * 0.24),
+        0,
+        0,
+        Math.PI * 2,
+      )
+      context.fill()
+      context.restore()
+    }
+
+    context.fillStyle = "#f59a23"
+    context.beginPath()
+    context.arc(screenX(position.x), screenY(position.y) - radius * 0.1, radius, 0, Math.PI * 2)
     context.fill()
   }
 }
@@ -472,60 +593,147 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
     let animationFrame: number | null = null
     let animationStart = performance.now()
     let lastDraw = 0
+    let lastScrollY = window.scrollY
+    let scrollAccumulator = 0
+    let lastScrollShakeAt = 0
+    let lastFruitDropAt = -FRUIT_DROP_COOLDOWN_MS
+    const motion: MotionState = { impulses: [], fallingFruit: [] }
 
+    const currentElapsed = () => Math.max(0, performance.now() - animationStart)
     const renderCurrentFrame = () => {
-      const elapsed = prefersReducedMotion ? 0 : Math.max(0, performance.now() - animationStart)
-      drawTree(canvas, tree, elapsed)
+      drawTree(canvas, tree, prefersReducedMotion ? 0 : currentElapsed(), motion)
     }
-
     const stopAnimation = () => {
-      if (animationFrame === null) return
-      cancelAnimationFrame(animationFrame)
-      animationFrame = null
+      if (animationFrame !== null) {
+        cancelAnimationFrame(animationFrame)
+        animationFrame = null
+      }
     }
-
     const tick = (now: number) => {
       animationFrame = null
       if (prefersReducedMotion || !isVisible) return
       if (now - lastDraw >= TARGET_FRAME_INTERVAL) {
-        drawTree(canvas, tree, Math.max(0, now - animationStart))
+        const elapsed = Math.max(0, now - animationStart)
+        motion.impulses = motion.impulses.filter(
+          (item) => elapsed - item.startedAt <= INTERACTION_DURATION_MS,
+        )
+        drawTree(canvas, tree, elapsed, motion)
         lastDraw = now
       }
       animationFrame = requestAnimationFrame(tick)
     }
-
     const startAnimation = () => {
-      if (animationFrame !== null || prefersReducedMotion || !isVisible) return
-      animationFrame = requestAnimationFrame(tick)
+      if (animationFrame === null && !prefersReducedMotion && isVisible) {
+        animationFrame = requestAnimationFrame(tick)
+      }
     }
+    const maybeDropFruit = (elapsed: number, chance: number) => {
+      if (
+        tree.fruit.length === 0
+        || motion.fallingFruit.length >= tree.fruit.length
+        || elapsed - lastFruitDropAt < FRUIT_DROP_COOLDOWN_MS
+        || Math.random() >= chance
+      ) {
+        return
+      }
 
+      const dropped = new Set(motion.fallingFruit.map((item) => item.fruitIndex))
+      const availableFruit = tree.fruit
+        .map((_, index) => index)
+        .filter((index) => !dropped.has(index))
+      const fruitIndex = availableFruit[Math.floor(Math.random() * availableFruit.length)]
+      if (fruitIndex === undefined) return
+
+      const wind = getWindState(elapsed, tree.windPhase, motion.impulses)
+      const poses = createBranchPoses(tree, elapsed, wind)
+      const fruit = tree.fruit[fruitIndex]
+      const parentPose = poses[fruit.parentBranchIndex]
+      const direction = Math.random() < 0.5 ? -1 : 1
+
+      motion.fallingFruit.push({
+        fruitIndex,
+        startedAt: elapsed,
+        x: parentPose.nextX,
+        y: parentPose.nextY,
+        velocityX: direction * (2.5 + Math.random() * 5.5),
+        gravity: 235 + Math.random() * 35,
+        bounceRatio: 0.34 + Math.random() * 0.08,
+      })
+      lastFruitDropAt = elapsed
+    }
+    const triggerShake = (strength: number, fruitChance: number) => {
+      if (prefersReducedMotion || !isVisible) return
+      const elapsed = currentElapsed()
+      motion.impulses.push({ startedAt: elapsed, strength })
+      maybeDropFruit(elapsed, fruitChance)
+      startAnimation()
+    }
     const resizeObserver = new ResizeObserver(renderCurrentFrame)
     const intersectionObserver = new IntersectionObserver((entries) => {
       isVisible = entries[0]?.isIntersecting ?? true
       if (isVisible) {
+        lastScrollY = window.scrollY
         renderCurrentFrame()
         startAnimation()
       } else {
         stopAnimation()
       }
     })
-
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!isVisible || prefersReducedMotion) return
+      const target = event.target
+      if (
+        target instanceof Element
+        && target.closest("a, button, input, textarea, select, [role='button']")
+      ) {
+        return
+      }
+      const rect = canvas.getBoundingClientRect()
+      const inside =
+        event.clientX >= rect.left
+        && event.clientX <= rect.right
+        && event.clientY >= rect.top
+        && event.clientY <= rect.bottom
+      if (inside) triggerShake(1.35, 0.07)
+    }
+    const handleScroll = () => {
+      if (!isVisible || prefersReducedMotion) {
+        lastScrollY = window.scrollY
+        return
+      }
+      const next = window.scrollY
+      const delta = Math.abs(next - lastScrollY)
+      lastScrollY = next
+      scrollAccumulator += delta
+      const now = performance.now()
+      if (scrollAccumulator < 18 || now - lastScrollShakeAt < 140) return
+      const strength = Math.min(1.3, 0.68 + scrollAccumulator / 95)
+      scrollAccumulator = 0
+      lastScrollShakeAt = now
+      triggerShake(strength, 0.018)
+    }
     const handleReducedMotionChange = (event: MediaQueryListEvent) => {
       prefersReducedMotion = event.matches
       if (prefersReducedMotion) {
         stopAnimation()
-        drawTree(canvas, tree, 0)
+        motion.impulses = []
+        motion.fallingFruit = []
+        drawTree(canvas, tree, 0, motion)
         return
       }
       animationStart = performance.now()
       lastDraw = 0
+      lastFruitDropAt = -FRUIT_DROP_COOLDOWN_MS
+      lastScrollY = window.scrollY
       startAnimation()
     }
 
     resizeObserver.observe(canvas)
     intersectionObserver.observe(canvas)
     reducedMotionQuery.addEventListener("change", handleReducedMotionChange)
-    drawTree(canvas, tree, 0)
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true })
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    drawTree(canvas, tree, 0, motion)
     startAnimation()
 
     return () => {
@@ -533,6 +741,8 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
       resizeObserver.disconnect()
       intersectionObserver.disconnect()
       reducedMotionQuery.removeEventListener("change", handleReducedMotionChange)
+      window.removeEventListener("pointerdown", handlePointerDown)
+      window.removeEventListener("scroll", handleScroll)
     }
   }, [tree])
 
@@ -541,10 +751,10 @@ export function MikanTree({ seed, className, preset = "classic" }: MikanTreeProp
       ref={canvasRef}
       className={className}
       role="img"
-      aria-label="あなた固有のみかんの木"
+      aria-label="あなた固有のみかんの木。木の周辺をタップすると葉が揺れます"
       data-tree-version={TREE_VERSION}
       data-tree-preset={preset}
-      data-tree-wind="branch-idle-rustle"
+      data-tree-wind="branch-idle-rustle-interactive"
     />
   )
 }
