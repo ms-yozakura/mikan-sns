@@ -1,0 +1,495 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px 0 120px;
+  color: var(--color-text);
+}
+
+.header {
+  padding: 4px 8px 18px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.eyebrow {
+  margin: 0 0 5px;
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.header h1,
+.dictionaryHeader h2 {
+  margin: 0;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.header h1 {
+  font-size: clamp(27px, 7vw, 36px);
+}
+
+.description,
+.dictionaryHeader p {
+  margin: 8px 0 0;
+  color: var(--color-text-light);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.headerFruit {
+  flex: 0 0 auto;
+  width: 70px;
+  height: 70px;
+  border-radius: 24px;
+  background: linear-gradient(145deg, #fff9ed, #fff1d8);
+  display: grid;
+  place-items: center;
+  box-shadow: inset 0 0 0 1px rgb(240 203 151 / 55%);
+}
+
+.viewTabs {
+  margin-bottom: 18px;
+}
+
+.calendarCard,
+.summaryCard,
+.dictionarySection {
+  border: 1px solid rgb(232 218 196 / 88%);
+  background: rgb(255 253 248 / 88%);
+  box-shadow: 0 10px 28px rgb(112 72 31 / 8%);
+}
+
+.calendarCard {
+  border-radius: 24px;
+  padding: 16px;
+}
+
+.monthControls {
+  min-height: 44px;
+  margin-bottom: 10px;
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.monthControls h2 {
+  margin: 0;
+  text-align: center;
+  font-size: 21px;
+}
+
+.monthActions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.iconButton,
+.todayButton {
+  border: 1px solid rgb(226 215 196 / 95%);
+  background: #fff;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.iconButton {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+}
+
+.todayButton {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.weekdays,
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.weekdays {
+  padding: 0 2px 6px;
+  color: var(--color-text-light);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.calendarGrid {
+  overflow: hidden;
+  border-top: 1px solid rgb(230 222 208 / 86%);
+  border-left: 1px solid rgb(230 222 208 / 86%);
+  border-radius: 14px;
+}
+
+.dayCell,
+.blankCell {
+  min-height: 70px;
+  border: 0;
+  border-right: 1px solid rgb(230 222 208 / 86%);
+  border-bottom: 1px solid rgb(230 222 208 / 86%);
+  background: rgb(255 255 255 / 62%);
+}
+
+.dayCell {
+  position: relative;
+  padding: 7px 4px 5px;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.dayCell:hover {
+  background: #fff9ef;
+}
+
+.dayNumber {
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.selectedDay .dayNumber {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.dayFruit {
+  position: relative;
+  min-height: 27px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dayFruit small {
+  position: absolute;
+  right: -8px;
+  bottom: -2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-primary-hover);
+  font-size: 8px;
+  font-weight: 900;
+  line-height: 15px;
+  box-shadow: 0 1px 5px rgb(102 66 34 / 14%);
+}
+
+.selectedSummary {
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 14px;
+  background: #fff8ec;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 10px;
+  font-size: 12px;
+}
+
+.selectedSummary strong {
+  color: var(--color-primary-hover);
+}
+
+.selectedSummary span {
+  color: var(--color-text-light);
+}
+
+.summaryGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summaryCard {
+  min-height: 168px;
+  padding: 16px;
+  border-radius: 20px;
+}
+
+.summaryHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.summaryHeading h2 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.summaryHeading svg {
+  color: var(--color-primary);
+  font-size: 22px;
+}
+
+.totalCount {
+  margin: 14px 0 5px;
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.totalCount strong {
+  color: var(--color-primary-hover);
+  font-size: 47px;
+  line-height: 1;
+}
+
+.summaryHint,
+.emptyText {
+  color: var(--color-text-light);
+  font-size: 11px;
+}
+
+.rankingList {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.rankingList li {
+  display: grid;
+  grid-template-columns: 20px 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.rankingList li > strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankingList li > span:last-child {
+  color: var(--color-primary-hover);
+  font-weight: 800;
+}
+
+.rank {
+  width: 19px;
+  height: 19px;
+  border-radius: 50%;
+  background: #f7e7c4;
+  color: #8b6829;
+  display: grid;
+  place-items: center;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.dictionarySection {
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.dictionaryHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 3px 2px 16px;
+}
+
+.dictionaryHeader h2 {
+  font-size: 24px;
+}
+
+.progressBadge {
+  flex: 0 0 auto;
+  min-width: 102px;
+  padding: 10px 12px;
+  border-radius: 17px;
+  background: #fff7e8;
+  color: var(--color-text-light);
+  text-align: center;
+  font-size: 10px;
+}
+
+.progressBadge strong {
+  display: block;
+  color: var(--color-primary-hover);
+  font-size: 26px;
+  line-height: 1.1;
+}
+
+.dictionaryGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.varietyCard {
+  position: relative;
+  min-height: 105px;
+  padding: 12px;
+  border-radius: 18px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+}
+
+.discoveredCard {
+  border: 1px solid rgb(244 195 119 / 65%);
+  background: linear-gradient(145deg, #fffdfa, #fff6e8);
+}
+
+.undiscoveredCard {
+  border: 1px dashed rgb(205 197 184 / 95%);
+  background: rgb(248 246 241 / 84%);
+}
+
+.varietyIcon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+}
+
+.varietyCopy {
+  min-width: 0;
+}
+
+.varietyCopy h3 {
+  margin: 0 0 4px;
+  overflow: hidden;
+  color: var(--color-text);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.varietyCopy p {
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: 10px;
+}
+
+.discoveredIcon {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #5b963f;
+  font-size: 17px;
+}
+
+@media (max-width: 520px) {
+  .page {
+    padding-top: 14px;
+  }
+
+  .header {
+    padding-inline: 4px;
+  }
+
+  .headerFruit {
+    width: 61px;
+    height: 61px;
+    border-radius: 20px;
+  }
+
+  .calendarCard {
+    padding: 12px 10px;
+    border-radius: 20px;
+  }
+
+  .monthControls {
+    grid-template-columns: 38px 1fr auto;
+  }
+
+  .monthControls h2 {
+    font-size: 18px;
+  }
+
+  .iconButton {
+    width: 36px;
+    height: 36px;
+  }
+
+  .todayButton {
+    min-height: 34px;
+    padding-inline: 11px;
+    font-size: 11px;
+  }
+
+  .dayCell,
+  .blankCell {
+    min-height: 62px;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .summaryCard {
+    min-height: 0;
+  }
+
+  .dictionarySection {
+    padding: 14px 10px;
+    border-radius: 20px;
+  }
+
+  .dictionaryHeader {
+    padding-inline: 4px;
+  }
+
+  .dictionaryGrid {
+    gap: 8px;
+  }
+
+  .varietyCard {
+    min-height: 96px;
+    padding: 9px;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 5px;
+  }
+
+  .varietyIcon {
+    width: 48px;
+    height: 48px;
+    transform: scale(.88);
+  }
+}
+
+@media (max-width: 380px) {
+  .dictionaryGrid {
+    grid-template-columns: 1fr;
+  }
+}

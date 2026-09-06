@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useCallback, useState } from "react"
 import { Icon } from "@iconify/react"
 import { FloatingPostButton } from "@/features/post/components/FloatingPostButton"
+import { SegmentedTabs } from "@/shared/ui/SegmentedTabs"
 import { Feed } from "../components/Feed"
 import { MikanTree } from "../components/MikanTree"
 import { getFeed, type FeedScope } from "../actions/getFeed"
@@ -12,6 +13,11 @@ import styles from "./HomePage.module.css"
 import type { GlobalStats } from "@/features/stats/types/types"
 
 type InitialPosts = Awaited<ReturnType<typeof getFeed>>
+
+const FEED_TABS = [
+  { value: "all", label: "すべて" },
+  { value: "following", label: "フォロー中" },
+] as const
 
 export function HomePageClient({
   initialPosts,
@@ -82,15 +88,15 @@ export function HomePageClient({
             <strong>{stats.monthlyPosts.toLocaleString("ja-JP")}投稿</strong>
           </Link>
 
-          <div className={`${styles.treeCard} ${styles.calendarCard} ${styles.comingSoon}`}>
+          <Link href="/calendar" className={`${styles.treeCard} ${styles.calendarCard}`}>
             <Icon
               icon="mdi:calendar-month-outline"
               className={`${styles.cardIcon} ${styles.calendarIcon}`}
               aria-hidden="true"
             />
             <span>みかんカレンダー</span>
-            <small>準備中</small>
-          </div>
+            <strong>記録を見る</strong>
+          </Link>
 
           <div className={styles.postAction}>
             <FloatingPostButton onSuccess={allFeed.prependPost} />
@@ -110,26 +116,13 @@ export function HomePageClient({
           <Icon icon="mdi:leaf" className={`${styles.timelineLeaf} ${styles.timelineLeafRight}`} aria-hidden="true" />
         </div>
 
-        <div className={styles.feedTabs} role="tablist" aria-label="タイムラインの表示範囲">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={feedScope === "all"}
-            className={`${styles.feedTab} ${feedScope === "all" ? styles.feedTabActive : ""}`}
-            onClick={() => setFeedScope("all")}
-          >
-            すべて
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={feedScope === "following"}
-            className={`${styles.feedTab} ${feedScope === "following" ? styles.feedTabActive : ""}`}
-            onClick={() => setFeedScope("following")}
-          >
-            フォロー中
-          </button>
-        </div>
+        <SegmentedTabs
+          value={feedScope}
+          options={FEED_TABS}
+          onChange={setFeedScope}
+          ariaLabel="タイムラインの表示範囲"
+          className={styles.feedTabs}
+        />
 
         <Feed
           contents={activeFeed.posts}
