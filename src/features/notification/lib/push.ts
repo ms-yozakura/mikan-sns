@@ -42,17 +42,32 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
   const admin = createAdminClient()
   if (!admin) return
 
-  const { data, error } = await admin
-    .from('push_subscriptions')
-    .select('id, endpoint, p256dh, auth')
-    .eq('user_id', userId)
+  const [{ data, error }, { count: unreadCount, error: unreadCountError }] = await Promise.all([
+    admin
+      .from('push_subscriptions')
+      .select('id, endpoint, p256dh, auth')
+      .eq('user_id', userId),
+    admin
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', userId)
+      .eq('is_read', false),
+  ])
 
   if (error) {
     console.error('PUSH SUBSCRIPTION SELECT ERROR:', error)
     return
   }
 
+  if (unreadCountError) {
+    console.error('PUSH UNREAD COUNT ERROR:', unreadCountError)
+  }
+
   const subscriptions = (data ?? []) as StoredPushSubscription[]
+  const payloadWithBadge = {
+    ...payload,
+    badgeCount: unreadCount ?? undefined,
+  }
 
   await Promise.all(
     subscriptions.map(async (subscription) => {
@@ -65,7 +80,7 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
               auth: subscription.auth,
             },
           },
-          JSON.stringify(payload)
+          JSON.stringify(payloadWithBadge)
         )
       } catch (error) {
         const statusCode = getStatusCode(error)

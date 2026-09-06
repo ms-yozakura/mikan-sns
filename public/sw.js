@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mikan-sns-v2'
+const CACHE_VERSION = 'mikan-sns-v3'
 const STATIC_CACHE = `${CACHE_VERSION}-static`
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`
 
@@ -82,7 +82,7 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  event.waitUntil(
+  const tasks = [
     self.registration.showNotification(payload.title || 'MikanSNS', {
       body: payload.body || '新しい通知があります',
       icon: '/icons/icon-192.png',
@@ -92,8 +92,19 @@ self.addEventListener('push', (event) => {
       data: {
         url: payload.url || '/notifications',
       },
-    })
-  )
+    }),
+  ]
+
+  if ('setAppBadge' in self.navigator && Number.isFinite(payload.badgeCount)) {
+    const badgeCount = Math.max(0, Number(payload.badgeCount))
+    tasks.push(
+      badgeCount > 0
+        ? self.navigator.setAppBadge(badgeCount)
+        : self.navigator.clearAppBadge()
+    )
+  }
+
+  event.waitUntil(Promise.all(tasks))
 })
 
 self.addEventListener('notificationclick', (event) => {
