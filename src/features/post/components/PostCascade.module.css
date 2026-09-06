@@ -1,11 +1,30 @@
-.cascade{
-  width:100%;
-  max-width: 600px;
+.cascade {
+  width: 100%;
+  max-width: 640px;
+  padding: 0 12px 7rem;
 }
 
-.cascadeContent{
-  background-color: white;
-  border-radius: var(--radius-md);
-  border: 0.3px solid var(--color-border);
-  overflow: hidden;
+.backButton {
+  width: 100%;
+  padding: 0.25rem 0 0.75rem;
+}
+
+.cascadeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.postArea {
+  border-radius: 24px;
+}
+
+@media (max-width: 640px) {
+  .cascade {
+    padding-inline: 0.75rem;
+  }
+
+  .cascadeContent {
+    gap: 0.85rem;
+  }
 }

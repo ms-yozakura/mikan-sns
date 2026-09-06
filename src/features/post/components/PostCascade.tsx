@@ -12,56 +12,56 @@ import { Icon } from "@iconify/react"
 import { getComments } from "../actions/getComments"
 import { CommentForm } from "./CommentForm/CommentForm"
 
-
 export function PostCascade({ postId }: { postId: string }) {
-
-  const [post, setPost] = useState(null)
+  const [post, setPost] = useState<any>(null)
   const [comments, setComments] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-
   useEffect(() => {
-
     async function fetchPost() {
       const data = await getPost(postId)
-      const comments = await getComments(postId)
+      const fetchedComments = await getComments(postId)
       setPost(data)
-      setComments(comments)
+      setComments(fetchedComments)
       setLoading(false)
     }
 
     fetchPost()
-
   }, [postId])
-
 
   if (loading) {
     return <Loading />
   }
 
-
   return (
     <section className={styles.cascade}>
-      <Leading onClick={() => {
-        if (window.history.length > 1) {
-          router.back()
-        } else {
-          router.push('/')
-        }
-      }}>
-        <Icon icon="material-symbols:arrow-back" />
-      </Leading>
-
-      <div className={styles.cascadeContent}>
-        <PostCard post={post} enableCommentForm={false} enablePostLink={false} />
-        <CommentForm post={post} onSuccess={(comment: any) => setComments((prev) => [comment, ...prev])} />
-        {comments &&
-          <CommentList comments={comments}
-          />
-        }
+      <div className={styles.backButton}>
+        <Leading
+          onClick={() => {
+            if (window.history.length > 1) {
+              router.back()
+            } else {
+              router.push('/')
+            }
+          }}
+        >
+          <Icon icon="material-symbols:arrow-back" />
+        </Leading>
       </div>
 
+      <div className={styles.cascadeContent}>
+        <div className={styles.postArea}>
+          <PostCard post={post} enableCommentForm={false} enablePostLink={false} />
+        </div>
+
+        <CommentForm
+          post={post}
+          onSuccess={(comment: any) => setComments((prev) => [comment, ...prev])}
+        />
+
+        <CommentList comments={comments} />
+      </div>
     </section>
   )
 }
