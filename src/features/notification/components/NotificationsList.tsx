@@ -31,11 +31,28 @@ const notificationCopy = {
   follow: { icon: 'mdi:account-plus', text: 'あなたをフォローしました' },
 } as const
 
+type BadgeNavigator = Navigator & {
+  clearAppBadge?: () => Promise<void>
+}
+
 export function NotificationsList({ notifications }: { notifications: NotificationItem[] }) {
   useEffect(() => {
-    if (notifications.some((notification) => !notification.is_read)) {
-      void markNotificationsRead()
+    const syncReadState = async () => {
+      if (notifications.some((notification) => !notification.is_read)) {
+        await markNotificationsRead()
+      }
+
+      const badgeNavigator = navigator as BadgeNavigator
+      if (badgeNavigator.clearAppBadge) {
+        try {
+          await badgeNavigator.clearAppBadge()
+        } catch (error) {
+          console.error('CLEAR APP BADGE ERROR:', error)
+        }
+      }
     }
+
+    void syncReadState()
   }, [notifications])
 
   if (notifications.length === 0) {
