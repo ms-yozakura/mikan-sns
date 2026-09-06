@@ -9,7 +9,7 @@ export async function getMikanVarieties() {
 
   const { data, error } = await supabase
     .from("mikan_varieties")
-    .select("id,name,color,shape")
+    .select("id,name,aliases,color,shape")
     .eq("is_visible", true)
     .order("name")
 

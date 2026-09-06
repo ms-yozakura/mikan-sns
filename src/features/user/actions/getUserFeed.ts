@@ -34,6 +34,16 @@ export async function getUserFeed({
         bio,
         region,
         generation
+      ),
+      favorite_mikans(
+        position,
+        mikan_varieties(
+          id,
+          name,
+          aliases,
+          color,
+          shape
+        )
       )
     `)
     .eq('username', username)

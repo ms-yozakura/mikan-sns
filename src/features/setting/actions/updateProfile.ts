@@ -8,6 +8,7 @@ type ProfileData = {
   region: string
   generation: number | null
   avatarUrl?: string
+  favorite_mikan_ids?: string[]
 }
 
 function getAvatarStoragePath(url: string, userId: string) {
@@ -32,6 +33,24 @@ export async function updateProfile(data: ProfileData) {
 
   if (error || !user) throw new Error("Unauthorized")
 
+  const favoriteMikanIds = Array.from(new Set(data.favorite_mikan_ids ?? []))
+  if (favoriteMikanIds.length > 3) {
+    throw new Error("推しみかんは3つまで登録できます")
+  }
+
+  if (favoriteMikanIds.length > 0) {
+    const { data: validVarieties, error: varietyError } = await supabase
+      .from("mikan_varieties")
+      .select("id")
+      .in("id", favoriteMikanIds)
+      .eq("is_visible", true)
+
+    if (varietyError) throw varietyError
+    if ((validVarieties ?? []).length !== favoriteMikanIds.length) {
+      throw new Error("登録できないみかんが含まれています")
+    }
+  }
+
   const { data: currentUser, error: currentUserError } = await supabase
     .from("users")
     .select("avatar_url")
@@ -42,7 +61,6 @@ export async function updateProfile(data: ProfileData) {
 
   const oldAvatarUrl = currentUser?.avatar_url
 
-  // usersテーブル
   const { error: userError } = await supabase
     .from("users")
     .update({
@@ -53,7 +71,6 @@ export async function updateProfile(data: ProfileData) {
 
   if (userError) throw userError
 
-  // profilesテーブル
   const { error: profileError } = await supabase
     .from("profiles")
     .upsert({
@@ -64,6 +81,25 @@ export async function updateProfile(data: ProfileData) {
     }, { onConflict: "user_id" })
 
   if (profileError) throw profileError
+
+  const { error: deleteFavoritesError } = await supabase
+    .from("favorite_mikans")
+    .delete()
+    .eq("user_id", user.id)
+
+  if (deleteFavoritesError) throw deleteFavoritesError
+
+  if (favoriteMikanIds.length > 0) {
+    const { error: insertFavoritesError } = await supabase
+      .from("favorite_mikans")
+      .insert(favoriteMikanIds.map((varietyId, index) => ({
+        user_id: user.id,
+        variety_id: varietyId,
+        position: index + 1,
+      })))
+
+    if (insertFavoritesError) throw insertFavoritesError
+  }
 
   if (oldAvatarUrl && data.avatarUrl && oldAvatarUrl !== data.avatarUrl) {
     const oldAvatarPath = getAvatarStoragePath(oldAvatarUrl, user.id)
