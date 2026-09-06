@@ -1,13 +1,22 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Icon } from "@iconify/react"
 import { createClient } from "@/infrastructure/supabase/client"
+import { getMikanVarieties } from "@/features/post/actions/getMikanVarieties"
+import {
+  MikanPicker,
+  type MikanPickerVariety,
+} from "@/features/mikan/components/MikanPicker"
+import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 
 import { updateProfile } from "../actions/updateProfile"
 import { uploadAvatar } from "../actions/uploadAvatar"
 
 import { AvatarUploader } from "./AvatarUploader"
 import styles from "./ProfileEditForm.module.css"
+
+type Variety = MikanPickerVariety
 
 export function ProfileEditForm() {
   const supabase = createClient()
@@ -20,6 +29,10 @@ export function ProfileEditForm() {
   const [region, setRegion] = useState("")
   const [generation, setGeneration] = useState<number | "">("")
   const [isSaving, setIsSaving] = useState(false)
+  const [varieties, setVarieties] = useState<Variety[]>([])
+  const [favoriteMikanIds, setFavoriteMikanIds] = useState<string[]>(["", "", ""])
+  const [activeFavoriteIndex, setActiveFavoriteIndex] = useState(0)
+  const [favoriteKeyword, setFavoriteKeyword] = useState("")
 
   useEffect(() => {
     async function load() {
@@ -29,20 +42,29 @@ export function ProfileEditForm() {
 
       if (!user) return
 
-      const { data } = await supabase
-        .from("users")
-        .select(`
-          display_name,
-          avatar_url,
-          profiles(
-            bio,
-            region,
-            generation
-          )
-        `)
-        .eq("id", user.id)
-        .single()
+      const [userResult, favoritesResult, varietyRows] = await Promise.all([
+        supabase
+          .from("users")
+          .select(`
+            display_name,
+            avatar_url,
+            profiles(
+              bio,
+              region,
+              generation
+            )
+          `)
+          .eq("id", user.id)
+          .single(),
+        supabase
+          .from("favorite_mikans")
+          .select("variety_id,position")
+          .eq("user_id", user.id)
+          .order("position"),
+        getMikanVarieties(),
+      ])
 
+      const data = userResult.data
       if (data) {
         setDisplayName(data.display_name ?? "")
         setAvatarUrl(data.avatar_url ?? "")
@@ -58,11 +80,55 @@ export function ProfileEditForm() {
         setGeneration(profile?.generation ?? "")
       }
 
+      if (favoritesResult.error) throw favoritesResult.error
+
+      const nextFavorites = ["", "", ""]
+      for (const row of favoritesResult.data ?? []) {
+        if (row.position >= 1 && row.position <= 3) {
+          nextFavorites[row.position - 1] = row.variety_id
+        }
+      }
+      setFavoriteMikanIds(nextFavorites)
+      setVarieties((varietyRows ?? []) as Variety[])
       setLoading(false)
     }
 
-    load()
+    load().catch((error) => {
+      console.error(error)
+      setLoading(false)
+    })
   }, [supabase])
+
+  function updateFavorite(index: number, varietyId: string) {
+    setFavoriteMikanIds((current) => {
+      const next = [...current]
+      if (varietyId) {
+        for (let currentIndex = 0; currentIndex < next.length; currentIndex += 1) {
+          if (currentIndex !== index && next[currentIndex] === varietyId) {
+            next[currentIndex] = ""
+          }
+        }
+      }
+      next[index] = varietyId
+      return next
+    })
+  }
+
+  function selectFavorite(variety: Variety) {
+    updateFavorite(activeFavoriteIndex, variety.id)
+    setFavoriteKeyword("")
+
+    const nextEmptyIndex = favoriteMikanIds.findIndex(
+      (id, index) => index !== activeFavoriteIndex && !id
+    )
+    if (nextEmptyIndex >= 0) setActiveFavoriteIndex(nextEmptyIndex)
+  }
+
+  function clearFavorite(index: number) {
+    updateFavorite(index, "")
+    setActiveFavoriteIndex(index)
+    setFavoriteKeyword("")
+  }
 
   async function save() {
     try {
@@ -70,12 +136,9 @@ export function ProfileEditForm() {
 
       let url = avatarUrl
 
-
       if (avatar) {
         const formData = new FormData()
         formData.append('file', avatar)
-
-
         url = await uploadAvatar(formData)
       }
 
@@ -85,10 +148,10 @@ export function ProfileEditForm() {
         region,
         generation: generation === "" ? null : generation,
         avatarUrl: url,
+        favorite_mikan_ids: favoriteMikanIds.filter(Boolean),
       })
 
       setAvatarUrl(url)
-
       alert("プロフィールを更新しました")
     } catch (e) {
       console.error(e)
@@ -114,10 +177,7 @@ export function ProfileEditForm() {
       <div className={styles.formGroupContainer}>
         <div className={styles.formGroup}>
           <label className={styles.label}>Profile Picture</label>
-          <AvatarUploader
-            url={avatarUrl}
-            onChange={setAvatar}
-          />
+          <AvatarUploader url={avatarUrl} onChange={setAvatar} />
         </div>
 
         <div className={styles.formGroup}>
@@ -139,6 +199,7 @@ export function ProfileEditForm() {
             onChange={(e) => setBio(e.target.value)}
           />
         </div>
+
         <div className={styles.formGroup}>
           <label className={styles.label}>Region</label>
           <input
@@ -148,7 +209,6 @@ export function ProfileEditForm() {
             onChange={(e) => setRegion(e.target.value)}
           />
         </div>
-
 
         <div className={styles.formGroup}>
           <label className={styles.label}>Generation</label>
@@ -166,7 +226,65 @@ export function ProfileEditForm() {
               </option>
             ))}
           </select>
-        </div >
+        </div>
+
+        <div className={styles.formGroup}>
+          <label className={styles.label}>推しみかん</label>
+          <p className={styles.helpText}>3つまで登録できます。枠を選んで、下からみかんを検索してください。</p>
+
+          <div className={styles.favoriteSlots}>
+            {favoriteMikanIds.map((varietyId, index) => {
+              const variety = varieties.find((item) => item.id === varietyId)
+              const isActive = index === activeFavoriteIndex
+
+              return (
+                <div key={index} className={styles.favoriteSlotRow}>
+                  <button
+                    type="button"
+                    className={`${styles.favoriteSlot} ${isActive ? styles.favoriteSlotActive : ""}`}
+                    onClick={() => {
+                      setActiveFavoriteIndex(index)
+                      setFavoriteKeyword("")
+                    }}
+                  >
+                    <span className={styles.favoriteSlotNumber}>{index + 1}</span>
+                    {variety ? (
+                      <>
+                        <MikanIcon color={variety.color} shape={variety.shape} size={28} />
+                        <span className={styles.favoriteSlotName}>{variety.name}</span>
+                      </>
+                    ) : (
+                      <span className={styles.favoriteSlotPlaceholder}>みかんを選ぶ</span>
+                    )}
+                  </button>
+
+                  {variety && (
+                    <button
+                      type="button"
+                      className={styles.favoriteClearButton}
+                      aria-label={`${variety.name}を推しみかんから外す`}
+                      onClick={() => clearFavorite(index)}
+                    >
+                      <Icon icon="mdi:close" aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          <div className={styles.favoritePickerArea}>
+            <span className={styles.favoritePickerLabel}>{activeFavoriteIndex + 1}つ目の推しみかん</span>
+            <MikanPicker
+              varieties={varieties}
+              keyword={favoriteKeyword}
+              onKeywordChange={setFavoriteKeyword}
+              selectedIds={favoriteMikanIds.filter(Boolean)}
+              onSelect={selectFavorite}
+              ariaLabel={`${activeFavoriteIndex + 1}つ目の推しみかんを検索`}
+            />
+          </div>
+        </div>
 
         <div className={styles.actions}>
           <button

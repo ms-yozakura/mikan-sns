@@ -1,11 +1,23 @@
 import Link from "next/link"
 import { Icon } from "@iconify/react"
 import { createClient } from "@/infrastructure/supabase/server"
+import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 import styles from "./UserPage.module.css"
 import { getUserFeed } from "../actions/getUserFeed"
 import { ProfileActions } from "../components/ProfileActions"
 import { ProfileTabs } from "../components/ProfileTabs"
 import defaultAvatar from "@/img/default-avatar.jpg"
+
+type FavoriteMikan = {
+  position: number
+  mikan_varieties: {
+    id: string
+    name: string
+    aliases: string[] | null
+    color: string
+    shape: "normal" | "round" | "flat" | "egg" | "deko" | "unknown"
+  } | null
+}
 
 export default async function UserPage({ userId }: { userId: string }) {
   const supabase = await createClient()
@@ -34,6 +46,10 @@ export default async function UserPage({ userId }: { userId: string }) {
     generation: number | null
   }
 
+  const favoriteMikans = ((data.profile.favorite_mikans ?? []) as unknown as FavoriteMikan[])
+    .filter((item) => item.mikan_varieties)
+    .sort((a, b) => a.position - b.position)
+
   return (
     <main className={styles.container}>
       <div className={styles.profileCard}>
@@ -61,6 +77,27 @@ export default async function UserPage({ userId }: { userId: string }) {
               {privateProfile?.generation && privateProfile.generation + "期"}
             </span>
           </div>
+
+          {favoriteMikans.length > 0 && (
+            <div className={styles.favoriteMikans} aria-label="推しみかん">
+              <span className={styles.favoriteMikansLabel}>推しみかん</span>
+              <div className={styles.favoriteMikanList}>
+                {favoriteMikans.map((item) => {
+                  const variety = item.mikan_varieties!
+                  const displayName = variety.aliases?.includes("紅まどんな")
+                    ? "紅まどんな"
+                    : variety.name
+
+                  return (
+                    <span key={variety.id} className={styles.favoriteMikanChip}>
+                      <MikanIcon color={variety.color} shape={variety.shape} size={22} />
+                      {displayName}
+                    </span>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           <ProfileActions
             isOwnProfile={isOwnProfile}
