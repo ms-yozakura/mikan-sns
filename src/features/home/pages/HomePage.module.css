@@ -274,6 +274,55 @@
   }
 }
 
+@media (min-width: 900px) {
+  .treeHero {
+    box-sizing: border-box;
+    width: min(100%, 980px);
+    min-height: 100vh;
+    padding: clamp(18px, 2.2vh, 30px) 18px clamp(24px, 4vh, 46px);
+    justify-content: center;
+    gap: clamp(14px, 2vh, 24px);
+  }
+
+  .treeScene {
+    width: min(100%, 920px);
+    height: clamp(610px, 76vh, 780px);
+    max-height: none;
+    min-height: 610px;
+    margin: 0 auto;
+  }
+
+  .treeCanvas {
+    transform: scale(1.18);
+    transform-origin: 50% 92%;
+  }
+
+  .treeCard {
+    min-width: 136px;
+    max-width: 176px;
+    padding: 13px 16px;
+  }
+
+  .statsCard { left: 3%; top: 24%; }
+  .favoriteCard { right: 3%; top: 21%; }
+  .communityCard { right: 4%; bottom: 20%; }
+  .calendarCard { left: 4%; bottom: 20%; }
+
+  .postAction {
+    top: 62%;
+  }
+
+  .scrollGuide {
+    min-height: 56px;
+    margin-top: -2px;
+  }
+
+  .timeline {
+    width: min(100%, 760px);
+    padding-top: 56px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scrollGuide span {
     animation: none;
