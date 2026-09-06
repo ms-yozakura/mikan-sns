@@ -58,9 +58,9 @@ export async function uploadPostImages(
       await imageCompression(
         files[i],
         {
-          maxWidthOrHeight:128,
+          maxWidthOrHeight:512,
           fileType:"image/webp",
-          initialQuality:0.5
+          initialQuality:0.75
         }
       )
 
