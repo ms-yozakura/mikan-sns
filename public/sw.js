@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mikan-sns-v3'
+const CACHE_VERSION = 'mikan-sns-v4'
 const STATIC_CACHE = `${CACHE_VERSION}-static`
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`
 
@@ -95,13 +95,13 @@ self.addEventListener('push', (event) => {
     }),
   ]
 
-  if ('setAppBadge' in self.navigator && Number.isFinite(payload.badgeCount)) {
-    const badgeCount = Math.max(0, Number(payload.badgeCount))
-    tasks.push(
-      badgeCount > 0
-        ? self.navigator.setAppBadge(badgeCount)
-        : self.navigator.clearAppBadge()
-    )
+  if ('setAppBadge' in self.navigator) {
+    const parsedBadgeCount = Number(payload.badgeCount)
+    const badgeCount = Number.isFinite(parsedBadgeCount) && parsedBadgeCount > 0
+      ? Math.floor(parsedBadgeCount)
+      : 1
+
+    tasks.push(self.navigator.setAppBadge(badgeCount))
   }
 
   event.waitUntil(Promise.all(tasks))
