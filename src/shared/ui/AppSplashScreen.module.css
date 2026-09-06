@@ -1,0 +1,76 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  background: #fff8ee;
+  opacity: 1;
+  transition: opacity 240ms ease;
+}
+
+.exiting {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  transform: translateY(-3vh);
+}
+
+.logo {
+  font-size: clamp(42px, 11vw, 56px);
+}
+
+.loader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 9px;
+  min-height: 34px;
+}
+
+.mikan {
+  display: inline-flex;
+  animation: mikanBounce 720ms ease-in-out infinite;
+  animation-delay: var(--delay);
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+@keyframes mikanBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+
+  30% {
+    transform: translateY(-8px) scale(1.04, 0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash {
+    transition-duration: 120ms;
+  }
+
+  .mikan {
+    animation: mikanPulse 1.2s ease-in-out infinite;
+  }
+
+  @keyframes mikanPulse {
+    0%,
+    100% {
+      opacity: 0.45;
+    }
+
+    50% {
+      opacity: 1;
+    }
+  }
+}

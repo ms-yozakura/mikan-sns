@@ -5,6 +5,7 @@ import '@/styles/globals.css'
 import { ModalProvider } from "@/providers/ModalProvider"
 import { PopupMenuProvider } from '@/providers/PopupMenuProvider'
 import { ServiceWorkerRegistration } from '@/shared/pwa/ServiceWorkerRegistration'
+import { AppSplashScreen } from '@/shared/ui/AppSplashScreen'
 import type { Metadata, Viewport } from "next"
 
 export const viewport: Viewport = {
@@ -48,6 +49,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
+        <AppSplashScreen />
         <ServiceWorkerRegistration />
         <ModalProvider>
           <PopupMenuProvider>
