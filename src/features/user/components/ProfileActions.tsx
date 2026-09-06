@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Icon } from "@iconify/react"
 import styles from "../pages/UserPage.module.css"
 import { useRouter } from "next/navigation"
 import { toggleFollow } from "../actions/toggleFollow"
@@ -8,6 +9,7 @@ import { toggleFollow } from "../actions/toggleFollow"
 type ProfileActionsProps = {
   isOwnProfile: boolean
   targetUserId: string
+  postCount: number
   initialIsFollowing: boolean
   initialFollowerCount: number
   followingCount: number
@@ -16,6 +18,7 @@ type ProfileActionsProps = {
 export function ProfileActions({
   isOwnProfile,
   targetUserId,
+  postCount,
   initialIsFollowing,
   initialFollowerCount,
   followingCount,
@@ -58,27 +61,28 @@ export function ProfileActions({
     setFollowPending(false)
   }
 
-  const handleEditProfile = () => {
-    router.push("/setting")
-  }
-
   return (
     <div className={styles.actionContainer}>
-      <div className={styles.socialStats} aria-label="フォロー情報">
-        <span className={styles.socialStat}>
-          <strong className={styles.socialValue}>{followerCount}</strong>
-          フォロワー
-        </span>
-        <span className={styles.socialStat}>
+      <div className={styles.socialStats} aria-label="プロフィール統計">
+        <div className={styles.socialStat}>
+          <span className={styles.socialLabel}>投稿</span>
+          <strong className={styles.socialValue}>{postCount}</strong>
+        </div>
+        <div className={styles.socialStat}>
+          <span className={styles.socialLabel}>フォロー</span>
           <strong className={styles.socialValue}>{followingCount}</strong>
-          フォロー中
-        </span>
+        </div>
+        <div className={styles.socialStat}>
+          <span className={styles.socialLabel}>フォロワー</span>
+          <strong className={styles.socialValue}>{followerCount}</strong>
+        </div>
       </div>
 
       {isOwnProfile ? (
         <div className={styles.ownActions}>
-          <button className={styles.editButton} onClick={handleEditProfile}>
-            Edit Profile
+          <button className={styles.editButton} onClick={() => router.push("/setting")}>
+            <Icon className={styles.buttonIcon} icon="mdi:account-edit-outline" aria-hidden="true" />
+            <span>プロフィールを編集</span>
           </button>
         </div>
       ) : (

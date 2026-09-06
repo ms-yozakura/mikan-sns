@@ -1,3 +1,5 @@
+import Link from "next/link"
+import { Icon } from "@iconify/react"
 import { createClient } from "@/infrastructure/supabase/server"
 import styles from "./UserPage.module.css"
 import { getUserFeed } from "../actions/getUserFeed"
@@ -63,6 +65,7 @@ export default async function UserPage({ userId }: { userId: string }) {
           <ProfileActions
             isOwnProfile={isOwnProfile}
             targetUserId={data.profile.id}
+            postCount={data.social.postCount}
             initialIsFollowing={data.social.isFollowing}
             initialFollowerCount={data.social.followersCount}
             followingCount={data.social.followingCount}
@@ -78,6 +81,19 @@ export default async function UserPage({ userId }: { userId: string }) {
               {privateProfile?.bio || "自己紹介はまだ登録されていません。"}
             </p>
           </div>
+
+          {isOwnProfile && (
+            <Link href="/calendar" className={styles.mikanLogButton}>
+              <span className={styles.mikanLogIconWrap} aria-hidden="true">
+                <Icon icon="mdi:calendar-month-outline" className={styles.mikanLogIcon} />
+              </span>
+              <span className={styles.mikanLogText}>
+                <strong>みかんログ</strong>
+                <small>食べたみかんの記録を見る</small>
+              </span>
+              <Icon icon="mdi:chevron-right" className={styles.mikanLogChevron} aria-hidden="true" />
+            </Link>
+          )}
         </div>
       </div>
 
@@ -85,7 +101,6 @@ export default async function UserPage({ userId }: { userId: string }) {
         key={userId}
         username={userId}
         posts={data.posts}
-        isOwnProfile={isOwnProfile}
       />
     </main>
   )

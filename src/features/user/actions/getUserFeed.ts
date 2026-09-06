@@ -132,6 +132,16 @@ export async function getUserFeed({
     }
   }
 
+  const { count: postCount, error: postCountError } = await supabase
+    .from('posts')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', profile.id)
+
+  if (postCountError) {
+    console.error('GET POST COUNT ERROR:', postCountError)
+    throw new Error(postCountError.message)
+  }
+
   const { count: followersCount, error: followersError } = await supabase
     .from('follows')
     .select('id', { count: 'exact', head: true })
@@ -188,6 +198,7 @@ export async function getUserFeed({
     profile,
     posts: postsWithReactionState,
     social: {
+      postCount: postCount ?? 0,
       followersCount: followersCount ?? 0,
       followingCount: followingCount ?? 0,
       isFollowing,

@@ -1,4 +1,3 @@
-/* app/user/[userid]/UserProfile.module.css */
 .container {
   width: 100%;
   min-height: 100vh;
@@ -8,37 +7,37 @@
 
 .profileCard {
   background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.25rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 8px 24px rgba(72, 53, 32, 0.06);
   margin-bottom: 30px;
 }
 
-/* カード上部の飾り用カバー背景 */
 .coverHeader {
-  height: 6rem;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #4f46e5 100%);
+  height: 7rem;
+  background:
+    radial-gradient(circle at 18% 35%, rgba(255, 255, 255, 0.34), transparent 26%),
+    linear-gradient(125deg, #f5b45c 0%, #f2d39b 46%, #d8cf94 70%, #a8bb7a 100%);
 }
 
 .profileContent {
-  padding: 0 1.5rem 2rem 1.5rem;
+  padding: 0 1.5rem 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-/* アバターをカバーに少し被せるスタイル */
 .avatarWrapper {
   position: relative;
-  margin-top: -3rem;
-  margin-bottom: 1rem;
-  height: 6rem;
-  width: 6rem;
+  margin-top: -3.25rem;
+  margin-bottom: 0.9rem;
+  height: 6.5rem;
+  width: 6.5rem;
   border-radius: 50%;
   border: 4px solid #ffffff;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 22px rgba(63, 45, 27, 0.12);
   overflow: hidden;
   background-color: #f1f5f9;
 }
@@ -50,117 +49,126 @@
 }
 
 .displayName {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.6rem;
+  font-weight: 750;
   letter-spacing: -0.025em;
-  margin: 0 0 1.2rem 0;
+  margin: 0 0 0.75rem;
 }
 
 .regionAndGen {
   color: var(--color-text-light);
-  font-size: 0.8rem;
-  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  margin-bottom: 1.1rem;
 }
 
-.bioSection {
-  width: 100%;
-  text-align: left;
-  padding-top: 1.5rem;
-  border-top: 1px solid #f1f5f9;
-}
-
-.bioTitle {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 0.5rem 0;
-}
-
-.bioText {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-  color: #334155;
-  white-space: pre-wrap;
-  margin: 0;
-}
-
-.bioPlaceholder {
-  font-size: 0.9375rem;
-  color: #94a3b8;
-  font-style: italic;
-  margin: 0;
-}
-
-/* ユーザーが見つからなかった時のスタイル */
-.notFoundCard {
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 3rem 1.5rem;
-  text-align: center;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-}
-
-.notFoundText {
-  font-size: 0.9375rem;
-  color: #64748b;
-  margin: 0;
-}
-
-/* --- 追加分スタイリング --- */
-
-/* アクションエリア */
 .actionContainer {
   width: 100%;
-  margin-bottom: 1.5rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.85rem;
+  gap: 1.15rem;
+  margin-bottom: 1.5rem;
 }
 
 .socialStats {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1.25rem;
-  color: var(--color-text-light);
-  font-size: 0.8rem;
+  width: min(100%, 420px);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
 }
 
 .socialStat {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.3rem;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  padding: 0.2rem 0.55rem;
+}
+
+.socialStat + .socialStat::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12%;
+  width: 1px;
+  height: 76%;
+  background: #e6e0d8;
+}
+
+.socialLabel {
+  color: #756b61;
+  font-size: 0.77rem;
   white-space: nowrap;
 }
 
 .socialValue {
   color: var(--color-text);
-  font-size: 0.95rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  line-height: 1;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
 }
 
 .ownActions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
   width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
-/* ボタン共通 */
-.editButton, .followButton {
-  padding: 0.5rem 2rem;
+.editButton,
+.followButton {
+  width: min(100%, 400px);
+  min-height: 44px;
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
   font-size: 0.9375rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
+  font-weight: 650;
   cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
-  max-width: 200px;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.editButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  border: 1px solid #d7d2cb;
+  color: var(--color-text);
+}
+
+.editButton:hover {
+  background-color: #fffaf4;
+  border-color: #cfc5ba;
+}
+
+.buttonIcon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex: 0 0 1.2rem;
+  display: block;
+}
+
+.followButton {
+  background-color: var(--color-primary);
+  border: 1px solid transparent;
+  color: #ffffff;
+}
+
+.followButton:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.followButton.following {
+  background-color: #f0ede8;
+  color: #62584e;
+}
+
+.followButton.following:hover {
+  background-color: #e8e3dc;
 }
 
 .editButton:disabled,
@@ -169,114 +177,143 @@
   opacity: 0.75;
 }
 
-/* 編集ボタン */
-.editButton {
-  background-color: #ffffff;
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-}
-.editButton:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-/* フォローボタン */
-.followButton {
-  background-color: var(--color-primary);
-  border: 1px solid transparent;
-  color: #ffffff;
-}
-.followButton:hover {
-  background-color: var(--color-primary-hover);
-}
-.followButton.following {
-  background-color: #e2e8f0;
-  color: #475569;
-}
-.followButton.following:hover {
-  background-color: #cbd5e1;
-}
-
 .followError {
   margin: -0.2rem 0 0;
   color: #be123c;
   font-size: 0.75rem;
 }
 
-/* スイッチトグル (非表示投稿用) */
-.toggleContainer {
-  display: inline-flex;
+.bioSection {
+  width: 100%;
+  text-align: left;
+  padding-top: 1.45rem;
+  border-top: 1px solid #ece8e2;
+}
+
+.bioTitle {
+  font-size: 0.875rem;
+  font-weight: 650;
+  color: #736a62;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.55rem;
+}
+
+.bioText {
+  font-size: 0.96rem;
+  line-height: 1.65;
+  color: #403a35;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.bioPlaceholder {
+  font-size: 0.9375rem;
+  color: #9a9188;
+  font-style: italic;
+  margin: 0;
+}
+
+.mikanLogButton {
+  width: 100%;
+  margin-top: 1.35rem;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  cursor: pointer;
-  gap: 0.5rem;
-  user-select: none;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #f0d1ad;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #fff6e9 0%, #fffaf3 58%, #f5f8ed 100%);
+  color: var(--color-text);
+  text-decoration: none;
+  text-align: left;
+  box-shadow: 0 5px 16px rgba(194, 119, 40, 0.08);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
-.toggleInput {
-  opacity: 0;
-  position: absolute;
-  width: 0;
-  height: 0;
+.mikanLogButton:hover {
+  transform: translateY(-1px);
+  border-color: #e9b875;
+  box-shadow: 0 7px 18px rgba(194, 119, 40, 0.12);
 }
 
-.toggleSlider {
-  position: relative;
+.mikanLogIconWrap {
+  display: grid;
+  place-items: center;
   width: 2.5rem;
-  height: 1.25rem;
-  background-color: #cbd5e1;
-  border-radius: 9999px;
-  transition: background-color 0.2s;
+  height: 2.5rem;
+  border-radius: 0.8rem;
+  background: #f58a2a;
+  color: #ffffff;
 }
 
-.toggleSlider:before {
-  position: absolute;
-  content: "";
-  height: 1rem;
-  width: 1rem;
-  left: 0.125rem;
-  bottom: 0.125rem;
-  background-color: white;
-  border-radius: 50%;
-  transition: transform 0.2s;
+.mikanLogIcon {
+  display: block;
+  width: 1.45rem;
+  height: 1.45rem;
 }
 
-.toggleInput:checked + .toggleSlider {
-  background-color: var(--color-primary);
+.mikanLogText {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
 }
 
-.toggleInput:checked + .toggleSlider:before {
-  transform: translateX(1.25rem);
+.mikanLogText strong {
+  font-size: 0.98rem;
+  color: #3d332a;
 }
 
-.toggleLabel {
-  font-size: 0.8125rem;
-  color: var(--color-text-light);
-  font-weight: 500;
+.mikanLogText small {
+  font-size: 0.75rem;
+  color: #8a7764;
 }
 
-/* タブシステム */
+.mikanLogChevron {
+  width: 1.35rem;
+  height: 1.35rem;
+  color: #c78243;
+}
+
+.notFoundCard {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.notFoundText {
+  font-size: 0.9375rem;
+  color: #64748b;
+  margin: 0;
+}
+
 .tabsContainer {
   width: 100%;
 }
 
 .tabList {
   display: flex;
-  border-bottom: 2px solid #e2e8f0;
+  border-bottom: 1px solid #e7e0d8;
   margin-bottom: 1.5rem;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .tabButton {
   flex: 1;
-  padding: 0.75rem 0;
+  padding: 0.8rem 0;
   font-size: 0.9375rem;
-  font-weight: 600;
+  font-weight: 650;
   color: var(--color-text-light);
   background: none;
   border: none;
   border-bottom: 3px solid transparent;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: color 0.2s ease, border-color 0.2s ease;
   text-align: center;
 }
 
@@ -293,28 +330,32 @@
   animation: fadeIn 0.3s ease;
 }
 
-/* 空白状態などの汎用スタイル */
 .emptyState {
   text-align: center;
   padding: 3rem 1rem;
   color: var(--color-text-light);
   font-size: 0.9375rem;
-  background-color: #f8fafc;
+  background-color: #fffaf5;
   border-radius: var(--radius-md);
-  border: 1px dashed var(--color-border);
+  border: 1px dashed #ded5ca;
 }
 
-.zukanContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+@media (max-width: 520px) {
+  .profileContent {
+    padding-inline: 1rem;
+  }
 
-.zukanHeader h3 {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
+  .socialStats {
+    width: 100%;
+  }
+
+  .socialLabel {
+    font-size: 0.73rem;
+  }
+
+  .mikanLogButton {
+    padding: 0.85rem 0.9rem;
+  }
 }
 
 @keyframes fadeIn {
