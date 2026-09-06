@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/infrastructure/supabase/server"
+import { sendPushToUser } from "@/features/notification/lib/push"
 import { revalidatePath } from "next/cache"
 
 export async function createComment(
@@ -43,6 +44,21 @@ export async function createComment(
 
   if (error) {
     return { error: error.message }
+  }
+
+  const { data: post } = await supabase
+    .from("posts")
+    .select("user_id")
+    .eq("id", postId)
+    .maybeSingle()
+
+  if (post?.user_id && post.user_id !== user.id) {
+    await sendPushToUser(post.user_id, {
+      title: "MikanSNS",
+      body: "あなたの投稿に新しいコメントがつきました",
+      url: `/post/${postId}`,
+      tag: `post-${postId}`,
+    })
   }
 
   revalidatePath(`/post/${postId}`)

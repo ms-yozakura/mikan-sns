@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/infrastructure/supabase/server'
+import { sendPushToUser } from '@/features/notification/lib/push'
 
 type ToggleFollowResult =
   | { success: true; following: boolean }
@@ -67,6 +68,13 @@ export async function toggleFollow(targetUserId: string): Promise<ToggleFollowRe
     console.error('FOLLOW INSERT ERROR:', insertError)
     return { success: false, error: 'フォローできませんでした。' }
   }
+
+  await sendPushToUser(targetUserId, {
+    title: 'MikanSNS',
+    body: 'あなたをフォローしたユーザーがいます',
+    url: `/user/${user.id}`,
+    tag: `follow-${user.id}`,
+  })
 
   revalidateFollowViews()
   return { success: true, following: true }
