@@ -64,9 +64,10 @@ export async function sendPushToUser(userId: string, payload: PushPayload) {
   }
 
   const subscriptions = (data ?? []) as StoredPushSubscription[]
+  const badgeCount = Math.max(1, unreadCount ?? 0)
   const payloadWithBadge = {
     ...payload,
-    badgeCount: unreadCount ?? undefined,
+    badgeCount,
   }
 
   await Promise.all(
