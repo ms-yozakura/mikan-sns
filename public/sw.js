@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'mikan-sns-v1'
+const CACHE_VERSION = 'mikan-sns-v2'
 const STATIC_CACHE = `${CACHE_VERSION}-static`
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`
 
@@ -63,6 +63,61 @@ self.addEventListener('fetch', (event) => {
       })
 
       return cached || network
+    })
+  )
+})
+
+self.addEventListener('push', (event) => {
+  let payload = {
+    title: 'MikanSNS',
+    body: '新しい通知があります',
+    url: '/notifications',
+  }
+
+  if (event.data) {
+    try {
+      payload = { ...payload, ...event.data.json() }
+    } catch {
+      payload.body = event.data.text()
+    }
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(payload.title || 'MikanSNS', {
+      body: payload.body || '新しい通知があります',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: payload.tag,
+      renotify: Boolean(payload.tag),
+      data: {
+        url: payload.url || '/notifications',
+      },
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+
+  const targetUrl = new URL(
+    event.notification.data?.url || '/notifications',
+    self.location.origin
+  ).href
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async (clients) => {
+      for (const client of clients) {
+        if ('navigate' in client) {
+          await client.navigate(targetUrl)
+        }
+        return client.focus()
+      }
+
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl)
+      }
+
+      return undefined
     })
   )
 })

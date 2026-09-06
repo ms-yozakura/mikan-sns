@@ -1,5 +1,6 @@
 import { getNotifications } from '../actions/getNotifications'
 import { NotificationsList } from '../components/NotificationsList'
+import { PushNotificationControl } from '../components/PushNotificationControl'
 import styles from './NotificationsPage.module.css'
 
 export async function NotificationsPage() {
@@ -10,8 +11,8 @@ export async function NotificationsPage() {
       <header className={styles.header}>
         <h1>通知</h1>
       </header>
+      <PushNotificationControl />
       <NotificationsList notifications={notifications} />
     </section>
   )
 }
-

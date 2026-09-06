@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/infrastructure/supabase/server'
+import { sendPushToUser } from '@/features/notification/lib/push'
 import { isReactionType, type ReactionType } from '../reactions'
 
 type ToggleReactionResult =
@@ -69,6 +70,23 @@ export async function toggleReaction(
   if (insertError && insertError.code !== '23505') {
     console.error('REACTION INSERT ERROR:', insertError)
     return { success: false, error: 'リアクションできませんでした。' }
+  }
+
+  if (!insertError) {
+    const { data: post } = await supabase
+      .from('posts')
+      .select('user_id')
+      .eq('id', postId)
+      .maybeSingle()
+
+    if (post?.user_id && post.user_id !== user.id) {
+      await sendPushToUser(post.user_id, {
+        title: 'MikanSNS',
+        body: 'あなたの投稿に新しいリアクションがつきました',
+        url: `/post/${postId}`,
+        tag: `post-${postId}`,
+      })
+    }
   }
 
   revalidateReactionViews(postId)
