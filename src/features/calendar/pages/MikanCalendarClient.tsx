@@ -1,11 +1,16 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { MikanIcon } from '@/features/mikan/components/MikanIcon'
 import { SegmentedTabs } from '@/shared/ui/SegmentedTabs'
-import { getMikanCalendarData, type MikanCalendarData } from '../actions/getMikanCalendarData'
+import {
+  getMikanCalendarData,
+  type MikanCalendarData,
+  type VarietyDiscovery,
+} from '../actions/getMikanCalendarData'
 import styles from './MikanCalendarPage.module.css'
+import detailStyles from './MikanVarietyDetail.module.css'
 
 type View = 'calendar' | 'dictionary'
 
@@ -40,12 +45,36 @@ function defaultSelectedDay(data: MikanCalendarData, today: ReturnType<typeof cu
     : data.dayRecords[0]?.day ?? null
 }
 
+function parentLabel(variety: VarietyDiscovery) {
+  if (variety.parent1 && variety.parent2) {
+    return `${variety.parent1.name} × ${variety.parent2.name}`
+  }
+  return variety.parent1?.name ?? variety.parent2?.name ?? '親情報なし'
+}
+
 export function MikanCalendarClient({ data: initialData }: { data: MikanCalendarData }) {
   const [data, setData] = useState(initialData)
   const [view, setView] = useState<View>('calendar')
   const [monthLoading, setMonthLoading] = useState(false)
+  const [selectedVariety, setSelectedVariety] = useState<VarietyDiscovery | null>(null)
   const today = currentJstDate()
   const [selectedDay, setSelectedDay] = useState<number | null>(() => defaultSelectedDay(initialData, today))
+
+  useEffect(() => {
+    if (!selectedVariety) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setSelectedVariety(null)
+    }
+    document.addEventListener('keydown', onKeyDown)
+    const originalOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = originalOverflow
+    }
+  }, [selectedVariety])
 
   const dayMap = useMemo(
     () => new Map(data.dayRecords.map((record) => [record.day, record])),
@@ -240,9 +269,12 @@ export function MikanCalendarClient({ data: initialData }: { data: MikanCalendar
 
           <div className={styles.dictionaryGrid}>
             {data.varieties.map((variety) => (
-              <article
+              <button
+                type="button"
                 key={variety.id}
-                className={`${styles.varietyCard} ${variety.discovered ? styles.discoveredCard : styles.undiscoveredCard}`}
+                className={`${styles.varietyCard} ${detailStyles.clickableCard} ${variety.discovered ? styles.discoveredCard : styles.undiscoveredCard}`}
+                onClick={() => setSelectedVariety(variety)}
+                aria-label={`${variety.name}の詳細を見る`}
               >
                 <div className={styles.varietyIcon}>
                   <MikanIcon
@@ -258,11 +290,66 @@ export function MikanCalendarClient({ data: initialData }: { data: MikanCalendar
                 {variety.discovered ? (
                   <Icon icon="mdi:check-circle" className={styles.discoveredIcon} aria-label="記録済み" />
                 ) : null}
-              </article>
+                <Icon icon="mdi:chevron-right" className={detailStyles.detailHint} aria-hidden="true" />
+              </button>
             ))}
           </div>
         </section>
       )}
+
+      {selectedVariety ? (
+        <div
+          className={detailStyles.modalBackdrop}
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setSelectedVariety(null)
+          }}
+        >
+          <section
+            className={detailStyles.detailModal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="variety-detail-title"
+          >
+            <button
+              type="button"
+              className={detailStyles.modalClose}
+              onClick={() => setSelectedVariety(null)}
+              aria-label="閉じる"
+            >
+              <Icon icon="mdi:close" aria-hidden="true" />
+            </button>
+
+            <div className={detailStyles.modalHero}>
+              <div className={detailStyles.modalFruit}>
+                <MikanIcon color={selectedVariety.color} shape={selectedVariety.shape} size={76} />
+              </div>
+              <div className={detailStyles.modalTitleBlock}>
+                <span className={detailStyles.statusPill}>
+                  {selectedVariety.discovered ? `${selectedVariety.quantity}個 記録済み` : 'まだ未記録'}
+                </span>
+                <h2 id="variety-detail-title">{selectedVariety.name}</h2>
+                {selectedVariety.aliases.length > 0 ? (
+                  <p className={detailStyles.aliases}>{selectedVariety.aliases.join('・')}</p>
+                ) : null}
+              </div>
+            </div>
+
+            <div className={detailStyles.detailSection}>
+              <h3>親品種</h3>
+              <p className={detailStyles.parentLine}>
+                <Icon icon="mdi:source-branch" aria-hidden="true" />
+                {parentLabel(selectedVariety)}
+              </p>
+            </div>
+
+            <div className={detailStyles.detailSection}>
+              <h3>品種について</h3>
+              <p>{selectedVariety.description ?? '説明はまだありません。'}</p>
+            </div>
+          </section>
+        </div>
+      ) : null}
     </main>
   )
 }

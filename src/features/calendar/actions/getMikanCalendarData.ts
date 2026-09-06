@@ -33,7 +33,16 @@ export type CalendarDayRecord = {
   varieties: CalendarVarietyRecord[]
 }
 
+export type VarietyParent = {
+  id: string
+  name: string
+}
+
 export type VarietyDiscovery = Variety & {
+  aliases: string[]
+  description: string | null
+  parent1: VarietyParent | null
+  parent2: VarietyParent | null
   quantity: number
   discovered: boolean
 }
@@ -48,6 +57,14 @@ export type MikanCalendarData = {
   discoveredCount: number
 }
 
+type VarietyCatalogRow = Variety & {
+  aliases: string[]
+  description: string | null
+  parent1Id: string | null
+  parent2Id: string | null
+  isVisible: boolean
+}
+
 export async function getMikanCalendarData(year: number, month: number): Promise<MikanCalendarData> {
   const supabase = await createClient()
   const {
@@ -56,17 +73,40 @@ export async function getMikanCalendarData(year: number, month: number): Promise
 
   const { data: varietyRows, error: varietyError } = await supabase
     .from('mikan_varieties')
-    .select('id,name,color,shape')
+    .select('id,name,aliases,color,shape,description,parent1_id,parent2_id,is_visible')
     .order('name')
 
   if (varietyError) throw varietyError
 
-  const varieties: Variety[] = (varietyRows ?? []).map((row) => ({
+  const allVarieties: VarietyCatalogRow[] = (varietyRows ?? []).map((row) => ({
     id: row.id,
     name: row.name,
+    aliases: row.aliases ?? [],
     color: row.color,
     shape: normalizeShape(row.shape),
+    description: row.description,
+    parent1Id: row.parent1_id,
+    parent2Id: row.parent2_id,
+    isVisible: row.is_visible !== false,
   }))
+  const varietyById = new Map(allVarieties.map((variety) => [variety.id, variety]))
+
+  const visibleVarieties: Omit<VarietyDiscovery, 'quantity' | 'discovered'>[] = allVarieties
+    .filter((variety) => variety.isVisible)
+    .map((variety) => {
+      const parent1 = variety.parent1Id ? varietyById.get(variety.parent1Id) : null
+      const parent2 = variety.parent2Id ? varietyById.get(variety.parent2Id) : null
+      return {
+        id: variety.id,
+        name: variety.name,
+        aliases: variety.aliases,
+        color: variety.color,
+        shape: variety.shape,
+        description: variety.description,
+        parent1: parent1 ? { id: parent1.id, name: parent1.name } : null,
+        parent2: parent2 ? { id: parent2.id, name: parent2.name } : null,
+      }
+    })
 
   if (!user) {
     return {
@@ -75,7 +115,7 @@ export async function getMikanCalendarData(year: number, month: number): Promise
       totalQuantity: 0,
       dayRecords: [],
       ranking: [],
-      varieties: varieties.map((variety) => ({ ...variety, quantity: 0, discovered: false })),
+      varieties: visibleVarieties.map((variety) => ({ ...variety, quantity: 0, discovered: false })),
       discoveredCount: 0,
     }
   }
@@ -173,7 +213,7 @@ export async function getMikanCalendarData(year: number, month: number): Promise
     }
   }
 
-  const discoveries = varieties.map((variety) => {
+  const discoveries = visibleVarieties.map((variety) => {
     const quantity = historyTotals.get(variety.id) ?? 0
     return { ...variety, quantity, discovered: quantity > 0 }
   })
