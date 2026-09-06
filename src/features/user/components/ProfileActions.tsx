@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Icon } from "@iconify/react"
 import styles from "../pages/UserPage.module.css"
 import { useRouter } from "next/navigation"
 import { toggleFollow } from "../actions/toggleFollow"
@@ -58,10 +59,6 @@ export function ProfileActions({
     setFollowPending(false)
   }
 
-  const handleEditProfile = () => {
-    router.push("/setting")
-  }
-
   return (
     <div className={styles.actionContainer}>
       <div className={styles.socialStats} aria-label="フォロー情報">
@@ -77,8 +74,13 @@ export function ProfileActions({
 
       {isOwnProfile ? (
         <div className={styles.ownActions}>
-          <button className={styles.editButton} onClick={handleEditProfile}>
-            Edit Profile
+          <button className={styles.editButton} onClick={() => router.push("/setting")}>
+            <Icon icon="mdi:account-edit-outline" width={18} height={18} aria-hidden="true" />
+            <span>プロフィールを編集</span>
+          </button>
+          <button className={styles.editButton} onClick={() => router.push("/calendar")}>
+            <Icon icon="mdi:calendar-month-outline" width={18} height={18} aria-hidden="true" />
+            <span>みかんログ</span>
           </button>
         </div>
       ) : (

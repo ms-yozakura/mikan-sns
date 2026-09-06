@@ -85,7 +85,6 @@ export default async function UserPage({ userId }: { userId: string }) {
         key={userId}
         username={userId}
         posts={data.posts}
-        isOwnProfile={isOwnProfile}
       />
     </main>
   )
