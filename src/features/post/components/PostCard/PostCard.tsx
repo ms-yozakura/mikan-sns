@@ -4,8 +4,11 @@ import styles from './PostCard.module.css'
 import { useModal } from '@/providers/ModalProvider'
 import Link from 'next/link'
 import { useActionState, useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Button from '@/shared/ui/Button'
+import { createClient } from '@/infrastructure/supabase/client'
 import { createComment } from '../../actions/createComment'
+import { deletePost } from '../../actions/deletePost'
 import { toggleReaction } from '../../actions/toggleReaction'
 import {
   REACTIONS,
@@ -37,8 +40,14 @@ export function PostCard({
     minute: '2-digit',
   })
   const { openModal } = useModal()
+  const router = useRouter()
+  const supabase = useMemo(() => createClient(), [])
 
   const [commentFormDisp, setCommentFormDisp] = useState(false)
+  const [isAuthor, setIsAuthor] = useState(false)
+  const [deletePending, setDeletePending] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deleted, setDeleted] = useState(false)
   const [reactionsByMe, setReactionsByMe] = useState<Set<ReactionType>>(() => {
     const initial = Array.isArray(post.reactions_by_me)
       ? post.reactions_by_me
@@ -96,6 +105,20 @@ export function PostCard({
   }, [post.post_mikans])
 
   useEffect(() => {
+    let active = true
+
+    void supabase.auth.getSession().then(({ data }) => {
+      if (active) {
+        setIsAuthor(Boolean(data.session?.user.id && data.session.user.id === post.user_id))
+      }
+    })
+
+    return () => {
+      active = false
+    }
+  }, [post.user_id, supabase])
+
+  useEffect(() => {
     if (state?.success) {
       setCommentFormDisp(false)
     }
@@ -110,6 +133,30 @@ export function PostCard({
       setSelectedDetailId(detailMikans[0].value.id)
     }
   }, [post.post_mikans, selectedDetailId])
+
+  const handleDelete = async () => {
+    if (!isAuthor || deletePending) return
+    if (!window.confirm('この投稿を削除しますか？この操作は取り消せません。')) return
+
+    setDeleteError(null)
+    setDeletePending(true)
+
+    const result = await deletePost(String(post.id))
+
+    if (!result.success) {
+      setDeleteError(result.error)
+      setDeletePending(false)
+      return
+    }
+
+    setDeleted(true)
+    if (enablePostLink) {
+      router.refresh()
+    } else {
+      router.replace('/home')
+      router.refresh()
+    }
+  }
 
   const handleReaction = async (reaction: ReactionType) => {
     if (reactionPending) return
@@ -153,6 +200,8 @@ export function PostCard({
     setReactionPending(false)
   }
 
+  if (deleted) return null
+
   return (
     <article className={styles.postCard}>
       {enablePostLink && (
@@ -184,9 +233,27 @@ export function PostCard({
           </div>
           <span className={styles.postDate}>{formattedDate}</span>
         </Link>
-        {post.visibility != 'public' && (
-          <div className={styles.visibilityTag}>{post.visibility}</div>
-        )}
+        <div className={styles.headerActions}>
+          {post.visibility != 'public' && (
+            <div className={styles.visibilityTag}>{post.visibility}</div>
+          )}
+          {isAuthor && (
+            <button
+              type="button"
+              className={styles.deleteButton}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                void handleDelete()
+              }}
+              disabled={deletePending}
+              aria-label="投稿を削除"
+              title="投稿を削除"
+            >
+              <Icon icon={deletePending ? 'mdi:loading' : 'mdi:trash-can-outline'} />
+            </button>
+          )}
+        </div>
       </div>
 
       <div className={styles.postBody}>
@@ -358,9 +425,9 @@ export function PostCard({
         </div>
       </div>
 
-      {reactionError && (
+      {(reactionError || deleteError) && (
         <p className={styles.actionError} role="status">
-          {reactionError}
+          {deleteError ?? reactionError}
         </p>
       )}
 
