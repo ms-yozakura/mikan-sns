@@ -30,6 +30,12 @@
   text-decoration: none;
 }
 
+.brand > svg {
+  display: block;
+  flex: 0 0 auto;
+  transform: translateY(2px);
+}
+
 .title {
   color: var(--color-text);
   font-size: 18px;
