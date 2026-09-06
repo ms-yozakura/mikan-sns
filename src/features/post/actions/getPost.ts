@@ -1,6 +1,11 @@
 'use server'
 
 import { createClient } from '@/infrastructure/supabase/server'
+import {
+  createReactionCounts,
+  isReactionType,
+  type ReactionType,
+} from '../reactions'
 
 export async function getPost(postId: string) {
   console.time('getPost')
@@ -27,6 +32,7 @@ export async function getPost(postId: string) {
         id,
         quantity,
         satisfaction,
+        short_comment,
         sweetness,
         tartness,
         umami,
@@ -56,28 +62,36 @@ export async function getPost(postId: string) {
     return data
   }
 
-  let likedByMe = false
+  const { data: reactionRows, error: reactionsError } = await supabase
+    .from('post_likes')
+    .select('user_id, reaction_type')
+    .eq('post_id', postId)
 
-  if (user) {
-    const { data: likedRow, error: likeError } = await supabase
-      .from('post_likes')
-      .select('id')
-      .eq('post_id', postId)
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    if (likeError) {
-      console.error('GET POST LIKE ERROR:', likeError)
-      throw new Error(likeError.message)
-    }
-
-    likedByMe = Boolean(likedRow)
+  if (reactionsError) {
+    console.error('GET POST REACTIONS ERROR:', reactionsError)
+    throw new Error(reactionsError.message)
   }
+
+  const reactionCounts = createReactionCounts()
+  const reactionsByMe = new Set<ReactionType>()
+
+  for (const row of reactionRows ?? []) {
+    if (!isReactionType(row.reaction_type)) continue
+    reactionCounts[row.reaction_type] += 1
+    if (user && row.user_id === user.id) {
+      reactionsByMe.add(row.reaction_type)
+    }
+  }
+
+  const myReactions = Array.from(reactionsByMe)
 
   console.timeEnd('getPost')
   return {
     ...data,
-    like_count: data.post_likes?.[0]?.count ?? 0,
-    liked_by_me: likedByMe,
+    like_count: reactionCounts.like,
+    liked_by_me: myReactions.includes('like'),
+    reaction_counts: reactionCounts,
+    reactions_by_me: myReactions,
+    reaction_by_me: myReactions[0] ?? null,
   }
 }

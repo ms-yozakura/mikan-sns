@@ -9,28 +9,6 @@
   gap: 22px;
 }
 
-.feedWrapper::before,
-.feedWrapper::after {
-  content: "🍃";
-  position: absolute;
-  z-index: 0;
-  font-size: 22px;
-  opacity: .72;
-  pointer-events: none;
-}
-
-.feedWrapper::before {
-  top: 12%;
-  left: -5px;
-  transform: rotate(-28deg);
-}
-
-.feedWrapper::after {
-  top: 58%;
-  right: -4px;
-  transform: rotate(25deg) scale(.82);
-}
-
 .feedWrapper > article {
   position: relative;
   z-index: 1;
@@ -62,29 +40,10 @@
   pointer-events: none;
 }
 
-.feedWrapper > article:nth-of-type(5n)::after {
-  content: "🍊";
-  position: absolute;
-  z-index: 3;
-  top: 42%;
-  right: -7px;
-  font-size: 18px;
-  transform: rotate(13deg);
-  pointer-events: none;
-}
-
 @media (max-width: 520px) {
   .feedWrapper {
     padding-inline: 4px;
     gap: 20px;
-  }
-
-  .feedWrapper::before {
-    left: -8px;
-  }
-
-  .feedWrapper::after {
-    right: -8px;
   }
 }
 

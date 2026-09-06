@@ -1,33 +1,55 @@
 'use client'
 
 import Link from "next/link"
+import { useCallback, useState } from "react"
 import { Icon } from "@iconify/react"
 import { FloatingPostButton } from "@/features/post/components/FloatingPostButton"
+import { SegmentedTabs } from "@/shared/ui/SegmentedTabs"
 import { Feed } from "../components/Feed"
 import { MikanTree } from "../components/MikanTree"
-import { useInfiniteFeed } from "../hooks/useInfiniteFeed"
+import { getFeed, type FeedScope } from "../actions/getFeed"
+import { useInfiniteFeed, type InfiniteFeedPost } from "../hooks/useInfiniteFeed"
 import styles from "./HomePage.module.css"
 import type { GlobalStats } from "@/features/stats/types/types"
 
-type InitialPosts = Awaited<ReturnType<typeof import("../actions/getFeed").getFeed>>
+type InitialPosts = Awaited<ReturnType<typeof getFeed>>
+
+const FEED_TABS = [
+  { value: "all", label: "すべて" },
+  { value: "following", label: "フォロー中" },
+] as const
 
 export function HomePageClient({
   initialPosts,
+  initialFollowingPosts,
   stats,
   treeSeed,
 }: {
   initialPosts: InitialPosts
+  initialFollowingPosts: InitialPosts
   stats: GlobalStats
   treeSeed: string
 }) {
-  const {
-    posts,
-    prependPost,
-    loading,
-    hasMore,
-    loadMoreRef,
-  } = useInfiniteFeed(initialPosts)
+  const [feedScope, setFeedScope] = useState<FeedScope>("all")
+  const fetchAllPosts = useCallback(
+    (cursor: { id: number | string; created_at: string }) => getFeed(cursor, 10, "all") as Promise<InfiniteFeedPost[]>,
+    []
+  )
+  const fetchFollowingPosts = useCallback(
+    (cursor: { id: number | string; created_at: string }) => getFeed(cursor, 10, "following") as Promise<InfiniteFeedPost[]>,
+    []
+  )
 
+  const allFeed = useInfiniteFeed(
+    initialPosts as InfiniteFeedPost[],
+    fetchAllPosts
+  )
+  const followingFeed = useInfiniteFeed(
+    initialFollowingPosts as InfiniteFeedPost[],
+    fetchFollowingPosts
+  )
+
+  const activeFeed = feedScope === "all" ? allFeed : followingFeed
   const favorite = stats.ranking[0]
 
   return (
@@ -66,18 +88,18 @@ export function HomePageClient({
             <strong>{stats.monthlyPosts.toLocaleString("ja-JP")}投稿</strong>
           </Link>
 
-          <div className={`${styles.treeCard} ${styles.calendarCard} ${styles.comingSoon}`}>
+          <Link href="/calendar" className={`${styles.treeCard} ${styles.calendarCard}`}>
             <Icon
               icon="mdi:calendar-month-outline"
               className={`${styles.cardIcon} ${styles.calendarIcon}`}
               aria-hidden="true"
             />
             <span>みかんカレンダー</span>
-            <small>準備中</small>
-          </div>
+            <strong>記録を見る</strong>
+          </Link>
 
           <div className={styles.postAction}>
-            <FloatingPostButton onSuccess={prependPost} />
+            <FloatingPostButton onSuccess={allFeed.prependPost} />
           </div>
         </div>
 
@@ -94,11 +116,19 @@ export function HomePageClient({
           <Icon icon="mdi:leaf" className={`${styles.timelineLeaf} ${styles.timelineLeafRight}`} aria-hidden="true" />
         </div>
 
+        <SegmentedTabs
+          value={feedScope}
+          options={FEED_TABS}
+          onChange={setFeedScope}
+          ariaLabel="タイムラインの表示範囲"
+          className={styles.feedTabs}
+        />
+
         <Feed
-          contents={posts}
-          hasMore={hasMore}
-          loading={loading}
-          loadMoreRef={loadMoreRef}
+          contents={activeFeed.posts}
+          hasMore={activeFeed.hasMore}
+          loading={activeFeed.loading}
+          loadMoreRef={activeFeed.loadMoreRef}
         />
       </section>
     </main>

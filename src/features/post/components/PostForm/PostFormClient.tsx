@@ -1,26 +1,26 @@
 'use client'
 
-import { useActionState, useEffect, useRef, useState, startTransition } from "react"
-import { Icon } from "@iconify/react"
-import { createPost } from "../../actions/createPost"
-import styles from "./PostForm.module.css"
-import { createClient } from "@/infrastructure/supabase/client"
-import { uploadPostImages } from "../../utils/imageUpload"
-import type { MikanInput } from "../../types/post"
-import { MikanSelector } from "./MikanSelector"
-import { MikanList } from "./MikanList"
-import { getMikanVarieties } from "../../actions/getMikanVarieties"
-import { FileUploader } from "./FileUploader"
+import { useActionState, useEffect, useRef, useState, startTransition } from 'react'
+import { Icon } from '@iconify/react'
+import { createPost } from '../../actions/createPost'
+import styles from './PostForm.module.css'
+import { createClient } from '@/infrastructure/supabase/client'
+import { uploadPostImages } from '../../utils/imageUpload'
+import type { MikanInput } from '../../types/post'
+import { MikanSelector } from './MikanSelector'
+import { MikanList } from './MikanList'
+import { getMikanVarieties } from '../../actions/getMikanVarieties'
+import { FileUploader } from './FileUploader'
 import {
   DEFAULT_MIKAN_PROFILE,
   MIKAN_PROFILE_KEYS,
   readMikanProfile,
   type MikanProfileValues,
-} from "../../types/mikanProfile"
-import { MikanProfileEditor } from "./MikanProfileEditor"
-import { MikanIcon } from "@/features/mikan/components/MikanIcon"
+} from '../../types/mikanProfile'
+import { MikanProfileEditor } from './MikanProfileEditor'
+import { MikanIcon } from '@/features/mikan/components/MikanIcon'
 
-const DEFAULT_VARIETY_ID = "a5dab591-9888-420c-be86-b4f4b253153f"
+const DEFAULT_VARIETY_ID = 'a5dab591-9888-420c-be86-b4f4b253153f'
 
 function createDefaultMikan(): MikanInput {
   return { variety_id: DEFAULT_VARIETY_ID, quantity: 1, satisfaction: 3 }
@@ -32,10 +32,16 @@ function clearTasteProfile(mikan: MikanInput): MikanInput {
   return next
 }
 
+function clearDetailedEvaluation(mikan: MikanInput): MikanInput {
+  const next = clearTasteProfile(mikan)
+  delete next.short_comment
+  return next
+}
+
 const initialState = {
-  error: "",
+  error: '',
   success: false,
-  post: undefined
+  post: undefined,
 }
 
 export function PostFormClient({
@@ -49,16 +55,16 @@ export function PostFormClient({
   const [state, formAction, pending] = useActionState(createPost, initialState)
   const [files, setFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
-  const [keyword, setKeyword] = useState("")
+  const [keyword, setKeyword] = useState('')
   const [selectedVariety, setSelectedVariety] = useState(DEFAULT_VARIETY_ID)
   const [profile, setProfile] = useState<MikanProfileValues>({ ...DEFAULT_MIKAN_PROFILE })
   const [evaluationTargetVariety, setEvaluationTargetVariety] = useState(DEFAULT_VARIETY_ID)
-  const [postMikans, setPostMikans] = useState<MikanInput[]>([createDefaultMikan()])
-  const [editingIndex, setEditingIndex] = useState(0)
+  const [postMikans, setPostMikans] = useState<MikanInput[]>([])
+  const [editingIndex, setEditingIndex] = useState(-1)
   const [varieties, setVarieties] = useState<any[]>([])
 
   const isMutating = pending || uploading
-  const evaluationVarietyIds = Array.from(new Set(postMikans.map(mikan => mikan.variety_id)))
+  const evaluationVarietyIds = Array.from(new Set(postMikans.map((mikan) => mikan.variety_id)))
 
   useEffect(() => {
     getMikanVarieties().then(setVarieties)
@@ -68,9 +74,9 @@ export function PostFormClient({
     if (state.success) {
       formRef.current?.reset()
       setFiles([])
-      setPostMikans([createDefaultMikan()])
-      setEditingIndex(0)
-      setKeyword("")
+      setPostMikans([])
+      setEditingIndex(-1)
+      setKeyword('')
       setSelectedVariety(DEFAULT_VARIETY_ID)
       setEvaluationTargetVariety(DEFAULT_VARIETY_ID)
       setProfile({ ...DEFAULT_MIKAN_PROFILE })
@@ -93,24 +99,28 @@ export function PostFormClient({
     try {
       setUploading(true)
       const formData = new FormData(e.currentTarget)
-      const body = formData.get("body") as string
-      const visibility = formData.get("visibility") as "public" | "private"
+      const body = formData.get('body') as string
+      const visibility = formData.get('visibility') as 'public' | 'private'
 
       const supabase = createClient()
-      const { data: { user } } = await supabase.auth.getUser()
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-      if (!user) throw new Error("ログインしてください")
+      if (!user) throw new Error('ログインしてください')
 
       const postId = crypto.randomUUID()
       const images = await uploadPostImages(files, user.id, postId)
 
       const fd = new FormData()
-      fd.append("body", body)
-      fd.append("visibility", visibility)
-      fd.append("images", JSON.stringify(images))
-      fd.append("mikans", JSON.stringify(postMikans))
+      fd.append('body', body)
+      fd.append('visibility', visibility)
+      fd.append('images', JSON.stringify(images))
+      fd.append('mikans', JSON.stringify(postMikans))
 
-      startTransition(() => { formAction(fd) })
+      startTransition(() => {
+        formAction(fd)
+      })
     } catch (e) {
       console.error(e)
       setUploading(false)
@@ -118,12 +128,15 @@ export function PostFormClient({
   }
 
   function changeEditingVariety(varietyId: string) {
+    if (editingIndex < 0) return
     setSelectedVariety(varietyId)
-    setPostMikans(prev => prev.map((mikan, index) =>
-      index === editingIndex
-        ? { ...clearTasteProfile(mikan), variety_id: varietyId }
-        : mikan
-    ))
+    setPostMikans((prev) =>
+      prev.map((mikan, index) =>
+        index === editingIndex
+          ? { ...clearDetailedEvaluation(mikan), variety_id: varietyId }
+          : mikan
+      )
+    )
   }
 
   function selectMikan(index: number) {
@@ -131,29 +144,39 @@ export function PostFormClient({
     if (!mikan) return
     setEditingIndex(index)
     setSelectedVariety(mikan.variety_id)
-    setKeyword("")
+    setKeyword('')
   }
 
   function updateMikanQuantity(index: number, quantity: number) {
     const normalizedQuantity = Math.max(0, Math.floor(quantity))
-    setPostMikans(prev => prev.map((mikan, currentIndex) =>
-      currentIndex === index ? { ...mikan, quantity: normalizedQuantity } : mikan
-    ))
+    setPostMikans((prev) =>
+      prev.map((mikan, currentIndex) =>
+        currentIndex === index ? { ...mikan, quantity: normalizedQuantity } : mikan
+      )
+    )
   }
 
   function updateMikanSatisfaction(index: number, satisfaction: number) {
-    setPostMikans(prev => prev.map((mikan, currentIndex) =>
-      currentIndex === index ? { ...mikan, satisfaction } : mikan
-    ))
+    setPostMikans((prev) =>
+      prev.map((mikan, currentIndex) =>
+        currentIndex === index ? { ...mikan, satisfaction } : mikan
+      )
+    )
   }
 
   function getProfileForVariety(varietyId: string): MikanProfileValues {
-    const evaluatedMikan = postMikans.find(mikan =>
-      mikan.variety_id === varietyId && readMikanProfile(mikan) !== null
+    const evaluatedMikan = postMikans.find(
+      (mikan) => mikan.variety_id === varietyId && readMikanProfile(mikan) !== null
     )
     return evaluatedMikan
       ? readMikanProfile(evaluatedMikan) ?? { ...DEFAULT_MIKAN_PROFILE }
       : { ...DEFAULT_MIKAN_PROFILE }
+  }
+
+  function getShortCommentForVariety(varietyId: string): string {
+    return (
+      postMikans.find((mikan) => mikan.variety_id === varietyId && mikan.short_comment)?.short_comment ?? ''
+    )
   }
 
   function switchEvaluationTarget(varietyId: string) {
@@ -162,9 +185,9 @@ export function PostFormClient({
   }
 
   function applyProfileToVariety(varietyId: string, values: MikanProfileValues) {
-    setPostMikans(prev => {
+    setPostMikans((prev) => {
       let applied = false
-      return prev.map(mikan => {
+      return prev.map((mikan) => {
         if (mikan.variety_id !== varietyId) return mikan
         const cleanMikan = clearTasteProfile(mikan)
         if (applied) return cleanMikan
@@ -174,26 +197,55 @@ export function PostFormClient({
     })
   }
 
+  function applyShortCommentToVariety(varietyId: string, value: string) {
+    const shortComment = value.slice(0, 20)
+    setPostMikans((prev) => {
+      let applied = false
+      return prev.map((mikan) => {
+        if (mikan.variety_id !== varietyId) return mikan
+        const next = { ...mikan }
+        if (applied) {
+          delete next.short_comment
+          return next
+        }
+        applied = true
+        if (shortComment) next.short_comment = shortComment
+        else delete next.short_comment
+        return next
+      })
+    })
+  }
+
   function addAnotherMikan() {
     const nextMikan = createDefaultMikan()
-    setPostMikans(prev => [...prev, nextMikan])
+    setPostMikans((prev) => [...prev, nextMikan])
     setEditingIndex(postMikans.length)
     setSelectedVariety(DEFAULT_VARIETY_ID)
-    setKeyword("")
+    setEvaluationTargetVariety(DEFAULT_VARIETY_ID)
+    setProfile(getProfileForVariety(DEFAULT_VARIETY_ID))
+    setKeyword('')
   }
 
   function deleteMikan(index: number) {
-    if (postMikans.length === 1) return
     const next = postMikans.filter((_, currentIndex) => currentIndex !== index)
-    const nextEditingIndex = index < editingIndex
-      ? editingIndex - 1
-      : Math.min(editingIndex, next.length - 1)
+    if (next.length === 0) {
+      setPostMikans([])
+      setEditingIndex(-1)
+      setSelectedVariety(DEFAULT_VARIETY_ID)
+      setEvaluationTargetVariety(DEFAULT_VARIETY_ID)
+      setProfile({ ...DEFAULT_MIKAN_PROFILE })
+      setKeyword('')
+      return
+    }
+
+    const nextEditingIndex =
+      index < editingIndex ? editingIndex - 1 : Math.min(Math.max(editingIndex, 0), next.length - 1)
     const editingMikan = next[nextEditingIndex]
 
     setPostMikans(next)
     setEditingIndex(nextEditingIndex)
     setSelectedVariety(editingMikan.variety_id)
-    setKeyword("")
+    setKeyword('')
   }
 
   return (
@@ -208,13 +260,13 @@ export function PostFormClient({
           >
             <Icon icon="mdi:close" aria-hidden="true" />
           </button>
-          <h2>みかんの記録を投稿</h2>
+          <h2>投稿を作成</h2>
           <button
             type="submit"
             className={styles.headerSubmitButton}
             disabled={isMutating}
           >
-            {isMutating ? "投稿中" : "投稿"}
+            {isMutating ? '投稿中' : '投稿'}
           </button>
         </header>
 
@@ -228,16 +280,33 @@ export function PostFormClient({
 
           <section className={styles.formSection}>
             <div className={styles.sectionTitleRow}>
-              <h3>みかんを選ぶ</h3>
+              <h3>みかん</h3>
               <span className={styles.selectedCount}>{postMikans.length}件</span>
             </div>
-            <MikanSelector
-              varieties={varieties}
-              keyword={keyword}
-              setKeyword={setKeyword}
-              selectedVariety={selectedVariety}
-              setSelectedVariety={changeEditingVariety}
-            />
+
+            {postMikans.length > 0 && (
+              <>
+                <MikanSelector
+                  varieties={varieties}
+                  keyword={keyword}
+                  setKeyword={setKeyword}
+                  selectedVariety={selectedVariety}
+                  setSelectedVariety={changeEditingVariety}
+                />
+
+                <div className={styles.mikanListArea}>
+                  <MikanList
+                    mikans={postMikans}
+                    varieties={varieties}
+                    editingIndex={editingIndex}
+                    onSelect={selectMikan}
+                    onDelete={deleteMikan}
+                    onQuantityChange={updateMikanQuantity}
+                    onSatisfactionChange={updateMikanSatisfaction}
+                  />
+                </div>
+              </>
+            )}
 
             <div className={styles.secondaryActions}>
               <button type="button" className={styles.addMikanButton} onClick={addAnotherMikan}>
@@ -245,90 +314,89 @@ export function PostFormClient({
                 みかんを追加
               </button>
             </div>
-
-            <div className={styles.mikanListArea}>
-              <MikanList
-                mikans={postMikans}
-                varieties={varieties}
-                editingIndex={editingIndex}
-                onSelect={selectMikan}
-                onDelete={deleteMikan}
-                onQuantityChange={updateMikanQuantity}
-                onSatisfactionChange={updateMikanSatisfaction}
-              />
-            </div>
           </section>
 
           <section className={styles.formSection}>
             <label className={styles.fieldLabel} htmlFor="post-body">
-              <span>味のレビュー</span>
+              <span>本文</span>
               <span className={styles.optionalLabel}>任意</span>
             </label>
             <textarea
               id="post-body"
               name="body"
-              placeholder="みかんの味・感想を書いてみましょう..."
+              placeholder="みかんのことや近況、感想を書いてみましょう..."
               disabled={isMutating}
               className={styles.textarea}
               rows={4}
             />
           </section>
 
-          <section className={`${styles.formSection} ${styles.compactSection}`}>
-            <details className={styles.profileDetails}>
-              <summary>
-                <span>味を詳しく評価</span>
-                <span className={styles.optionalLabel}>任意</span>
-              </summary>
+          {postMikans.length > 0 && (
+            <section className={`${styles.formSection} ${styles.compactSection}`}>
+              <details className={styles.profileDetails}>
+                <summary>
+                  <span>味を詳しく評価</span>
+                  <span className={styles.optionalLabel}>任意</span>
+                </summary>
 
-              <div className={styles.evaluationTargetSection}>
-                <span className={styles.subtleLabel}>評価する品種</span>
-                <div className={styles.evaluationVarietyTabs} role="tablist" aria-label="味評価する品種">
-                  {evaluationVarietyIds.map(varietyId => {
-                    const variety = varieties.find(variety => variety.id === varietyId)
-                    if (!variety) return null
-                    const isActive = varietyId === evaluationTargetVariety
-                    const hasEvaluation = postMikans.some(mikan =>
-                      mikan.variety_id === varietyId && readMikanProfile(mikan) !== null
-                    )
+                <div className={styles.evaluationTargetSection}>
+                  <span className={styles.subtleLabel}>評価する品種</span>
+                  <div className={styles.evaluationVarietyTabs} role="tablist" aria-label="味評価する品種">
+                    {evaluationVarietyIds.map((varietyId) => {
+                      const variety = varieties.find((variety) => variety.id === varietyId)
+                      if (!variety) return null
+                      const isActive = varietyId === evaluationTargetVariety
+                      const hasEvaluation = postMikans.some(
+                        (mikan) =>
+                          mikan.variety_id === varietyId &&
+                          (readMikanProfile(mikan) !== null || Boolean(mikan.short_comment))
+                      )
 
-                    return (
-                      <button
-                        key={varietyId}
-                        type="button"
-                        role="tab"
-                        aria-selected={isActive}
-                        className={`${styles.evaluationVarietyTab} ${isActive ? styles.active : ""}`}
-                        onClick={() => switchEvaluationTarget(varietyId)}
-                      >
-                        <MikanIcon color={variety.color} shape={variety.shape} size={24} />
-                        <span>{variety.name}</span>
-                        {hasEvaluation && (
-                          <Icon icon="mdi:check-circle" className={styles.evaluationDoneIcon} aria-label="評価済み" />
-                        )}
-                      </button>
-                    )
-                  })}
+                      return (
+                        <button
+                          key={varietyId}
+                          type="button"
+                          role="tab"
+                          aria-selected={isActive}
+                          className={`${styles.evaluationVarietyTab} ${isActive ? styles.active : ''}`}
+                          onClick={() => switchEvaluationTarget(varietyId)}
+                        >
+                          <MikanIcon color={variety.color} shape={variety.shape} size={24} />
+                          <span>{variety.name}</span>
+                          {hasEvaluation && (
+                            <Icon
+                              icon="mdi:check-circle"
+                              className={styles.evaluationDoneIcon}
+                              aria-label="評価済み"
+                            />
+                          )}
+                        </button>
+                      )
+                    })}
+                  </div>
                 </div>
-              </div>
 
-              <MikanProfileEditor values={profile} onChange={(values) => {
-                setProfile(values)
-                applyProfileToVariety(evaluationTargetVariety, values)
-              }} />
-            </details>
-          </section>
+                <MikanProfileEditor
+                  values={profile}
+                  shortComment={getShortCommentForVariety(evaluationTargetVariety)}
+                  onChange={(values) => {
+                    setProfile(values)
+                    applyProfileToVariety(evaluationTargetVariety, values)
+                  }}
+                  onShortCommentChange={(value) =>
+                    applyShortCommentToVariety(evaluationTargetVariety, value)
+                  }
+                />
+              </details>
+            </section>
+          )}
 
           <section className={styles.formSection}>
             <div className={styles.fieldLabel}>
               <span>写真</span>
               <span className={styles.optionalLabel}>任意・4枚まで</span>
             </div>
-            <FileUploader
-              files={files}
-              onChange={setFiles}
-              disabled={isMutating}
-            />
+            <FileUploader files={files} onChange={setFiles} disabled={isMutating} />
           </section>
 
           <section className={`${styles.formSection} ${styles.visibilitySection}`}>

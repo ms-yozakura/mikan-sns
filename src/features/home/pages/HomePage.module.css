@@ -171,7 +171,7 @@
 }
 
 .timelineHeading {
-  margin: 0 auto 22px;
+  margin: 0 auto 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -195,6 +195,10 @@
 
 .timelineLeafRight {
   transform: rotate(28deg);
+}
+
+.feedTabs {
+  margin-bottom: 18px;
 }
 
 @keyframes guideBounce {

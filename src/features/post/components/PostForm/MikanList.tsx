@@ -61,16 +61,14 @@ export function MikanList({
                 </span>
               </button>
 
-              {mikans.length > 1 && (
-                <button
-                  type="button"
-                  className={styles.deleteButton}
-                  onClick={() => onDelete(index)}
-                  aria-label={`${variety?.name || "みかん"}を削除`}
-                >
-                  <Icon icon="mdi:close" aria-hidden="true" />
-                </button>
-              )}
+              <button
+                type="button"
+                className={styles.deleteButton}
+                onClick={() => onDelete(index)}
+                aria-label={`${variety?.name || "みかん"}を削除`}
+              >
+                <Icon icon="mdi:close" aria-hidden="true" />
+              </button>
             </div>
 
             {isActive && (

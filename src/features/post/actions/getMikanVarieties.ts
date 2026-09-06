@@ -10,6 +10,7 @@ export async function getMikanVarieties() {
   const { data, error } = await supabase
     .from("mikan_varieties")
     .select("id,name,color,shape")
+    .eq("is_visible", true)
     .order("name")
 
   if (error) throw error
