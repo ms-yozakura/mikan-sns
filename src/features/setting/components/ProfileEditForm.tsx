@@ -18,6 +18,12 @@ import styles from "./ProfileEditForm.module.css"
 
 type Variety = MikanPickerVariety
 
+type PrivateProfile = {
+  bio: string | null
+  region: string | null
+  generation: number | null
+}
+
 export function ProfileEditForm() {
   const supabase = createClient()
 
@@ -38,9 +44,14 @@ export function ProfileEditForm() {
     async function load() {
       const {
         data: { user },
+        error: authError,
       } = await supabase.auth.getUser()
 
-      if (!user) return
+      if (authError) throw authError
+      if (!user) {
+        setLoading(false)
+        return
+      }
 
       const [userResult, favoritesResult, varietyRows] = await Promise.all([
         supabase
@@ -55,7 +66,7 @@ export function ProfileEditForm() {
             )
           `)
           .eq("id", user.id)
-          .single(),
+          .maybeSingle(),
         supabase
           .from("favorite_mikans")
           .select("variety_id,position")
@@ -64,23 +75,22 @@ export function ProfileEditForm() {
         getMikanVarieties(),
       ])
 
-      const data = userResult.data
-      if (data) {
-        setDisplayName(data.display_name ?? "")
-        setAvatarUrl(data.avatar_url ?? "")
-
-        const profile = data.profiles as unknown as {
-          bio: string | null
-          region: string | null
-          generation: number | null
-        }
-
-        setBio(profile?.bio ?? "")
-        setRegion(profile?.region ?? "")
-        setGeneration(profile?.generation ?? "")
-      }
-
+      if (userResult.error) throw userResult.error
       if (favoritesResult.error) throw favoritesResult.error
+
+      const data = userResult.data
+      const metadataDisplayName =
+        typeof user.user_metadata?.display_name === "string"
+          ? user.user_metadata.display_name
+          : ""
+
+      setDisplayName(data?.display_name ?? metadataDisplayName)
+      setAvatarUrl(data?.avatar_url ?? "")
+
+      const profile = data?.profiles as unknown as PrivateProfile | null
+      setBio(profile?.bio ?? "")
+      setRegion(profile?.region ?? "")
+      setGeneration(profile?.generation ?? "")
 
       const nextFavorites = ["", "", ""]
       for (const row of favoritesResult.data ?? []) {
@@ -94,7 +104,7 @@ export function ProfileEditForm() {
     }
 
     load().catch((error) => {
-      console.error(error)
+      console.error("Failed to load profile edit data", error)
       setLoading(false)
     })
   }, [supabase])
@@ -138,7 +148,7 @@ export function ProfileEditForm() {
 
       if (avatar) {
         const formData = new FormData()
-        formData.append('file', avatar)
+        formData.append("file", avatar)
         url = await uploadAvatar(formData)
       }
 
