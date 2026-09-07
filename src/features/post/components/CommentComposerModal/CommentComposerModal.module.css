@@ -1,0 +1,179 @@
+.composer {
+  width: 100%;
+  min-width: 0;
+}
+
+.heading {
+  padding: 2px 44px 14px 2px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text, #1f2937);
+}
+
+.targetPost {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: 10px;
+  padding: 6px 0 14px;
+}
+
+.avatarColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100%;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.threadLine {
+  width: 2px;
+  flex: 1;
+  min-height: 18px;
+  margin-top: 7px;
+  border-radius: 999px;
+  background: #e5e7eb;
+}
+
+.postContent {
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.authorLine {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+  min-width: 0;
+  font-size: 0.82rem;
+  color: #7a7f87;
+}
+
+.authorLine strong {
+  max-width: 45%;
+  overflow: hidden;
+  color: var(--color-text, #1f2937);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.authorLine span:first-of-type {
+  max-width: 32%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.postBody {
+  margin: 7px 0 10px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--color-text, #1f2937);
+}
+
+.replyingTo {
+  font-size: 0.78rem;
+  color: #8a8f98;
+}
+
+.replyingTo span {
+  color: var(--color-primary, #f97316);
+}
+
+.form {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 14px;
+}
+
+.inputRow {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 10px;
+}
+
+.inputIcon {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #fff5eb;
+  color: var(--color-primary, #f97316);
+  font-size: 1.1rem;
+}
+
+.inputRow textarea {
+  width: 100%;
+  min-height: 112px;
+  resize: none;
+  border: 0;
+  outline: 0;
+  padding: 7px 2px;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--color-text, #1f2937);
+}
+
+.inputRow textarea::placeholder {
+  color: #a3a7ae;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid #f3f3f3;
+}
+
+.status {
+  min-height: 1.2em;
+  font-size: 0.76rem;
+  color: #c2410c;
+}
+
+@media (max-width: 600px) {
+  .heading {
+    padding-bottom: 10px;
+  }
+
+  .targetPost {
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+  }
+
+  .authorLine {
+    font-size: 0.76rem;
+  }
+
+  .inputRow {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .inputIcon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .inputRow textarea {
+    min-height: 96px;
+  }
+}
