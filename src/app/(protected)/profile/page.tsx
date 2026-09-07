@@ -12,10 +12,25 @@ export default async function Page() {
     redirect("/login")
   }
 
-  const {data: username} = await supabase.from('users')
-    .select('username')
-    .eq('id', user.id)
-    .single()
+  const { data: profileUser, error } = await supabase
+    .from("users")
+    .select("username")
+    .eq("id", user.id)
+    .maybeSingle()
 
-  redirect(`/user/${username?.username}`)
+  if (error) {
+    console.error("Failed to resolve current user profile", error)
+  }
+
+  const metadataUsername =
+    typeof user.user_metadata?.username === "string"
+      ? user.user_metadata.username
+      : null
+  const username = profileUser?.username ?? metadataUsername
+
+  if (!username) {
+    redirect("/setting")
+  }
+
+  redirect(`/user/${encodeURIComponent(username)}`)
 }
