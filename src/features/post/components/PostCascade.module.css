@@ -16,7 +16,16 @@
 }
 
 .postArea {
-  border-radius: 24px;
+  border-radius: 22px;
+}
+
+.postArea > article {
+  border: 1px solid #f1dcc4;
+  border-radius: 22px;
+  box-shadow: 0 9px 24px rgb(91 61 31 / 9%);
+  overflow: hidden;
+  transform: rotate(-0.25deg);
+  transform-origin: top center;
 }
 
 @media (max-width: 640px) {
@@ -26,5 +35,11 @@
 
   .cascadeContent {
     gap: 0.85rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postArea > article {
+    transform: none;
   }
 }
