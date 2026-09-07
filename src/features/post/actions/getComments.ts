@@ -16,12 +16,12 @@ export async function getComments(postId: string) {
       )
     `)
     .eq('post_id', postId)
-    .order("created_at", { ascending: true })
+    .order('created_at', { ascending: true })
 
   if (error) {
     console.error('GET COMMENTS ERROR:', error)
     throw new Error(error.message)
   }
+
   return data
 }
-

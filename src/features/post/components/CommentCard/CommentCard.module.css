@@ -9,6 +9,7 @@
   align-items: flex-start;
   box-shadow: 0 7px 18px rgba(91, 69, 49, 0.055);
   transform: rotate(-0.12deg);
+  scroll-margin-top: 5rem;
 }
 
 .commentCard:nth-child(even) {
@@ -89,20 +90,52 @@
   margin-bottom: 0.2rem;
 }
 
-.postAuthor {
+.authorLink {
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
+  text-decoration: none;
 }
 
-.postAuthor:hover {
+.authorLink:hover {
   text-decoration: underline;
 }
 
 .postDate {
   font-size: 0.72rem;
   color: #9aa0aa;
+}
+
+.commentText {
+  overflow-wrap: anywhere;
+}
+
+.mention {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+.replyButton {
+  display: block;
+  margin-top: 0.3rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-light);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.replyButton:hover {
+  color: var(--color-primary);
+}
+
+.replyButton:active {
+  transform: scale(0.96);
 }
 
 @media (max-width: 420px) {
