@@ -7,7 +7,9 @@ import styles from './MikanPicker.module.css'
 export type MikanPickerVariety = {
   id: string
   name: string
+  reading: string | null
   aliases: string[] | null
+  alias_readings: string[] | null
   color: string
   shape: 'normal' | 'round' | 'flat' | 'egg' | 'deko' | 'unknown'
 }
@@ -24,7 +26,13 @@ export const DEFAULT_MIKAN_LABELS = [
 ] as const
 
 function normalize(value: string) {
-  return value.trim().toLocaleLowerCase('ja-JP')
+  return value
+    .normalize('NFKC')
+    .trim()
+    .toLocaleLowerCase('ja-JP')
+    .replace(/[ァ-ヶ]/g, (character) =>
+      String.fromCharCode(character.charCodeAt(0) - 0x60)
+    )
 }
 
 function matchesLabel(variety: MikanPickerVariety, label: string) {
@@ -38,14 +46,34 @@ export function getMikanDisplayName(variety: MikanPickerVariety, preferredLabel?
   return variety.name
 }
 
+function getSearchTexts(variety: MikanPickerVariety) {
+  return [
+    variety.name,
+    variety.reading,
+    ...(variety.aliases ?? []),
+    ...(variety.alias_readings ?? []),
+  ].filter((value): value is string => Boolean(value))
+}
+
 function getResultLabel(variety: MikanPickerVariety, normalizedKeyword: string) {
   if (!normalizedKeyword) {
     return DEFAULT_MIKAN_LABELS.find((label) => matchesLabel(variety, label)) ?? variety.name
   }
 
   if (normalize(variety.name).includes(normalizedKeyword)) return variety.name
+  if (variety.reading && normalize(variety.reading).includes(normalizedKeyword)) return variety.name
 
-  return (variety.aliases ?? []).find((alias) => normalize(alias).includes(normalizedKeyword)) ?? variety.name
+  const aliases = variety.aliases ?? []
+  const aliasMatchIndex = aliases.findIndex((alias) => normalize(alias).includes(normalizedKeyword))
+  if (aliasMatchIndex >= 0) return aliases[aliasMatchIndex]
+
+  const aliasReadings = variety.alias_readings ?? []
+  const aliasReadingMatchIndex = aliasReadings.findIndex((reading) =>
+    normalize(reading).includes(normalizedKeyword)
+  )
+  if (aliasReadingMatchIndex >= 0) return aliases[aliasReadingMatchIndex] ?? variety.name
+
+  return variety.name
 }
 
 export function MikanPicker({
@@ -73,8 +101,7 @@ export function MikanPicker({
   const visibleVarieties = normalizedKeyword
     ? varieties
       .filter((variety) =>
-        normalize(variety.name).includes(normalizedKeyword)
-        || (variety.aliases ?? []).some((alias) => normalize(alias).includes(normalizedKeyword))
+        getSearchTexts(variety).some((value) => normalize(value).includes(normalizedKeyword))
       )
       .slice(0, maxResults)
     : DEFAULT_MIKAN_LABELS
