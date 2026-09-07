@@ -19,7 +19,7 @@
   border-radius: 22px;
 }
 
-.postArea > article {
+.postArea > div > article {
   border: 1px solid #f1dcc4;
   border-radius: 22px;
   box-shadow: 0 9px 24px rgb(91 61 31 / 9%);
@@ -39,7 +39,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .postArea > article {
+  .postArea > div > article {
     transform: none;
   }
 }
