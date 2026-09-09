@@ -28,6 +28,7 @@ type NotificationItem = {
 const notificationCopy = {
   like: { icon: 'mdi:heart', text: 'あなたの投稿にいいねしました' },
   comment: { icon: 'mdi:comment-text', text: 'あなたの投稿にコメントしました' },
+  reply: { icon: 'mdi:reply', text: 'あなたのコメントに返信しました' },
   follow: { icon: 'mdi:account-plus', text: 'あなたをフォローしました' },
 } as const
 
@@ -83,6 +84,9 @@ export function NotificationsList({ notifications }: { notifications: Notificati
           hour: '2-digit',
           minute: '2-digit',
         })
+        const hasCommentPreview =
+          (notification.type === 'comment' || notification.type === 'reply')
+          && Boolean(comment?.body)
 
         return (
           <article
@@ -113,8 +117,8 @@ export function NotificationsList({ notifications }: { notifications: Notificati
                 </Link>
                 さんが{copy.text}
               </p>
-              {notification.type === 'comment' && comment?.body && (
-                <p className={styles.commentPreview}>{comment.body}</p>
+              {hasCommentPreview && (
+                <p className={styles.commentPreview}>{comment?.body}</p>
               )}
               <time dateTime={notification.created_at}>{formattedDate}</time>
             </div>

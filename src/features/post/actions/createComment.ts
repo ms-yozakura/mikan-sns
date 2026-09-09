@@ -19,10 +19,35 @@ export async function createComment(
   }
 
   const body = String(formData.get("body") ?? "").trim()
-  const postId = String(formData.get("postId"))
+  const postId = String(formData.get("postId") ?? "")
+  const parentCommentValue = formData.get("parentCommentId")
+  const parentCommentId =
+    typeof parentCommentValue === "string" && parentCommentValue
+      ? parentCommentValue
+      : null
 
   if (!body) {
     return { error: "コメントを入力してください" }
+  }
+
+  if (!postId) {
+    return { error: "投稿が見つかりません" }
+  }
+
+  let parentComment: { id: string; post_id: string | null; user_id: string } | null = null
+
+  if (parentCommentId) {
+    const { data: fetchedParent, error: parentError } = await supabase
+      .from("comments")
+      .select("id, post_id, user_id")
+      .eq("id", parentCommentId)
+      .maybeSingle()
+
+    if (parentError || !fetchedParent || fetchedParent.post_id !== postId) {
+      return { error: "返信先のコメントが見つかりません" }
+    }
+
+    parentComment = fetchedParent
   }
 
   const { data, error } = await supabase
@@ -31,6 +56,7 @@ export async function createComment(
       body,
       post_id: postId,
       user_id: user.id,
+      parent_comment_id: parentComment?.id ?? null,
     })
     .select(`
       *,
@@ -46,18 +72,26 @@ export async function createComment(
     return { error: error.message }
   }
 
-  const { data: post } = await supabase
-    .from("posts")
-    .select("user_id")
-    .eq("id", postId)
-    .maybeSingle()
+  let recipientId = parentComment?.user_id ?? null
+  let pushBody = "あなたのコメントに返信がつきました"
 
-  if (post?.user_id && post.user_id !== user.id) {
-    await sendPushToUser(post.user_id, {
+  if (!parentComment) {
+    const { data: post } = await supabase
+      .from("posts")
+      .select("user_id")
+      .eq("id", postId)
+      .maybeSingle()
+
+    recipientId = post?.user_id ?? null
+    pushBody = "あなたの投稿に新しいコメントがつきました"
+  }
+
+  if (recipientId && recipientId !== user.id) {
+    await sendPushToUser(recipientId, {
       title: "MikanSNS",
-      body: "あなたの投稿に新しいコメントがつきました",
-      url: `/post/${postId}`,
-      tag: `post-${postId}`,
+      body: pushBody,
+      url: `/post/${postId}#comment-${data.id}`,
+      tag: `comment-${data.id}`,
     })
   }
 
