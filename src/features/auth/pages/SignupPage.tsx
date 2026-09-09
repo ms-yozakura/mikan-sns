@@ -10,42 +10,29 @@ import { SignupForm } from '../components/SignupForm'
 const initialState = {
   error: '',
   success: false,
-  value:{
-    name:"",
-    username:"",
-    email:"",
-    password:""
-  }
+  value: {
+    name: '',
+    username: '',
+    email: '',
+    password: '',
+  },
 }
 
 export function SignupPage() {
   const router = useRouter()
-  const [state, formAction, pending] = useActionState(
-    signUp,
-    initialState
-  )
+  const [state, formAction, pending] = useActionState(signUp, initialState)
 
   useEffect(() => {
     if (state.success) {
-      const timer = setTimeout(() => {
-        router.push('/')
-      }, 2000)
-
-      return () => clearTimeout(timer)
+      router.replace(`/signup/check-email?email=${encodeURIComponent(state.value.email)}`)
     }
-  }, [state.success, router])
+  }, [state.success, state.value.email, router])
 
   return (
-    <AuthLayout subtitle='フレッシュなつながりを、はじめよう。'>
+    <AuthLayout subtitle="フレッシュなつながりを、はじめよう。">
       {state.error && (
         <Message type="error">
-          {"⚠️"+state.error}
-        </Message>
-      )}
-
-      {state.success && (
-        <Message type="success">
-          🎉 登録成功！
+          {'⚠️' + state.error}
         </Message>
       )}
 

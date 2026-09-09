@@ -7,6 +7,7 @@ type TextFieldProps = {
   placeholder?: string
   required?: boolean
   defaultValue?: string
+  autoComplete?: string
 }
 
 export default function TextField({
@@ -16,6 +17,7 @@ export default function TextField({
   placeholder,
   required = false,
   defaultValue,
+  autoComplete,
 }: TextFieldProps) {
   return (
     <div className={styles.formGroup}>
@@ -30,6 +32,7 @@ export default function TextField({
         placeholder={placeholder}
         required={required}
         defaultValue={defaultValue}
+        autoComplete={autoComplete}
         className={styles.formInput}
       />
     </div>
