@@ -6,10 +6,17 @@ import type { Variety } from "@/features/mikan/types/Variety"
 const JST_OFFSET_MS = 9 * 60 * 60 * 1000
 const VALID_SHAPES = new Set<Variety['shape']>(['normal', 'round', 'flat', 'egg', 'deko', 'unknown'])
 
+type VarietyType = 'cultivar' | 'intermediate' | 'unknown'
+
 function normalizeShape(shape: string | null | undefined): Variety['shape'] {
   return shape && VALID_SHAPES.has(shape as Variety['shape'])
     ? shape as Variety['shape']
     : 'unknown'
+}
+
+function normalizeVarietyType(value: string | null | undefined): VarietyType {
+  if (value === 'intermediate' || value === 'unknown') return value
+  return 'cultivar'
 }
 
 function relationValue<T>(value: T | T[] | null | undefined): T | null {
@@ -45,6 +52,7 @@ export type VarietyDiscovery = Variety & {
   parent2: VarietyParent | null
   quantity: number
   discovered: boolean
+  varietyType: Exclude<VarietyType, 'unknown'>
 }
 
 export type MikanCalendarData = {
@@ -63,6 +71,7 @@ type VarietyCatalogRow = Variety & {
   parent1Id: string | null
   parent2Id: string | null
   isVisible: boolean
+  varietyType: VarietyType
 }
 
 export async function getMikanCalendarData(year: number, month: number): Promise<MikanCalendarData> {
@@ -73,7 +82,7 @@ export async function getMikanCalendarData(year: number, month: number): Promise
 
   const { data: varietyRows, error: varietyError } = await supabase
     .from('mikan_varieties')
-    .select('id,name,aliases,color,shape,description,parent1_id,parent2_id,is_visible')
+    .select('id,name,aliases,color,shape,description,parent1_id,parent2_id,is_visible,variety_type')
     .order('name')
 
   if (varietyError) throw varietyError
@@ -88,11 +97,12 @@ export async function getMikanCalendarData(year: number, month: number): Promise
     parent1Id: row.parent1_id,
     parent2Id: row.parent2_id,
     isVisible: row.is_visible !== false,
+    varietyType: normalizeVarietyType(row.variety_type),
   }))
   const varietyById = new Map(allVarieties.map((variety) => [variety.id, variety]))
 
   const visibleVarieties: Omit<VarietyDiscovery, 'quantity' | 'discovered'>[] = allVarieties
-    .filter((variety) => variety.isVisible)
+    .filter((variety) => variety.isVisible && variety.varietyType !== 'unknown')
     .map((variety) => {
       const parent1 = variety.parent1Id ? varietyById.get(variety.parent1Id) : null
       const parent2 = variety.parent2Id ? varietyById.get(variety.parent2Id) : null
@@ -105,6 +115,7 @@ export async function getMikanCalendarData(year: number, month: number): Promise
         description: variety.description,
         parent1: parent1 ? { id: parent1.id, name: parent1.name } : null,
         parent2: parent2 ? { id: parent2.id, name: parent2.name } : null,
+        varietyType: variety.varietyType as Exclude<VarietyType, 'unknown'>,
       }
     })
 

@@ -11,6 +11,7 @@ export async function getMikanVarieties() {
     .from("mikan_varieties")
     .select("id,name,reading,aliases,alias_readings,color,shape")
     .eq("is_visible", true)
+    .eq("variety_type", "cultivar")
     .order("name")
 
   if (error) throw error

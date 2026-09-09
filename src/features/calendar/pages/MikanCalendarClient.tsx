@@ -11,6 +11,7 @@ import {
 } from '../actions/getMikanCalendarData'
 import styles from './MikanCalendarPage.module.css'
 import detailStyles from './MikanVarietyDetail.module.css'
+import dictionaryStyles from './MikanDictionaryControls.module.css'
 
 type View = 'calendar' | 'dictionary'
 
@@ -57,6 +58,7 @@ export function MikanCalendarClient({ data: initialData }: { data: MikanCalendar
   const [view, setView] = useState<View>('calendar')
   const [monthLoading, setMonthLoading] = useState(false)
   const [selectedVariety, setSelectedVariety] = useState<VarietyDiscovery | null>(null)
+  const [showIntermediate, setShowIntermediate] = useState(false)
   const today = currentJstDate()
   const [selectedDay, setSelectedDay] = useState<number | null>(() => defaultSelectedDay(initialData, today))
 
@@ -79,6 +81,16 @@ export function MikanCalendarClient({ data: initialData }: { data: MikanCalendar
   const dayMap = useMemo(
     () => new Map(data.dayRecords.map((record) => [record.day, record])),
     [data.dayRecords]
+  )
+
+  const dictionaryVarieties = useMemo(
+    () => data.varieties.filter((variety) => showIntermediate || variety.varietyType !== 'intermediate'),
+    [data.varieties, showIntermediate]
+  )
+
+  const dictionaryDiscoveredCount = useMemo(
+    () => dictionaryVarieties.filter((variety) => variety.discovered).length,
+    [dictionaryVarieties]
   )
 
   const cells = useMemo(() => {
@@ -262,13 +274,25 @@ export function MikanCalendarClient({ data: initialData }: { data: MikanCalendar
               <h2>みかん図鑑</h2>
             </div>
             <div className={styles.progressBadge}>
-              <strong>{data.discoveredCount}</strong>
-              <span>/ {data.varieties.length} 品種</span>
+              <strong>{dictionaryDiscoveredCount}</strong>
+              <span>/ {dictionaryVarieties.length} 品種</span>
             </div>
           </div>
 
+          <div className={dictionaryStyles.controls}>
+            <label className={dictionaryStyles.toggleLabel}>
+              <span>中間種を表示</span>
+              <input
+                type="checkbox"
+                checked={showIntermediate}
+                onChange={(event) => setShowIntermediate(event.target.checked)}
+              />
+              <span className={dictionaryStyles.toggleTrack} aria-hidden="true" />
+            </label>
+          </div>
+
           <div className={styles.dictionaryGrid}>
-            {data.varieties.map((variety) => (
+            {dictionaryVarieties.map((variety) => (
               <button
                 type="button"
                 key={variety.id}
@@ -284,6 +308,9 @@ export function MikanCalendarClient({ data: initialData }: { data: MikanCalendar
                   />
                 </div>
                 <div className={styles.varietyCopy}>
+                  {variety.varietyType === 'intermediate' ? (
+                    <span className={dictionaryStyles.intermediateBadge}>中間種</span>
+                  ) : null}
                   <h3>{variety.name}</h3>
                   <p>{variety.discovered ? `${variety.quantity}個 記録済み` : 'まだ未記録'}</p>
                 </div>
@@ -328,6 +355,9 @@ export function MikanCalendarClient({ data: initialData }: { data: MikanCalendar
                 <span className={detailStyles.statusPill}>
                   {selectedVariety.discovered ? `${selectedVariety.quantity}個 記録済み` : 'まだ未記録'}
                 </span>
+                {selectedVariety.varietyType === 'intermediate' ? (
+                  <span className={dictionaryStyles.intermediateBadge}>中間種</span>
+                ) : null}
                 <h2 id="variety-detail-title">{selectedVariety.name}</h2>
                 {selectedVariety.aliases.length > 0 ? (
                   <p className={detailStyles.aliases}>{selectedVariety.aliases.join('・')}</p>
