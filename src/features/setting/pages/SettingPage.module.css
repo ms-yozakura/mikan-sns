@@ -54,7 +54,6 @@
   margin: 0;
 }
 
-/* Danger Zone */
 .dangerZone {
   background-color: rgba(254, 242, 242, 0.5);
   border-color: #fca5a5;
@@ -74,20 +73,33 @@
 }
 
 .dangerButton {
-  padding: 0.5rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.65rem 1rem;
   background-color: #dc2626;
   color: white;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 700;
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  transition: background-color 0.2s;
+  transition: background-color 0.2s, transform 120ms ease;
 }
 
 .dangerButton:hover {
   background-color: #b91c1c;
+}
+
+.dangerButton:active {
+  transform: scale(0.97);
+}
+
+.dangerButton svg {
+  width: 18px;
+  height: 18px;
 }
 
 .logoutSection {
@@ -139,3 +151,108 @@
   font-size: 0.75rem;
 }
 
+.deleteBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 1.25rem;
+  background: rgba(15, 23, 42, 0.48);
+  backdrop-filter: blur(3px);
+}
+
+.deleteDialog {
+  width: min(100%, 430px);
+  background: #fff;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+}
+
+.deleteDialogIcon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  margin-bottom: 0.875rem;
+  border-radius: 50%;
+  color: #dc2626;
+  background: #fee2e2;
+}
+
+.deleteDialogIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.deleteDialogTitle {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.deleteDialogText {
+  margin: 0.625rem 0 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.deleteError {
+  margin: 0.875rem 0 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  color: #b42318;
+  background: #fff1f0;
+  font-size: 0.8rem;
+}
+
+.deleteDialogActions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.deleteCancelButton,
+.deleteConfirmButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 42px;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.deleteCancelButton {
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  background: #fff;
+}
+
+.deleteConfirmButton {
+  border: 1px solid #dc2626;
+  color: #fff;
+  background: #dc2626;
+}
+
+.deleteConfirmButton svg {
+  width: 17px;
+  height: 17px;
+}
+
+.deleteCancelButton:disabled,
+.deleteConfirmButton:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+@media (max-width: 480px) {
+  .deleteDialogActions {
+    grid-template-columns: 1fr;
+  }
+}
