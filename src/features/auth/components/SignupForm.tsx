@@ -1,11 +1,7 @@
-
-
 import Link from 'next/link'
-import styles from "./authForm.module.css"
-import Button from "@/shared/ui/Button"
-import TextField from "@/shared/ui/TextField"
-
-
+import styles from './authForm.module.css'
+import Button from '@/shared/ui/Button'
+import TextField from '@/shared/ui/TextField'
 
 type Props = {
   formAction: (formData: FormData) => void
@@ -18,11 +14,10 @@ type Props = {
   }
 }
 
-
 export function SignupForm({
   formAction,
   pending,
-  defaultValue
+  defaultValue,
 }: Props) {
   return (
     <form action={formAction}>
@@ -32,6 +27,7 @@ export function SignupForm({
         type="text"
         placeholder="みかん 柑吉"
         defaultValue={defaultValue.name}
+        autoComplete="name"
         required
       />
       <TextField
@@ -40,6 +36,7 @@ export function SignupForm({
         type="text"
         placeholder="kankichi_mikan"
         defaultValue={defaultValue.username}
+        autoComplete="nickname"
         required
       />
       <TextField
@@ -48,6 +45,7 @@ export function SignupForm({
         type="email"
         placeholder="mikan@example.com"
         defaultValue={defaultValue.email}
+        autoComplete="username"
         required
       />
       <TextField
@@ -56,6 +54,15 @@ export function SignupForm({
         type="password"
         placeholder="••••••••"
         defaultValue={defaultValue.password}
+        autoComplete="new-password"
+        required
+      />
+      <TextField
+        label="パスワード（確認）"
+        name="passwordConfirm"
+        type="password"
+        placeholder="••••••••"
+        autoComplete="new-password"
         required
       />
 
@@ -66,13 +73,11 @@ export function SignupForm({
         {pending ? '登録中...' : 'アカウントを作成する'}
       </Button>
 
-      {/* ログイン画面へのリンクボタン */}
       <div className={styles.redirectBox}>
         <Link href="/login" className={styles.redirectLink}>
           登録済みの方はこちら
         </Link>
       </div>
-
     </form>
   )
 }
