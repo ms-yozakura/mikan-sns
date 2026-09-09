@@ -1,5 +1,6 @@
 import { ProfileEditForm } from "../components/ProfileEditForm"
 import { LogoutButton } from "../components/LogoutButton"
+import { DeleteAccountButton } from "../components/DeleteAccountButton"
 import styles from "./SettingPage.module.css"
 
 export function SettingPage() {
@@ -20,11 +21,9 @@ export function SettingPage() {
         </section>
 
         <section className={`${styles.card} ${styles.dangerZone}`}>
-          <h2 className={styles.dangerTitle}>Danger Zone</h2>
-          <p className={styles.dangerText}>アカウントを削除すると、すべてのデータが完全に消失します。</p>
-          <button className={styles.dangerButton} onClick={() => alert("未実装")}>
-            Delete Account
-          </button>
+          <h2 className={styles.dangerTitle}>アカウント削除</h2>
+          <p className={styles.dangerText}>アカウントを削除すると、投稿や画像を含むすべてのデータが完全に削除されます。</p>
+          <DeleteAccountButton />
         </section>
       </div>
     </main>
