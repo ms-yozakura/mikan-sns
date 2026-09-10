@@ -43,10 +43,11 @@ export async function updateSession(request: NextRequest) {
     "/reset-password",
     "/auth",
   ];
+  const publicExactRoutes = ["/", "/sitemap.xml", "/robots.txt"];
 
-  const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  const isPublicRoute =
+    publicExactRoutes.includes(pathname) ||
+    publicRoutes.some((route) => pathname.startsWith(route));
 
   if (!user && !isPublicRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
