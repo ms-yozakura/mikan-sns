@@ -44,9 +44,9 @@ export async function updateSession(request: NextRequest) {
     "/auth",
   ];
 
-  const isPublicRoute = publicRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  const isPublicRoute =
+    pathname === "/" ||
+    publicRoutes.some((route) => pathname.startsWith(route));
 
   if (!user && !isPublicRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
