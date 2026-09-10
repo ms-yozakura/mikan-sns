@@ -48,6 +48,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <meta name="google-site-verification" content="fOofejYWiECbN5vhfhBUhF1HllrSG2KgYgq8K16WnTg" />
       <body>
         <AppSplashScreen />
         <ServiceWorkerRegistration />
