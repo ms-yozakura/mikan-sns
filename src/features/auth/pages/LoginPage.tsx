@@ -23,7 +23,7 @@ export function LoginPage() {
   useEffect(() => {
     if (state.success) {
       const timer = setTimeout(() => {
-        router.push('/')
+        router.push('/home')
       }, 1500)
 
       return () => clearTimeout(timer)
