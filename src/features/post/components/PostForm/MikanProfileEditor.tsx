@@ -25,15 +25,23 @@ export function MikanProfileEditor({
                 <span>{axis.label}</span>
                 <output>{values[key]}</output>
               </span>
-              <input
-                type="range"
-                min={0}
-                max={10}
-                step={1}
-                value={values[key]}
-                aria-label={axis.label}
-                onChange={(event) => onChange({ ...values, [key]: Number(event.target.value) })}
-              />
+              <div className={styles.inputWrapper}>
+                <span className={styles.rangeDirectionHint}>
+                  {axis.directionLabel.split('→')[0]}
+                </span>
+                <input
+                  type="range"
+                  min={0}
+                  max={10}
+                  step={1}
+                  value={values[key]}
+                  aria-label={axis.label}
+                  onChange={(event) => onChange({ ...values, [key]: Number(event.target.value) })}
+                />
+                <span className={styles.rangeDirectionHint}>
+                  {axis.directionLabel.split('→')[1]}
+                </span>
+              </div>
             </label>
           )
         })}

@@ -24,12 +24,25 @@
   color: var(--color-primary-hover);
   background: #ffedd5;
   text-align: center;
-  font-size: 11px;
+  font-size: 13px;
+}
+
+.inputWrapper {
+  display: flex;
+  flex-direction: row;
+  padding-top: 5px;
 }
 
 .control input {
   width: 100%;
   accent-color: var(--color-primary);
+}
+
+.rangeDirectionHint {
+  min-width: 24px;
+  color: var(--color-primary-hover);
+  text-align: center;
+  font-size: 11px;
 }
 
 .shortCommentField {
