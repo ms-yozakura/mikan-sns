@@ -1,9 +1,10 @@
+import Link from "next/link"
 import { ProfileEditForm } from "../components/ProfileEditForm"
 import { LogoutButton } from "../components/LogoutButton"
 import { DeleteAccountButton } from "../components/DeleteAccountButton"
 import styles from "./SettingPage.module.css"
 
-export function SettingPage() {
+export function SettingPage({ isAdmin = false }: { isAdmin?: boolean }) {
   return (
     <main className={styles.container}>
       <div className={styles.header}>
@@ -15,6 +16,14 @@ export function SettingPage() {
         <section className={styles.card}>
           <ProfileEditForm />
         </section>
+
+        {isAdmin && (
+          <section className={styles.card}>
+            <h2 className={styles.sectionTitle}>管理</h2>
+            <p>みかん品種の追加・編集を行えます。</p>
+            <Link href="/admin/mikan-varieties">みかん品種管理を開く →</Link>
+          </section>
+        )}
 
         <section className={styles.logoutSection} aria-label="アカウント">
           <LogoutButton />
