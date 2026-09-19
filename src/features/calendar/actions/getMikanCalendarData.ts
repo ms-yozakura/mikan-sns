@@ -49,8 +49,9 @@ export type VarietyParent = {
 
 export type VarietyDiscovery = Pick<
   Variety,
-  'id' | 'name' | 'aliases' | 'color' | 'shape' | 'description'
+  'id' | 'name' | 'color' | 'shape' | 'description'
 > & {
+  aliases: string[]
   parent1: VarietyParent | null
   parent2: VarietyParent | null
   quantity: number
@@ -67,17 +68,16 @@ export type MikanCalendarData = {
   varieties: VarietyDiscovery[]
   discoveredCount: number
 }
-
 type VarietyCatalogRow = Pick<
   Variety,
-  'id' | 'name' | 'aliases' | 'color' | 'shape' | 'description'
+  'id' | 'name' | 'color' | 'shape' | 'description'
 > & {
+  aliases: string[]
   parent1Id: string | null
   parent2Id: string | null
   isVisible: boolean
   varietyType: VarietyType
 }
-
 export async function getMikanCalendarData(year: number, month: number): Promise<MikanCalendarData> {
   const supabase = await createClient()
   const {

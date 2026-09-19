@@ -6,7 +6,6 @@ import { createClient } from "@/infrastructure/supabase/client"
 import { getMikanVarieties } from "@/features/post/actions/getMikanVarieties"
 import {
   MikanPicker,
-  type MikanPickerVariety,
 } from "@/features/mikan/components/MikanPicker"
 import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 
@@ -15,8 +14,7 @@ import { uploadAvatar } from "../actions/uploadAvatar"
 
 import { AvatarUploader } from "./AvatarUploader"
 import styles from "./ProfileEditForm.module.css"
-
-type Variety = MikanPickerVariety
+import { Variety } from "@/features/mikan/types/Variety"
 
 type PrivateProfile = {
   bio: string | null
