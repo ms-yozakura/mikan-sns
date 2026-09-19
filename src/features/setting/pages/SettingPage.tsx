@@ -3,6 +3,7 @@ import { ProfileEditForm } from "../components/ProfileEditForm"
 import { LogoutButton } from "../components/LogoutButton"
 import { DeleteAccountButton } from "../components/DeleteAccountButton"
 import styles from "./SettingPage.module.css"
+import Button from "@/shared/ui/Button"
 
 export function SettingPage({ isAdmin = false }: { isAdmin?: boolean }) {
   return (
@@ -19,9 +20,10 @@ export function SettingPage({ isAdmin = false }: { isAdmin?: boolean }) {
 
         {isAdmin && (
           <section className={styles.card}>
-            <h2 className={styles.sectionTitle}>管理</h2>
-            <p>みかん品種の追加・編集を行えます。</p>
-            <Link href="/admin/mikan-varieties">みかん品種管理を開く →</Link>
+            <h2 className={styles.sectionTitle}>管理者用</h2>
+            <Button>
+              <Link href="/admin/mikan-varieties">みかん品種管理を開く →</Link>
+            </Button>
           </section>
         )}
 

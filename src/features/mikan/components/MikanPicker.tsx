@@ -3,16 +3,7 @@
 import { Icon } from '@iconify/react'
 import { MikanIcon } from './MikanIcon'
 import styles from './MikanPicker.module.css'
-
-export type MikanPickerVariety = {
-  id: string
-  name: string
-  reading: string | null
-  aliases: string[] | null
-  alias_readings: string[] | null
-  color: string
-  shape: 'normal' | 'round' | 'flat' | 'egg' | 'deko' | 'unknown'
-}
+import { Variety } from '../types/Variety'
 
 export const DEFAULT_MIKAN_LABELS = [
   '温州みかん',
@@ -35,18 +26,18 @@ function normalize(value: string) {
     )
 }
 
-function matchesLabel(variety: MikanPickerVariety, label: string) {
+function matchesLabel(variety: Variety, label: string) {
   const normalizedLabel = normalize(label)
   return normalize(variety.name) === normalizedLabel
     || (variety.aliases ?? []).some((alias) => normalize(alias) === normalizedLabel)
 }
 
-export function getMikanDisplayName(variety: MikanPickerVariety, preferredLabel?: string) {
+export function getMikanDisplayName(variety: Variety, preferredLabel?: string) {
   if (preferredLabel && matchesLabel(variety, preferredLabel)) return preferredLabel
   return variety.name
 }
 
-function getSearchTexts(variety: MikanPickerVariety) {
+function getSearchTexts(variety: Variety) {
   return [
     variety.name,
     variety.reading,
@@ -55,7 +46,7 @@ function getSearchTexts(variety: MikanPickerVariety) {
   ].filter((value): value is string => Boolean(value))
 }
 
-function getResultLabel(variety: MikanPickerVariety, normalizedKeyword: string) {
+export function getResultLabel(variety: Variety, normalizedKeyword: string) {
   if (!normalizedKeyword) {
     return DEFAULT_MIKAN_LABELS.find((label) => matchesLabel(variety, label)) ?? variety.name
   }
@@ -86,11 +77,11 @@ export function MikanPicker({
   ariaLabel = 'みかんの品種を検索',
   placeholder = 'みかんを検索...',
 }: {
-  varieties: MikanPickerVariety[]
+  varieties: Variety[]
   keyword: string
   onKeywordChange: (value: string) => void
   selectedIds?: string[]
-  onSelect: (variety: MikanPickerVariety) => void
+  onSelect: (variety: Variety) => void
   maxResults?: number
   ariaLabel?: string
   placeholder?: string
@@ -106,7 +97,7 @@ export function MikanPicker({
       .slice(0, maxResults)
     : DEFAULT_MIKAN_LABELS
       .map((label) => varieties.find((variety) => matchesLabel(variety, label)))
-      .filter((variety): variety is MikanPickerVariety => Boolean(variety))
+      .filter((variety): variety is Variety => Boolean(variety))
 
   return (
     <div className={styles.picker}>

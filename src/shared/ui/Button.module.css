@@ -3,12 +3,11 @@
   background-color: var(--color-primary);
   color: var(--color-white);
   border: none;
-  border-radius: 999px;
+  border-radius: 10px;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: var(--shadow-card);
 }
 
 .button:hover:not(:disabled) {

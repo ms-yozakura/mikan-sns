@@ -3,21 +3,15 @@
 import { useMemo, useState } from 'react'
 import { createClient } from '@/infrastructure/supabase/client'
 import styles from './MikanVarietyManager.module.css'
+import MikanTag from '@/features/mikan/components/MikanTag'
+import { getResultLabel } from '@/features/mikan/components/MikanPicker'
+import { MikanIcon } from '@/features/mikan/components/MikanIcon'
+import { Icon } from '@iconify/react'
+import { normalize } from 'path'
+import { Variety } from '@/features/mikan/types/Variety'
+import { parentLabel } from '@/features/calendar/pages/MikanCalendarClient'
 
-type Variety = {
-  id: string
-  name: string
-  reading: string | null
-  aliases: string[] | null
-  alias_readings: string[] | null
-  color: string
-  shape: string
-  description: string | null
-  parent1_id: string | null
-  parent2_id: string | null
-  is_visible: boolean
-  variety_type: string | null
-}
+
 
 const empty = {
   name: '',
@@ -103,24 +97,59 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
     }
     setMessage('保存しました')
   }
+  const normalizedKeyword = normalize(keyword)
+
 
   return <div className={styles.layout}>
     <section className={styles.list}>
-      <div className={styles.listHeader}><input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="品種を検索" /><button onClick={newVariety}>＋ 追加</button></div>
-      <div className={styles.items}>{filtered.map(v => <button key={v.id} className={selectedId === v.id ? styles.selected : ''} onClick={() => select(v)}><strong>{v.name}</strong><span>{v.reading || '読み未登録'}</span></button>)}</div>
+      <div className={styles.listHeader}>
+        <input value={keyword} onChange={e => setKeyword(e.target.value)} placeholder="品種を検索" />
+        <button onClick={newVariety}>＋ 追加</button>
+      </div>
+      <div className={styles.items}>
+        {filtered.map((v: Variety) =>
+          <button key={v.id}
+            className={selectedId === v.id ? styles.selected : ''}
+            onClick={() => select(v)}
+          >
+            <div className={styles.mikanIcon}>
+            <MikanIcon color={v.color} shape={v.shape} size={42} />
+            </div>
+            <div>
+              <span className={styles.name}>{getResultLabel(v, normalizedKeyword)}</span>
+              <span className={styles.aliases}>{v.aliases != null && v.aliases.length != 0 ? "(" + v.aliases + ")" : ""}</span>
+              {selectedId === v.id
+                ? <div>
+                  <div className={styles.detailSection}>
+                    <p className={styles.parentLine}>
+                      <Icon icon="mdi:source-branch" aria-hidden="true" />
+                      <span>{(filtered.find(vv => vv.id == v.parent1_id))?.name ?? "無し"}</span>×
+                      <span>{(filtered.find(vv => vv.id == v.parent2_id))?.name ?? "無し"}</span>
+                    </p>
+                  </div>
+                  <div className={styles.detailSection}>
+                    <p className={styles.description}>{v.description ?? '説明はまだありません。'}</p>
+                  </div>
+                </div>
+                : null}
+            </div>
+
+          </button>
+        )}
+      </div>
     </section>
     <section className={styles.editor}>
       <h2>{selectedId ? '品種を編集' : '品種を追加'}</h2>
-      <label>品種名<input value={form.name} onChange={e => setForm({...form,name:e.target.value})} /></label>
-      <label>読み<input value={form.reading} onChange={e => setForm({...form,reading:e.target.value})} /></label>
-      <label>別名（カンマ区切り）<input value={form.aliases} onChange={e => setForm({...form,aliases:e.target.value})} /></label>
-      <label>別名の読み（カンマ区切り）<input value={form.alias_readings} onChange={e => setForm({...form,alias_readings:e.target.value})} /></label>
-      <div className={styles.row}><label>色<input type="color" value={form.color} onChange={e => setForm({...form,color:e.target.value})} /></label><label>形<select value={form.shape} onChange={e => setForm({...form,shape:e.target.value})}>{['normal','round','flat','egg','deko','unknown'].map(x=><option key={x}>{x}</option>)}</select></label></div>
-      <label>種別<select value={form.variety_type} onChange={e => setForm({...form,variety_type:e.target.value})}><option value="cultivar">cultivar</option><option value="intermediate">intermediate</option><option value="unknown">unknown</option></select></label>
-      <label>親1<select value={form.parent1_id} onChange={e => setForm({...form,parent1_id:e.target.value})}><option value="">なし</option>{varieties.filter(v=>v.id!==selectedId).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
-      <label>親2<select value={form.parent2_id} onChange={e => setForm({...form,parent2_id:e.target.value})}><option value="">なし</option>{varieties.filter(v=>v.id!==selectedId).map(v=><option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
-      <label>説明<textarea rows={4} value={form.description} onChange={e => setForm({...form,description:e.target.value})} /></label>
-      <label className={styles.check}><input type="checkbox" checked={form.is_visible} onChange={e => setForm({...form,is_visible:e.target.checked})} />通常の一覧に表示する</label>
+      <label>品種名<input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} /></label>
+      <label>読み<input value={form.reading} onChange={e => setForm({ ...form, reading: e.target.value })} /></label>
+      <label>別名（カンマ区切り）<input value={form.aliases} onChange={e => setForm({ ...form, aliases: e.target.value })} /></label>
+      <label>別名の読み（カンマ区切り）<input value={form.alias_readings} onChange={e => setForm({ ...form, alias_readings: e.target.value })} /></label>
+      <div className={styles.row}><label>色<input type="color" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })} /></label><label>形<select value={form.shape} onChange={e => setForm({ ...form, shape: e.target.value })}>{['normal', 'round', 'flat', 'egg', 'deko', 'unknown'].map(x => <option key={x}>{x}</option>)}</select></label></div>
+      <label>種別<select value={form.variety_type} onChange={e => setForm({ ...form, variety_type: e.target.value })}><option value="cultivar">cultivar</option><option value="intermediate">intermediate</option><option value="unknown">unknown</option></select></label>
+      <label>親1<select value={form.parent1_id} onChange={e => setForm({ ...form, parent1_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
+      <label>親2<select value={form.parent2_id} onChange={e => setForm({ ...form, parent2_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
+      <label>説明<textarea rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
+      <label className={styles.check}><input type="checkbox" checked={form.is_visible} onChange={e => setForm({ ...form, is_visible: e.target.checked })} />通常の一覧に表示する</label>
       <button className={styles.save} disabled={saving} onClick={save}>{saving ? '保存中…' : '保存'}</button>
       {message && <p className={styles.message}>{message}</p>}
     </section>
