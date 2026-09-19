@@ -3,15 +3,11 @@
 import { useMemo, useState } from 'react'
 import { createClient } from '@/infrastructure/supabase/client'
 import styles from './MikanVarietyManager.module.css'
-import MikanTag from '@/features/mikan/components/MikanTag'
 import { getResultLabel } from '@/features/mikan/components/MikanPicker'
 import { MikanIcon } from '@/features/mikan/components/MikanIcon'
 import { Icon } from '@iconify/react'
 import { normalize } from 'path'
 import { Variety } from '@/features/mikan/types/Variety'
-import { parentLabel } from '@/features/calendar/pages/MikanCalendarClient'
-
-
 
 const empty = {
   name: '',
@@ -95,10 +91,39 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
       setVarieties(vs => [...vs, data as Variety].sort((a, b) => a.name.localeCompare(b.name, 'ja')))
       setSelectedId(data.id)
     }
+    setForm(current => ({ ...current, is_visible: data.is_visible }))
     setMessage('保存しました')
   }
-  const normalizedKeyword = normalize(keyword)
 
+  async function setVisibility(isVisible: boolean) {
+    if (!selectedId) return
+
+    const target = varieties.find(v => v.id === selectedId)
+    if (!target) return
+
+    if (!isVisible && !window.confirm(`「${target.name}」を非表示にしますか？\n新規投稿や通常の検索候補からは除外されますが、過去の投稿では引き続き表示されます。`)) {
+      return
+    }
+
+    setSaving(true)
+    setMessage('')
+
+    const { data, error } = await supabase
+      .from('mikan_varieties')
+      .update({ is_visible: isVisible })
+      .eq('id', selectedId)
+      .select()
+      .single()
+
+    setSaving(false)
+    if (error) return setMessage(error.message)
+
+    setVarieties(vs => vs.map(v => v.id === selectedId ? data as Variety : v))
+    setForm(current => ({ ...current, is_visible: isVisible }))
+    setMessage(isVisible ? '再表示しました' : '非表示にしました')
+  }
+
+  const normalizedKeyword = normalize(keyword)
 
   return <div className={styles.layout}>
     <section className={styles.list}>
@@ -113,18 +138,21 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
             onClick={() => select(v)}
           >
             <div className={styles.mikanIcon}>
-            <MikanIcon color={v.color} shape={v.shape} size={42} />
+              <MikanIcon color={v.color} shape={v.shape} size={42} />
             </div>
             <div>
-              <span className={styles.name}>{getResultLabel(v, normalizedKeyword)}</span>
+              <span className={styles.name}>
+                {getResultLabel(v, normalizedKeyword)}
+                {!v.is_visible && <span className={styles.hiddenBadge}>非表示</span>}
+              </span>
               <span className={styles.aliases}>{v.aliases != null && v.aliases.length != 0 ? "(" + v.aliases + ")" : ""}</span>
               {selectedId === v.id
                 ? <div>
                   <div className={styles.detailSection}>
                     <p className={styles.parentLine}>
                       <Icon icon="mdi:source-branch" aria-hidden="true" />
-                      <span>{(filtered.find(vv => vv.id == v.parent1_id))?.name ?? "無し"}</span>×
-                      <span>{(filtered.find(vv => vv.id == v.parent2_id))?.name ?? "無し"}</span>
+                      <span>{(varieties.find(vv => vv.id == v.parent1_id))?.name ?? "無し"}</span>×
+                      <span>{(varieties.find(vv => vv.id == v.parent2_id))?.name ?? "無し"}</span>
                     </p>
                   </div>
                   <div className={styles.detailSection}>
@@ -133,7 +161,6 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
                 </div>
                 : null}
             </div>
-
           </button>
         )}
       </div>
@@ -149,8 +176,16 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
       <label>親1<select value={form.parent1_id} onChange={e => setForm({ ...form, parent1_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
       <label>親2<select value={form.parent2_id} onChange={e => setForm({ ...form, parent2_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
       <label>説明<textarea rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
-      <label className={styles.check}><input type="checkbox" checked={form.is_visible} onChange={e => setForm({ ...form, is_visible: e.target.checked })} />通常の一覧に表示する</label>
       <button className={styles.save} disabled={saving} onClick={save}>{saving ? '保存中…' : '保存'}</button>
+      {selectedId && (
+        <button
+          className={form.is_visible ? styles.hide : styles.restore}
+          disabled={saving}
+          onClick={() => setVisibility(!form.is_visible)}
+        >
+          {form.is_visible ? '品種を非表示にする' : '品種を再表示する'}
+        </button>
+      )}
       {message && <p className={styles.message}>{message}</p>}
     </section>
   </div>
