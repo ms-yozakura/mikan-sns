@@ -9,7 +9,7 @@
   background: #fff;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 16px
+  padding: 16px;
 }
 
 .listHeader {
@@ -39,7 +39,7 @@
   gap: 4px;
   margin-top: 12px;
   max-height: 70vh;
-  overflow: auto
+  overflow: auto;
 }
 
 .items button {
@@ -59,12 +59,13 @@
   flex-direction: column;
 }
 
-.items .name{
+.items .name {
   color: black;
   font-size: 1rem;
   font-weight: 500;
 }
-.items .aliases{
+
+.items .aliases {
   color: grey;
 }
 
@@ -73,7 +74,7 @@
   background: #fff4e6
 }
 
-.items button .mikanIcon{
+.items button .mikanIcon {
   width: 42px;
 }
 
@@ -89,17 +90,18 @@
   vertical-align: middle;
 }
 
-.detailSection{
+.detailSection {
   padding: none;
   margin: none;
   font-size: 0.9rem;
 }
-.detailSection p{
+
+.detailSection p {
   padding: none;
   margin: 0;
 }
 
-.detailSection .description{
+.detailSection .description {
   color: grey;
 }
 
@@ -183,7 +185,7 @@
   color: #475569
 }
 
-@media(max-width:720px) {
+@media(max-width:1300px) {
   .layout {
     grid-template-columns: 1fr
   }

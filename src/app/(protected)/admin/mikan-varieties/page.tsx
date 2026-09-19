@@ -34,7 +34,10 @@ export default async function MikanVarietiesAdminPage() {
         </BackButton>
 
         <h1>みかん品種管理</h1>
-        <p>品種の追加・編集を行います。変更はすぐにデータベースへ反映されます。</p>
+        <p>
+          品種の追加・編集を行います。変更はすぐにデータベースへ反映されます。<br/>
+          削除は【品種を非表示にする】で行ってください。（誤削除をふせぐため。完全削除はDB上で直接行います）
+        </p>
       </div>
       <MikanVarietyManager initialVarieties={varieties ?? []} />
     </main>
