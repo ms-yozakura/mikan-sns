@@ -21,3 +21,17 @@ export function Leading({
     </button>
   )
 }
+
+
+
+import { useRouter } from 'next/navigation'
+
+export function BackButton({children}:{children:ReactNode}) {
+  const router = useRouter()
+
+  return (
+    <Leading onClick={() => router.back()}>
+      {children}
+    </Leading>
+  )
+}
