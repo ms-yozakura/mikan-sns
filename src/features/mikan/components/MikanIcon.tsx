@@ -33,6 +33,33 @@ export function MikanIcon({
     }
   })()
 
+  const leaf =
+    shape === "deko" ? (
+      <>
+        <path
+          d="M30 13 Q35 5 45 10 Q38 15 30 13"
+          fill="green"
+        />
+        <path
+          d="M30 15 L30 11"
+          stroke="green"
+          strokeWidth="1"
+        />
+      </>
+    ) : (
+      <>
+        <path
+          d="M30 21 Q35 13 45 18 Q38 23 30 21"
+          fill="green"
+        />
+        <path
+          d="M30 23 L30 17"
+          stroke="green"
+          strokeWidth="1"
+        />
+      </>
+    )
+
   return (
     <svg
       width={size}
@@ -41,17 +68,7 @@ export function MikanIcon({
       xmlns="http://www.w3.org/2000/svg"
     >
       {fruit}
-
-      <path
-        d="M30 21 Q35 13 45 18 Q38 23 30 21"
-        fill="green"
-      />
-
-      <path
-        d="M30 23 L30 17"
-        stroke="green"
-        strokeWidth="1"
-      />
+      {leaf}
 
       {shape === "unknown" && (
         <text
