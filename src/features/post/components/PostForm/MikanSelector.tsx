@@ -2,8 +2,8 @@
 
 import {
   MikanPicker,
-  type MikanPickerVariety,
 } from '@/features/mikan/components/MikanPicker'
+import { Variety } from '@/features/mikan/types/Variety'
 
 export function MikanSelector({
   varieties,
@@ -12,7 +12,7 @@ export function MikanSelector({
   selectedVariety,
   setSelectedVariety,
 }: {
-  varieties: MikanPickerVariety[]
+  varieties: Variety[]
   keyword: string
   setKeyword: (value: string) => void
   selectedVariety: string
