@@ -30,10 +30,12 @@ function monthRange(year: number, month: number) {
   return { start: start.toISOString(), end: end.toISOString() }
 }
 
-export type CalendarVarietyRecord = Variety & {
+export type CalendarVarietyRecord = Pick<
+  Variety,
+  'id' | 'name' | 'color' | 'shape'
+> & {
   quantity: number
 }
-
 export type CalendarDayRecord = {
   day: number
   quantity: number
@@ -45,9 +47,10 @@ export type VarietyParent = {
   name: string
 }
 
-export type VarietyDiscovery = Variety & {
-  aliases: string[]
-  description: string | null
+export type VarietyDiscovery = Pick<
+  Variety,
+  'id' | 'name' | 'aliases' | 'color' | 'shape' | 'description'
+> & {
   parent1: VarietyParent | null
   parent2: VarietyParent | null
   quantity: number
@@ -65,9 +68,10 @@ export type MikanCalendarData = {
   discoveredCount: number
 }
 
-type VarietyCatalogRow = Variety & {
-  aliases: string[]
-  description: string | null
+type VarietyCatalogRow = Pick<
+  Variety,
+  'id' | 'name' | 'aliases' | 'color' | 'shape' | 'description'
+> & {
   parent1Id: string | null
   parent2Id: string | null
   isVisible: boolean
