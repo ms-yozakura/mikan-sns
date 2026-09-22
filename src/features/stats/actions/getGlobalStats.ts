@@ -14,6 +14,7 @@ const EMPTY_STATS: GlobalStats = {
   activeUsers: 0,
   averageSatisfaction: 0,
   ranking: [],
+  userRanking: [],
   monthlyTrend: [],
 }
 
@@ -26,7 +27,10 @@ const loadGlobalStats = cache(async (): Promise<GlobalStats> => {
     return EMPTY_STATS
   }
 
-  return data as GlobalStats
+  return {
+    ...EMPTY_STATS,
+    ...(data as Partial<GlobalStats>),
+  }
 })
 
 export async function getGlobalStats(): Promise<GlobalStats> {

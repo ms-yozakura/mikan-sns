@@ -2,6 +2,15 @@ export type GlobalStatsRankingItem = {
   id: string
   name: string
   count: number
+  color?: string | null
+  shape?: "normal" | "round" | "flat" | "egg" | "deko" | "unknown" | null
+}
+
+export type GlobalStatsUserRankingItem = {
+  id: string
+  name: string
+  count: number
+  avatarUrl?: string | null
 }
 
 export type GlobalStatsTrendItem = {
@@ -17,5 +26,6 @@ export type GlobalStats = {
   activeUsers: number
   averageSatisfaction: number
   ranking: GlobalStatsRankingItem[]
+  userRanking: GlobalStatsUserRankingItem[]
   monthlyTrend: GlobalStatsTrendItem[]
 }
