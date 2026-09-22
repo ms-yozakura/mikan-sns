@@ -1,8 +1,11 @@
-
 import Link from "next/link"
 import BarChart, { type BarChartItem } from "@/shared/ui/BarChart"
+import { MikanIcon } from "@/features/mikan/components/MikanIcon"
 import { getGlobalStats } from "../actions/getGlobalStats"
-import { RankingSection } from "../components/RankingSection"
+import {
+  UserRankingSection,
+  VarietyRankingSection,
+} from "../components/RankingSection"
 import { StatItem } from "../components/StatItem"
 import styles from "./StatsPage.module.css"
 
@@ -18,12 +21,15 @@ export async function StatsPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <div>
+        <div className={styles.headerCopy}>
           <p className={styles.eyebrow}>みんなの記録</p>
-          <h1 className={styles.title}>みかん統計</h1>
-          <p className={styles.description}>公開された投稿から、今月のみかん活動をまとめています。</p>
+          <h1 className={styles.title}>今月のみかん、誰が何を食べた？</h1>
+          <p className={styles.description}>人気の品種と、たくさんみかんを楽しんだ人を中心に眺められる統計ページです。</p>
         </div>
-        <span className={styles.period}>{stats.periodLabel}</span>
+        <div className={styles.headerVisual} aria-hidden="true">
+          <MikanIcon size={68} />
+          <span className={styles.period}>{stats.periodLabel}</span>
+        </div>
       </header>
 
       {!hasCurrentData ? (
@@ -37,6 +43,26 @@ export async function StatsPage() {
         </section>
       ) : null}
 
+      <section className={styles.rankingGrid} aria-label={`${stats.periodLabel}のランキング`}>
+        <article className={`${styles.rankingCard} ${styles.varietyCard}`}>
+          <VarietyRankingSection
+            eyebrow="MIKAN RANKING"
+            title="よく食べられた品種"
+            items={stats.ranking}
+          />
+          <p className={styles.note}>公開投稿に記録された個数を集計しています。</p>
+        </article>
+
+        <article className={`${styles.rankingCard} ${styles.userCard}`}>
+          <UserRankingSection
+            eyebrow="MIKAN EATER RANKING"
+            title="いっぱい食べたユーザー"
+            items={stats.userRanking}
+          />
+          <p className={styles.note}>公開投稿で記録したみかんの合計個数です。</p>
+        </article>
+      </section>
+
       <section className={styles.summary} aria-label={`${stats.periodLabel}のサマリー`}>
         <StatItem label="食べたみかん" value={stats.monthlyCount.toLocaleString("ja-JP")} suffix="個" />
         <StatItem label="みかん投稿" value={stats.monthlyPosts.toLocaleString("ja-JP")} suffix="件" />
@@ -48,30 +74,18 @@ export async function StatsPage() {
         />
       </section>
 
-      <div className={styles.detailGrid}>
-        <section className={styles.chartSection} aria-label="直近6か月のみかん消費量">
-          <BarChart
-            data={trendData}
-            title="直近6か月のみかん消費量（個）"
-            maxValue={undefined}
-            defaultOrientation="vertical"
-            defaultSortOrder="default"
-            defaultVisibleCount={6}
-            showIcons={false}
-            verticalLabelDirection="horizontal"
-          />
-        </section>
-
-        <section className={`${styles.card} ${styles.rankingCard}`}>
-          <RankingSection
-            title="よく食べられた品種"
-            items={stats.ranking}
-            showCounts
-            emptyMessage="品種別の記録はまだありません"
-          />
-          <p className={styles.note}>公開投稿に記録された個数を集計しています。</p>
-        </section>
-      </div>
+      <section className={styles.chartSection} aria-label="直近6か月のみかん消費量">
+        <BarChart
+          data={trendData}
+          title="直近6か月のみかん消費量（個）"
+          maxValue={undefined}
+          defaultOrientation="vertical"
+          defaultSortOrder="default"
+          defaultVisibleCount={6}
+          showIcons={false}
+          verticalLabelDirection="horizontal"
+        />
+      </section>
     </main>
   )
 }
