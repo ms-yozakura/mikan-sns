@@ -46,7 +46,7 @@ function getOwnSearchTexts(variety: Variety) {
   ].filter((value): value is string => Boolean(value))
 }
 
-function getSearchTexts(variety: Variety, varieties: Variety[]) {
+function getRelatedSearchTexts(variety: Variety, varieties: Variety[]) {
   const related: string[] = []
 
   if (variety.variety_type === 'brand' && variety.parent1_id) {
@@ -61,7 +61,20 @@ function getSearchTexts(variety: Variety, varieties: Variety[]) {
     for (const brand of brands) related.push(...getOwnSearchTexts(brand))
   }
 
-  return [...getOwnSearchTexts(variety), ...related]
+  return related
+}
+
+function getSearchRank(variety: Variety, varieties: Variety[], normalizedKeyword: string) {
+  const ownTexts = getOwnSearchTexts(variety).map(normalize)
+  const relatedTexts = getRelatedSearchTexts(variety, varieties).map(normalize)
+
+  if (normalize(variety.name) === normalizedKeyword) return 0
+  if (ownTexts.some((value) => value === normalizedKeyword)) return 1
+  if (normalize(variety.name).startsWith(normalizedKeyword)) return 2
+  if (ownTexts.some((value) => value.startsWith(normalizedKeyword))) return 3
+  if (ownTexts.some((value) => value.includes(normalizedKeyword))) return 4
+  if (relatedTexts.some((value) => value.includes(normalizedKeyword))) return 5
+  return Number.POSITIVE_INFINITY
 }
 
 export function getResultLabel(variety: Variety, normalizedKeyword: string) {
@@ -109,10 +122,14 @@ export function MikanPicker({
 
   const visibleVarieties = normalizedKeyword
     ? varieties
-      .filter((variety) =>
-        getSearchTexts(variety, varieties).some((value) => normalize(value).includes(normalizedKeyword))
-      )
+      .map((variety) => ({
+        variety,
+        rank: getSearchRank(variety, varieties, normalizedKeyword),
+      }))
+      .filter(({ rank }) => Number.isFinite(rank))
+      .sort((a, b) => a.rank - b.rank || a.variety.name.localeCompare(b.variety.name, 'ja'))
       .slice(0, maxResults)
+      .map(({ variety }) => variety)
     : DEFAULT_MIKAN_LABELS
       .map((label) => varieties.find((variety) => matchesLabel(variety, label)))
       .filter((variety): variety is Variety => Boolean(variety))
