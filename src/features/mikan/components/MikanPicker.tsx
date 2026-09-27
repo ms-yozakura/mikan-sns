@@ -37,13 +37,31 @@ export function getMikanDisplayName(variety: Variety, preferredLabel?: string) {
   return variety.name
 }
 
-function getSearchTexts(variety: Variety) {
+function getOwnSearchTexts(variety: Variety) {
   return [
     variety.name,
     variety.reading,
     ...(variety.aliases ?? []),
     ...(variety.alias_readings ?? []),
   ].filter((value): value is string => Boolean(value))
+}
+
+function getSearchTexts(variety: Variety, varieties: Variety[]) {
+  const related: string[] = []
+
+  if (variety.variety_type === 'brand' && variety.parent1_id) {
+    const parent = varieties.find((candidate) => candidate.id === variety.parent1_id)
+    if (parent) related.push(...getOwnSearchTexts(parent))
+  }
+
+  if (variety.variety_type === 'cultivar') {
+    const brands = varieties.filter(
+      (candidate) => candidate.variety_type === 'brand' && candidate.parent1_id === variety.id
+    )
+    for (const brand of brands) related.push(...getOwnSearchTexts(brand))
+  }
+
+  return [...getOwnSearchTexts(variety), ...related]
 }
 
 export function getResultLabel(variety: Variety, normalizedKeyword: string) {
@@ -92,7 +110,7 @@ export function MikanPicker({
   const visibleVarieties = normalizedKeyword
     ? varieties
       .filter((variety) =>
-        getSearchTexts(variety).some((value) => normalize(value).includes(normalizedKeyword))
+        getSearchTexts(variety, varieties).some((value) => normalize(value).includes(normalizedKeyword))
       )
       .slice(0, maxResults)
     : DEFAULT_MIKAN_LABELS
@@ -123,10 +141,15 @@ export function MikanPicker({
               type="button"
               aria-pressed={isSelected}
               onClick={() => onSelect(variety)}
-              className={`${styles.varietyCard} ${isSelected ? styles.selected : ''}`}
+              className={`${styles.varietyCard} ${variety.variety_type === 'brand' ? styles.brandCard : ''} ${isSelected ? styles.selected : ''}`}
             >
               <MikanIcon color={variety.color} shape={variety.shape} size={42} />
-              <span>{getResultLabel(variety, normalizedKeyword)}</span>
+              <div className={styles.labelRow}>
+                <span className={styles.varietyName}>{getResultLabel(variety, normalizedKeyword)}</span>
+                {variety.variety_type === 'brand' && (
+                  <span className={styles.brandChip}>ブランド</span>
+                )}
+              </div>
               {isSelected && (
                 <Icon icon="mdi:check-circle" className={styles.selectedMark} aria-hidden="true" />
               )}

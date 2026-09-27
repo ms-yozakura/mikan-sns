@@ -74,7 +74,7 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
       shape: form.shape,
       description: form.description.trim() || null,
       parent1_id: form.parent1_id || null,
-      parent2_id: form.parent2_id || null,
+      parent2_id: form.variety_type === 'brand' ? null : (form.parent2_id || null),
       is_visible: form.is_visible,
       variety_type: form.variety_type,
     }
@@ -134,7 +134,7 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
       <div className={styles.items}>
         {filtered.map((v: Variety) =>
           <button key={v.id}
-            className={selectedId === v.id ? styles.selected : ''}
+            className={`${selectedId === v.id ? styles.selected : ''} ${v.variety_type === 'brand' ? styles.brandItem : ''}`}
             onClick={() => select(v)}
           >
             <div className={styles.mikanIcon}>
@@ -143,6 +143,7 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
             <div>
               <span className={styles.name}>
                 {getResultLabel(v, normalizedKeyword)}
+                {v.variety_type === 'brand' && <span className={styles.brandBadge}>ブランド</span>}
                 {!v.is_visible && <span className={styles.hiddenBadge}>非表示</span>}
               </span>
               <span className={styles.aliases}>{v.aliases != null && v.aliases.length != 0 ? "(" + v.aliases + ")" : ""}</span>
@@ -172,9 +173,9 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
       <label>別名（カンマ区切り）<input value={form.aliases} onChange={e => setForm({ ...form, aliases: e.target.value })} /></label>
       <label>別名の読み（カンマ区切り）<input value={form.alias_readings} onChange={e => setForm({ ...form, alias_readings: e.target.value })} /></label>
       <div className={styles.row}><label>色<input type="color" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })} /></label><label>形<select value={form.shape} onChange={e => setForm({ ...form, shape: e.target.value })}>{['normal', 'round', 'flat', 'egg', 'deko', 'unknown'].map(x => <option key={x}>{x}</option>)}</select></label></div>
-      <label>種別<select value={form.variety_type} onChange={e => setForm({ ...form, variety_type: e.target.value })}><option value="cultivar">cultivar</option><option value="intermediate">intermediate</option><option value="unknown">unknown</option></select></label>
-      <label>親1<select value={form.parent1_id} onChange={e => setForm({ ...form, parent1_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
-      <label>親2<select value={form.parent2_id} onChange={e => setForm({ ...form, parent2_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
+      <label>種別<select value={form.variety_type} onChange={e => setForm({ ...form, variety_type: e.target.value })}><option value="cultivar">cultivar</option><option value="intermediate">intermediate</option><option value="unknown">unknown</option><option value="brand">brand</option></select></label>
+      <label>{form.variety_type === 'brand' ? '親品種' : '親1'}<select value={form.parent1_id} onChange={e => setForm({ ...form, parent1_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId && (form.variety_type !== 'brand' || v.variety_type === 'cultivar')).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
+      {form.variety_type !== 'brand' && <label>親2<select value={form.parent2_id} onChange={e => setForm({ ...form, parent2_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>}
       <label>説明<textarea rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
       <button className={styles.save} disabled={saving} onClick={save}>{saving ? '保存中…' : '保存'}</button>
       {selectedId && (
