@@ -44,7 +44,7 @@ export async function updateProfile(data: ProfileData) {
       .select("id")
       .in("id", favoriteMikanIds)
       .eq("is_visible", true)
-      .eq("variety_type", "cultivar")
+      .in("variety_type", ["cultivar", "brand"])
 
     if (varietyError) throw varietyError
     if ((validVarieties ?? []).length !== favoriteMikanIds.length) {

@@ -1,3 +1,4 @@
+export type VarietyType = 'cultivar' | 'intermediate' | 'unknown' | 'brand'
 
 export type Variety = {
   id: string
@@ -12,7 +13,5 @@ export type Variety = {
   parent1_id: string | null
   parent2_id: string | null
   is_visible: boolean
-  variety_type: string | null
+  variety_type: VarietyType | null
 }
-
-

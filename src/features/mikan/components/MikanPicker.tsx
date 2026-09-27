@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Icon } from '@iconify/react'
 import { MikanIcon } from './MikanIcon'
 import styles from './MikanPicker.module.css'
@@ -37,13 +38,52 @@ export function getMikanDisplayName(variety: Variety, preferredLabel?: string) {
   return variety.name
 }
 
-function getSearchTexts(variety: Variety) {
+function getOwnSearchTexts(variety: Variety) {
   return [
     variety.name,
     variety.reading,
     ...(variety.aliases ?? []),
     ...(variety.alias_readings ?? []),
   ].filter((value): value is string => Boolean(value))
+}
+
+function getRelatedSearchTexts(variety: Variety, varieties: Variety[]) {
+  const related: string[] = []
+
+  if (variety.variety_type === 'brand' && variety.parent1_id) {
+    const parent = varieties.find((candidate) => candidate.id === variety.parent1_id)
+    if (parent) related.push(...getOwnSearchTexts(parent))
+  }
+
+  if (variety.variety_type === 'cultivar') {
+    const brands = varieties.filter(
+      (candidate) => candidate.variety_type === 'brand' && candidate.parent1_id === variety.id
+    )
+    for (const brand of brands) related.push(...getOwnSearchTexts(brand))
+  }
+
+  return related
+}
+
+function matchesOwnSearchText(variety: Variety, normalizedKeyword: string) {
+  return getOwnSearchTexts(variety)
+    .some((value) => normalize(value).includes(normalizedKeyword))
+}
+
+function matchesRelatedSearchText(variety: Variety, varieties: Variety[], normalizedKeyword: string) {
+  return getRelatedSearchTexts(variety, varieties)
+    .some((value) => normalize(value).includes(normalizedKeyword))
+}
+
+function ownMatchRank(variety: Variety, normalizedKeyword: string) {
+  const normalizedName = normalize(variety.name)
+  const ownTexts = getOwnSearchTexts(variety).map(normalize)
+
+  if (normalizedName === normalizedKeyword) return 0
+  if (ownTexts.some((value) => value === normalizedKeyword)) return 1
+  if (normalizedName.startsWith(normalizedKeyword)) return 2
+  if (ownTexts.some((value) => value.startsWith(normalizedKeyword))) return 3
+  return 4
 }
 
 export function getResultLabel(variety: Variety, normalizedKeyword: string) {
@@ -73,7 +113,7 @@ export function MikanPicker({
   onKeywordChange,
   selectedIds = [],
   onSelect,
-  maxResults = 10,
+  maxResults = 8,
   ariaLabel = 'みかんの品種を検索',
   placeholder = 'みかんを検索...',
 }: {
@@ -88,16 +128,35 @@ export function MikanPicker({
 }) {
   const normalizedKeyword = normalize(keyword)
   const selectedIdSet = new Set(selectedIds)
+  const [isExpanded, setIsExpanded] = useState(false)
+
+  const searchResults = normalizedKeyword
+    ? [
+        ...varieties
+          .filter((variety) => matchesOwnSearchText(variety, normalizedKeyword))
+          .sort((a, b) =>
+            ownMatchRank(a, normalizedKeyword) - ownMatchRank(b, normalizedKeyword)
+            || a.name.localeCompare(b.name, 'ja')
+          ),
+        ...varieties
+          .filter((variety) =>
+            !matchesOwnSearchText(variety, normalizedKeyword)
+            && matchesRelatedSearchText(variety, varieties, normalizedKeyword)
+          )
+          .sort((a, b) => a.name.localeCompare(b.name, 'ja')),
+      ]
+    : []
+
+  const hasMoreResults = normalizedKeyword && searchResults.length > maxResults
+  const compactResultCount = hasMoreResults ? Math.max(maxResults - 1, 1) : maxResults
 
   const visibleVarieties = normalizedKeyword
-    ? varieties
-      .filter((variety) =>
-        getSearchTexts(variety).some((value) => normalize(value).includes(normalizedKeyword))
-      )
-      .slice(0, maxResults)
+    ? (isExpanded ? searchResults : searchResults.slice(0, compactResultCount))
     : DEFAULT_MIKAN_LABELS
       .map((label) => varieties.find((variety) => matchesLabel(variety, label)))
       .filter((variety): variety is Variety => Boolean(variety))
+
+  const hiddenResultCount = Math.max(searchResults.length - visibleVarieties.length, 0)
 
   return (
     <div className={styles.picker}>
@@ -109,11 +168,14 @@ export function MikanPicker({
           placeholder={placeholder}
           value={keyword}
           className={styles.searchInput}
-          onChange={(event) => onKeywordChange(event.target.value)}
+          onChange={(event) => {
+            setIsExpanded(false)
+            onKeywordChange(event.target.value)
+          }}
         />
       </div>
 
-      <div className={styles.varietyGrid}>
+      <div className={`${styles.varietyGrid} ${isExpanded ? styles.expandedGrid : ''}`}>
         {visibleVarieties.map((variety) => {
           const isSelected = selectedIdSet.has(variety.id)
 
@@ -123,17 +185,46 @@ export function MikanPicker({
               type="button"
               aria-pressed={isSelected}
               onClick={() => onSelect(variety)}
-              className={`${styles.varietyCard} ${isSelected ? styles.selected : ''}`}
+              className={`${styles.varietyCard} ${variety.variety_type === 'brand' ? styles.brandCard : ''} ${isSelected ? styles.selected : ''}`}
             >
               <MikanIcon color={variety.color} shape={variety.shape} size={42} />
-              <span>{getResultLabel(variety, normalizedKeyword)}</span>
+              <div className={styles.labelRow}>
+                <span className={styles.varietyName}>{getResultLabel(variety, normalizedKeyword)}</span>
+                {variety.variety_type === 'brand' && (
+                  <span className={styles.brandChip}>ブランド</span>
+                )}
+              </div>
               {isSelected && (
                 <Icon icon="mdi:check-circle" className={styles.selectedMark} aria-hidden="true" />
               )}
             </button>
           )
         })}
+
+        {!isExpanded && hasMoreResults && (
+          <button
+            type="button"
+            className={styles.moreCard}
+            onClick={() => setIsExpanded(true)}
+            aria-label={`残り${hiddenResultCount}件の検索結果を表示`}
+          >
+            <Icon icon="mdi:plus-circle-outline" aria-hidden="true" />
+            <span>+{hiddenResultCount}件</span>
+            <small>もっと見る</small>
+          </button>
+        )}
       </div>
+
+      {isExpanded && hasMoreResults && (
+        <button
+          type="button"
+          className={styles.collapseButton}
+          onClick={() => setIsExpanded(false)}
+        >
+          <Icon icon="mdi:chevron-up" aria-hidden="true" />
+          折りたたむ
+        </button>
+      )}
 
       {visibleVarieties.length === 0 && (
         <p className={styles.noResult}>該当する品種が見つかりません</p>
