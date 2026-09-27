@@ -1,7 +1,7 @@
 import Link from "next/link"
 import type { GlobalStats } from "../types/types"
 import styles from "./HomeStatsSummary.module.css"
-import { RankingSection } from "./RankingSection"
+import { VarietyRankingSection } from "./RankingSection"
 
 type HomeStatsSummaryProps = {
   variant: "desktop" | "mobile"
@@ -10,7 +10,6 @@ type HomeStatsSummaryProps = {
 
 export function HomeStatsSummary({ variant, stats }: HomeStatsSummaryProps) {
   const rankingLimit = variant === "mobile" ? 2 : 3
-  const showCounts = variant === "desktop"
 
   return (
     <section className={`${styles.panel} ${styles[variant]}`} aria-label="今月のみかん統計">
@@ -31,10 +30,10 @@ export function HomeStatsSummary({ variant, stats }: HomeStatsSummaryProps) {
       </div>
 
       <div className={styles.sections}>
-        <RankingSection
+        <VarietyRankingSection
+          eyebrow="MIKAN RANKING"
           title="よく食べられた品種"
           items={stats.ranking.slice(0, rankingLimit)}
-          showCounts={showCounts}
         />
         <dl className={styles.quickStats}>
           <div><dt>投稿</dt><dd>{stats.monthlyPosts.toLocaleString("ja-JP")}件</dd></div>
