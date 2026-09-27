@@ -42,6 +42,14 @@
   gap: 8px;
 }
 
+.expandedGrid {
+  max-height: min(42vh, 360px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 2px;
+  scroll-padding-block: 8px;
+}
+
 .varietyCard {
   position: relative;
   min-width: 0;
@@ -142,4 +150,61 @@
   .varietyGrid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
+}
+
+
+.moreCard {
+  min-width: 0;
+  min-height: 82px;
+  padding: 8px 5px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px dashed #d6d3d1;
+  border-radius: 13px;
+  background: #fafaf9;
+  color: #78716c;
+  cursor: pointer;
+  font: inherit;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.moreCard:hover {
+  transform: translateY(-1px);
+  border-color: #fdba74;
+  background: #fff8ef;
+}
+
+.moreCard > svg {
+  font-size: 22px;
+}
+
+.moreCard > span {
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.moreCard > small {
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.collapseButton {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: 0;
+  background: transparent;
+  color: #78716c;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.collapseButton:hover {
+  color: #5c4a3f;
 }
