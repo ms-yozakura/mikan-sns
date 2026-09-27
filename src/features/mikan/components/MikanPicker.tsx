@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { Icon } from '@iconify/react'
 import { MikanIcon } from './MikanIcon'
 import styles from './MikanPicker.module.css'
@@ -112,7 +113,7 @@ export function MikanPicker({
   onKeywordChange,
   selectedIds = [],
   onSelect,
-  maxResults = 10,
+  maxResults = 8,
   ariaLabel = 'みかんの品種を検索',
   placeholder = 'みかんを検索...',
 }: {
@@ -127,8 +128,9 @@ export function MikanPicker({
 }) {
   const normalizedKeyword = normalize(keyword)
   const selectedIdSet = new Set(selectedIds)
+  const [isExpanded, setIsExpanded] = useState(false)
 
-  const visibleVarieties = normalizedKeyword
+  const searchResults = normalizedKeyword
     ? [
         ...varieties
           .filter((variety) => matchesOwnSearchText(variety, normalizedKeyword))
@@ -142,10 +144,19 @@ export function MikanPicker({
             && matchesRelatedSearchText(variety, varieties, normalizedKeyword)
           )
           .sort((a, b) => a.name.localeCompare(b.name, 'ja')),
-      ].slice(0, maxResults)
+      ]
+    : []
+
+  const hasMoreResults = normalizedKeyword && searchResults.length > maxResults
+  const compactResultCount = hasMoreResults ? Math.max(maxResults - 1, 1) : maxResults
+
+  const visibleVarieties = normalizedKeyword
+    ? (isExpanded ? searchResults : searchResults.slice(0, compactResultCount))
     : DEFAULT_MIKAN_LABELS
       .map((label) => varieties.find((variety) => matchesLabel(variety, label)))
       .filter((variety): variety is Variety => Boolean(variety))
+
+  const hiddenResultCount = Math.max(searchResults.length - visibleVarieties.length, 0)
 
   return (
     <div className={styles.picker}>
@@ -157,11 +168,14 @@ export function MikanPicker({
           placeholder={placeholder}
           value={keyword}
           className={styles.searchInput}
-          onChange={(event) => onKeywordChange(event.target.value)}
+          onChange={(event) => {
+            setIsExpanded(false)
+            onKeywordChange(event.target.value)
+          }}
         />
       </div>
 
-      <div className={styles.varietyGrid}>
+      <div className={`${styles.varietyGrid} ${isExpanded ? styles.expandedGrid : ''}`}>
         {visibleVarieties.map((variety) => {
           const isSelected = selectedIdSet.has(variety.id)
 
@@ -186,7 +200,31 @@ export function MikanPicker({
             </button>
           )
         })}
+
+        {!isExpanded && hasMoreResults && (
+          <button
+            type="button"
+            className={styles.moreCard}
+            onClick={() => setIsExpanded(true)}
+            aria-label={`残り${hiddenResultCount}件の検索結果を表示`}
+          >
+            <Icon icon="mdi:plus-circle-outline" aria-hidden="true" />
+            <span>+{hiddenResultCount}件</span>
+            <small>もっと見る</small>
+          </button>
+        )}
       </div>
+
+      {isExpanded && hasMoreResults && (
+        <button
+          type="button"
+          className={styles.collapseButton}
+          onClick={() => setIsExpanded(false)}
+        >
+          <Icon icon="mdi:chevron-up" aria-hidden="true" />
+          折りたたむ
+        </button>
+      )}
 
       {visibleVarieties.length === 0 && (
         <p className={styles.noResult}>該当する品種が見つかりません</p>
