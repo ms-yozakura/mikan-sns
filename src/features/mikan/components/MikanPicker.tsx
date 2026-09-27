@@ -64,17 +64,25 @@ function getRelatedSearchTexts(variety: Variety, varieties: Variety[]) {
   return related
 }
 
-function getSearchRank(variety: Variety, varieties: Variety[], normalizedKeyword: string) {
-  const ownTexts = getOwnSearchTexts(variety).map(normalize)
-  const relatedTexts = getRelatedSearchTexts(variety, varieties).map(normalize)
+function matchesOwnSearchText(variety: Variety, normalizedKeyword: string) {
+  return getOwnSearchTexts(variety)
+    .some((value) => normalize(value).includes(normalizedKeyword))
+}
 
-  if (normalize(variety.name) === normalizedKeyword) return 0
+function matchesRelatedSearchText(variety: Variety, varieties: Variety[], normalizedKeyword: string) {
+  return getRelatedSearchTexts(variety, varieties)
+    .some((value) => normalize(value).includes(normalizedKeyword))
+}
+
+function ownMatchRank(variety: Variety, normalizedKeyword: string) {
+  const normalizedName = normalize(variety.name)
+  const ownTexts = getOwnSearchTexts(variety).map(normalize)
+
+  if (normalizedName === normalizedKeyword) return 0
   if (ownTexts.some((value) => value === normalizedKeyword)) return 1
-  if (normalize(variety.name).startsWith(normalizedKeyword)) return 2
+  if (normalizedName.startsWith(normalizedKeyword)) return 2
   if (ownTexts.some((value) => value.startsWith(normalizedKeyword))) return 3
-  if (ownTexts.some((value) => value.includes(normalizedKeyword))) return 4
-  if (relatedTexts.some((value) => value.includes(normalizedKeyword))) return 5
-  return Number.POSITIVE_INFINITY
+  return 4
 }
 
 export function getResultLabel(variety: Variety, normalizedKeyword: string) {
@@ -121,15 +129,20 @@ export function MikanPicker({
   const selectedIdSet = new Set(selectedIds)
 
   const visibleVarieties = normalizedKeyword
-    ? varieties
-      .map((variety) => ({
-        variety,
-        rank: getSearchRank(variety, varieties, normalizedKeyword),
-      }))
-      .filter(({ rank }) => Number.isFinite(rank))
-      .sort((a, b) => a.rank - b.rank || a.variety.name.localeCompare(b.variety.name, 'ja'))
-      .slice(0, maxResults)
-      .map(({ variety }) => variety)
+    ? [
+        ...varieties
+          .filter((variety) => matchesOwnSearchText(variety, normalizedKeyword))
+          .sort((a, b) =>
+            ownMatchRank(a, normalizedKeyword) - ownMatchRank(b, normalizedKeyword)
+            || a.name.localeCompare(b.name, 'ja')
+          ),
+        ...varieties
+          .filter((variety) =>
+            !matchesOwnSearchText(variety, normalizedKeyword)
+            && matchesRelatedSearchText(variety, varieties, normalizedKeyword)
+          )
+          .sort((a, b) => a.name.localeCompare(b.name, 'ja')),
+      ].slice(0, maxResults)
     : DEFAULT_MIKAN_LABELS
       .map((label) => varieties.find((variety) => matchesLabel(variety, label)))
       .filter((variety): variety is Variety => Boolean(variety))
