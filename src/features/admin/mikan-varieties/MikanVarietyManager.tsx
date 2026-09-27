@@ -32,9 +32,21 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
   const [message, setMessage] = useState('')
   const [saving, setSaving] = useState(false)
 
-  const filtered = varieties.filter(v =>
-    [v.name, v.reading, ...(v.aliases ?? [])].some(x => x?.toLowerCase().includes(keyword.toLowerCase()))
-  )
+  const normalizedAdminKeyword = keyword.trim().toLocaleLowerCase('ja-JP')
+  const filtered = normalizedAdminKeyword
+    ? [...varieties]
+      .filter(v =>
+        [v.name, v.reading, ...(v.aliases ?? []), ...(v.alias_readings ?? [])]
+          .some(x => x?.toLocaleLowerCase('ja-JP').includes(normalizedAdminKeyword))
+      )
+      .sort((a, b) => {
+        const aName = a.name.toLocaleLowerCase('ja-JP')
+        const bName = b.name.toLocaleLowerCase('ja-JP')
+        const aExact = aName === normalizedAdminKeyword ? 0 : 1
+        const bExact = bName === normalizedAdminKeyword ? 0 : 1
+        return aExact - bExact || a.name.localeCompare(b.name, 'ja')
+      })
+    : varieties
 
   function select(v: Variety) {
     setSelectedId(v.id)
