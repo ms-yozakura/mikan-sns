@@ -168,17 +168,6 @@ function ParentVarietyPicker({
               )}
             </div>
           )}
-
-          {!selected && !isSearching && (
-            <button type="button" className={styles.parentEmptyButton} onClick={startSearching}>
-              <Icon icon="mdi:magnify" aria-hidden="true" />
-              親品種を検索して選択
-            </button>
-          )}
-
-          {!selected && isSearching && !normalizedKeyword && (
-            <p className={styles.parentHint}>文字を入力すると候補を最大8件表示します</p>
-          )}
         </div>
       )}
     </div>
