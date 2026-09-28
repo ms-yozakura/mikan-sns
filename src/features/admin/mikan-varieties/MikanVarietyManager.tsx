@@ -6,7 +6,6 @@ import styles from './MikanVarietyManager.module.css'
 import { getResultLabel } from '@/features/mikan/components/MikanPicker'
 import { MikanIcon } from '@/features/mikan/components/MikanIcon'
 import { Icon } from '@iconify/react'
-import { normalize } from 'path'
 import { Variety } from '@/features/mikan/types/Variety'
 
 const empty = {
@@ -23,6 +22,169 @@ const empty = {
   variety_type: 'cultivar',
 }
 
+function normalizeText(value: string) {
+  return value
+    .normalize('NFKC')
+    .trim()
+    .toLocaleLowerCase('ja-JP')
+    .replace(/[ァ-ヶ]/g, (character) =>
+      String.fromCharCode(character.charCodeAt(0) - 0x60)
+    )
+}
+
+function ParentVarietyPicker({
+  label,
+  varieties,
+  selectedId,
+  excludedIds = [],
+  onlyCultivars = false,
+  onChange,
+}: {
+  label: string
+  varieties: Variety[]
+  selectedId: string
+  excludedIds?: string[]
+  onlyCultivars?: boolean
+  onChange: (id: string) => void
+}) {
+  const [keyword, setKeyword] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
+  const selected = varieties.find((variety) => variety.id === selectedId)
+  const normalizedKeyword = normalizeText(keyword)
+  const excludedIdSet = new Set(excludedIds)
+
+  const candidates = varieties
+    .filter((variety) =>
+      !excludedIdSet.has(variety.id)
+      && (!onlyCultivars || variety.variety_type === 'cultivar')
+    )
+    .filter((variety) => {
+      if (!normalizedKeyword) return false
+      return [
+        variety.name,
+        variety.reading,
+        ...(variety.aliases ?? []),
+        ...(variety.alias_readings ?? []),
+      ]
+        .filter((value): value is string => Boolean(value))
+        .some((value) => normalizeText(value).includes(normalizedKeyword))
+    })
+    .sort((a, b) => {
+      const aName = normalizeText(a.name)
+      const bName = normalizeText(b.name)
+      const aRank = aName === normalizedKeyword ? 0 : aName.startsWith(normalizedKeyword) ? 1 : 2
+      const bRank = bName === normalizedKeyword ? 0 : bName.startsWith(normalizedKeyword) ? 1 : 2
+      return aRank - bRank || a.name.localeCompare(b.name, 'ja')
+    })
+    .slice(0, 8)
+
+  function startSearching() {
+    setKeyword('')
+    setIsSearching(true)
+  }
+
+  function choose(id: string) {
+    onChange(id)
+    setKeyword('')
+    setIsSearching(false)
+  }
+
+  return (
+    <div className={styles.parentField}>
+      <div className={styles.parentFieldHeader}>
+        <span>{label}</span>
+        {selected && !isSearching && (
+          <button type="button" className={styles.parentChangeButton} onClick={startSearching}>
+            <Icon icon="mdi:pencil-outline" aria-hidden="true" />
+            変更
+          </button>
+        )}
+      </div>
+
+      {selected && !isSearching ? (
+        <div className={styles.selectedParent}>
+          <MikanIcon color={selected.color} shape={selected.shape} size={36} />
+          <div className={styles.selectedParentText}>
+            <strong>{selected.name}</strong>
+            {selected.reading && <span>{selected.reading}</span>}
+          </div>
+          <button
+            type="button"
+            className={styles.parentClearButton}
+            onClick={() => choose('')}
+            aria-label={`${label}を解除`}
+          >
+            <Icon icon="mdi:close" aria-hidden="true" />
+          </button>
+        </div>
+      ) : (
+        <div className={styles.parentPicker}>
+          <div className={styles.parentSearchBox}>
+            <Icon icon="mdi:magnify" aria-hidden="true" />
+            <input
+              type="search"
+              value={keyword}
+              autoFocus={isSearching}
+              placeholder="品種名・読み・別名で検索"
+              onFocus={() => setIsSearching(true)}
+              onChange={(event) => {
+                setKeyword(event.target.value)
+                setIsSearching(true)
+              }}
+            />
+            {(keyword || isSearching) && (
+              <button
+                type="button"
+                className={styles.parentSearchClose}
+                onClick={() => {
+                  setKeyword('')
+                  setIsSearching(false)
+                }}
+                aria-label="検索を閉じる"
+              >
+                <Icon icon="mdi:close" aria-hidden="true" />
+              </button>
+            )}
+          </div>
+
+          {isSearching && normalizedKeyword && (
+            <div className={styles.parentResults}>
+              {candidates.length > 0 ? candidates.map((variety) => (
+                <button
+                  type="button"
+                  key={variety.id}
+                  className={styles.parentResult}
+                  onClick={() => choose(variety.id)}
+                >
+                  <MikanIcon color={variety.color} shape={variety.shape} size={34} />
+                  <span className={styles.parentResultText}>
+                    <strong>{variety.name}</strong>
+                    {variety.aliases?.length ? <small>{variety.aliases.join(' / ')}</small> : null}
+                  </span>
+                  <Icon icon="mdi:chevron-right" aria-hidden="true" />
+                </button>
+              )) : (
+                <p className={styles.parentNoResult}>該当する品種がありません</p>
+              )}
+            </div>
+          )}
+
+          {!selected && !isSearching && (
+            <button type="button" className={styles.parentEmptyButton} onClick={startSearching}>
+              <Icon icon="mdi:magnify" aria-hidden="true" />
+              親品種を検索して選択
+            </button>
+          )}
+
+          {!selected && isSearching && !normalizedKeyword && (
+            <p className={styles.parentHint}>文字を入力すると候補を最大8件表示します</p>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Variety[] }) {
   const supabase = useMemo(() => createClient(), [])
   const [varieties, setVarieties] = useState(initialVarieties)
@@ -32,16 +194,16 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
   const [message, setMessage] = useState('')
   const [saving, setSaving] = useState(false)
 
-  const normalizedAdminKeyword = keyword.trim().toLocaleLowerCase('ja-JP')
+  const normalizedAdminKeyword = normalizeText(keyword)
   const filtered = normalizedAdminKeyword
     ? [...varieties]
       .filter(v =>
         [v.name, v.reading, ...(v.aliases ?? []), ...(v.alias_readings ?? [])]
-          .some(x => x?.toLocaleLowerCase('ja-JP').includes(normalizedAdminKeyword))
+          .some(x => x && normalizeText(x).includes(normalizedAdminKeyword))
       )
       .sort((a, b) => {
-        const aName = a.name.toLocaleLowerCase('ja-JP')
-        const bName = b.name.toLocaleLowerCase('ja-JP')
+        const aName = normalizeText(a.name)
+        const bName = normalizeText(b.name)
         const aExact = aName === normalizedAdminKeyword ? 0 : 1
         const bExact = bName === normalizedAdminKeyword ? 0 : 1
         return aExact - bExact || a.name.localeCompare(b.name, 'ja')
@@ -135,8 +297,6 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
     setMessage(isVisible ? '再表示しました' : '非表示にしました')
   }
 
-  const normalizedKeyword = normalize(keyword)
-
   return <div className={styles.layout}>
     <section className={styles.list}>
       <div className={styles.listHeader}>
@@ -154,7 +314,7 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
             </div>
             <div>
               <span className={styles.name}>
-                {getResultLabel(v, normalizedKeyword)}
+                {getResultLabel(v, normalizedAdminKeyword)}
                 {v.variety_type === 'brand' && <span className={styles.brandBadge}>ブランド</span>}
                 {!v.is_visible && <span className={styles.hiddenBadge}>非表示</span>}
               </span>
@@ -186,8 +346,26 @@ export function MikanVarietyManager({ initialVarieties }: { initialVarieties: Va
       <label>別名の読み（カンマ区切り）<input value={form.alias_readings} onChange={e => setForm({ ...form, alias_readings: e.target.value })} /></label>
       <div className={styles.row}><label>色<input type="color" value={form.color} onChange={e => setForm({ ...form, color: e.target.value })} /></label><label>形<select value={form.shape} onChange={e => setForm({ ...form, shape: e.target.value })}>{['normal', 'round', 'flat', 'egg', 'deko', 'unknown'].map(x => <option key={x}>{x}</option>)}</select></label></div>
       <label>種別<select value={form.variety_type} onChange={e => setForm({ ...form, variety_type: e.target.value })}><option value="cultivar">cultivar</option><option value="intermediate">intermediate</option><option value="unknown">unknown</option><option value="brand">brand</option></select></label>
-      <label>{form.variety_type === 'brand' ? '親品種' : '親1'}<select value={form.parent1_id} onChange={e => setForm({ ...form, parent1_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId && (form.variety_type !== 'brand' || v.variety_type === 'cultivar')).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>
-      {form.variety_type !== 'brand' && <label>親2<select value={form.parent2_id} onChange={e => setForm({ ...form, parent2_id: e.target.value })}><option value="">なし</option>{varieties.filter(v => v.id !== selectedId).map(v => <option key={v.id} value={v.id}>{v.name}</option>)}</select></label>}
+
+      <ParentVarietyPicker
+        label={form.variety_type === 'brand' ? '親品種' : '親1'}
+        varieties={varieties}
+        selectedId={form.parent1_id}
+        excludedIds={[selectedId ?? '', form.parent2_id].filter(Boolean)}
+        onlyCultivars={form.variety_type === 'brand'}
+        onChange={(parent1_id) => setForm({ ...form, parent1_id })}
+      />
+
+      {form.variety_type !== 'brand' && (
+        <ParentVarietyPicker
+          label="親2"
+          varieties={varieties}
+          selectedId={form.parent2_id}
+          excludedIds={[selectedId ?? '', form.parent1_id].filter(Boolean)}
+          onChange={(parent2_id) => setForm({ ...form, parent2_id })}
+        />
+      )}
+
       <label>説明<textarea rows={4} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} /></label>
       <button className={styles.save} disabled={saving} onClick={save}>{saving ? '保存中…' : '保存'}</button>
       {selectedId && (
