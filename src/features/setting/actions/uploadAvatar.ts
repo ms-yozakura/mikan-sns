@@ -32,7 +32,7 @@ export async function uploadAvatar(formData: FormData) {
 
   const input = new Uint8Array(await file.arrayBuffer())
   const options = { limitInputPixels: MAX_AVATAR_PIXELS, failOn: "error" as const }
-  let metadata: sharp.Metadata
+  let metadata: { format?: string; width?: number; height?: number }
   try {
     metadata = await sharp(input, options).metadata()
   } catch {
